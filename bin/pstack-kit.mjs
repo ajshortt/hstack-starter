@@ -34,6 +34,7 @@ const LABELS = {
   "seed-exists": "ok (yours)",
   "deleted-locally": "skip (deleted locally)",
   orphan: "orphan",
+  forget: "forget",
 };
 
 function parseArgs(argv) {
@@ -67,6 +68,7 @@ function report(result, { json, wrote }) {
   const quiet = result.actions.filter((a) => a.kind === "unchanged" || a.kind === "seed-exists").length;
   console.log(`  ${"ok".padEnd(width)}  ${quiet} files already match or are yours\n`);
   if (!wrote) console.log(pending.length ? `Dry run. ${pending.length} pending. Re-run with --write to apply.` : "Up to date.");
+  else if (!pending.length) console.log("Up to date. Nothing written.");
   else console.log(`Applied. Review with \`git status\`, then commit${pending.some((a) => a.kind === "conflict") ? " after merging the staged files" : ""}.`);
 }
 

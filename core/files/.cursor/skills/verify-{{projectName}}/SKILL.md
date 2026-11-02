@@ -61,5 +61,5 @@ Every drive command appends to `.verify/evidence/<run-id>/transcript.jsonl`. `do
 
 - `control.mjs` is managed by pstack-kit. Fix harness gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
 - `verify.config.json` holds `launch`, `baseUrl`, `ready`, `doctor` probes, and driver settings.
-- `smoke.json` holds journeys. A step is one step kind (`request`, `run`, `log`, `file`, or a driver step) with optional `expect`, `save`, `retry` and `label`. `expect` compares fields of the result: `status`, `json` (the response body), `headers`, `exitCode`, `stdout`, `value`, `rows`, `matched`. `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{!runId}}`, `{{!shortId}}`, `{{!port}}` and `{{!baseUrl}}` are substituted.
+- `smoke.json` holds journeys. A step is one step kind (`request`, `run`, `log`, `file`, or a driver step) with optional `expect`, `save`, `retry` and `label`. `expect` compares fields of the result: `status`, `json` (the response body), `headers`, `exitCode`, `stdout`, `value`, `rows`, `matched`. `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{!runId}}` (slug-safe: lowercase letters and digits), `{{!port}}`, `{{!baseUrl}}` and `{{!runDir}}` are substituted.
 - `features/` is the feature map. Read `features/README.md` before driving.

@@ -11,7 +11,7 @@ This directory is the maintained source for verifying the user-facing behavior o
 ## Driving conventions
 
 - Start every recipe from the baseline state unless its preconditions say otherwise.
-- Use names and IDs that include the run ID (`{{!shortId}}` in journeys) so concurrent runs do not collide.
+- Use names and IDs that include the run ID (`{{!runId}}` in journeys, lowercase letters and digits only) so concurrent runs do not collide.
 - Drive the entry points a user or upstream system uses: routes, commands, jobs, events. Read results back through the same interfaces or a read-only query.
 - Poll async side effects with a timeout (`retry` in a journey step). Do not sleep and hope.
 

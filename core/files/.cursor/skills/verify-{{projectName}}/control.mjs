@@ -158,6 +158,7 @@ function context(run) {
     run,
     projectRoot: PROJECT_ROOT,
     skillDir: SKILL_DIR,
+    vars: runVars(run),
     env: CHILD_ENV,
     UsageError,
     render,
@@ -194,7 +195,8 @@ async function step(run, spec, vars) {
 }
 
 function runVars(run) {
-  return { runId: run.runId, shortId: run.runId.toLowerCase().replace(/[^a-z0-9]/g, "").slice(-10), port: run.port, baseUrl: run.baseUrl ?? "", runDir: run.runDir, projectRoot: PROJECT_ROOT };
+  // runId is the slug-safe form (lowercase letters and digits), so journeys can put it in names, slugs and keys.
+  return { runId: run.runId.toLowerCase().replace(/[^a-z0-9]/g, "").slice(-10), port: run.port, baseUrl: run.baseUrl ?? "", runDir: run.runDir, projectRoot: PROJECT_ROOT };
 }
 
 async function waitReady(run, child, timeoutMs) {

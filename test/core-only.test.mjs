@@ -83,7 +83,7 @@ test("core-only apply on a Python repo works, is idempotent, and its checks and 
           feature: "greet",
           steps: [
             { label: "http", request: { path: "/ada" }, expect: { status: 200, json: { greeting: "hello ada" } } },
-            { label: "cli", run: { command: "python3 -c \"from greeter import greet; print(greet('{{shortId}}'))\"" }, expect: { exitCode: 0, stdout: "$match:^hello " } },
+            { label: "cli", run: { command: "python3 -c \"from greeter import greet; print(greet('{{runId}}'))\"" }, expect: { exitCode: 0, stdout: "$match:^hello " } },
             { label: "file", file: { path: "pyproject.toml" }, expect: { exists: true } },
           ],
         },

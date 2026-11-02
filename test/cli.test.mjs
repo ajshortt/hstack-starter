@@ -197,7 +197,13 @@ test("files the kit stopped shipping are reported as orphans", () => {
   const lock = JSON.parse(readFileSync(lockFile, "utf8"));
   lock.files[".github/workflows/worker-ci.yml"] = { mode: "managed", hash: "x" };
   writeFileSync(lockFile, JSON.stringify(lock));
+  writeFileSync(join(target, ".github/workflows/worker-ci.yml"), "old\n");
   assert.equal(kinds(plan(target))[".github/workflows/worker-ci.yml"], "orphan");
+  execFileSync("rm", [join(target, ".github/workflows/worker-ci.yml")]);
+  assert.equal(kinds(plan(target))[".github/workflows/worker-ci.yml"], "forget");
+  apply(target);
+  assert.equal(JSON.parse(read(target, ".pstack-kit/lock.json")).files[".github/workflows/worker-ci.yml"], undefined);
+  assert.equal(pendingActions(plan(target)).length, 0);
 });
 
 test("nested projects put shared files at the git root with a scoped workflow", () => {
