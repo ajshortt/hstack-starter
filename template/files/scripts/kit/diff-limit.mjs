@@ -23,12 +23,14 @@ export function globToRegExp(glob) {
   return new RegExp(`^${re}$`);
 }
 
+export const renamedPath = (path) => (path.includes("{") ? path.replace(/\{[^}]*? => ([^}]*)\}/, "$1").replace(/\/\//g, "/") : path.replace(/^.* => /, ""));
+
 export function countDiff(numstat, exclude, generated = new Set()) {
   const patterns = exclude.map(globToRegExp);
   const files = [];
   for (const line of numstat.split("\n").filter(Boolean)) {
     const [added, deleted, ...rest] = line.split("\t");
-    const path = rest.join("\t").replace(/^.*=> /, "").replace(/[{}]/g, "");
+    const path = renamedPath(rest.join("\t"));
     const binary = added === "-";
     const excluded = binary || generated.has(path) || patterns.some((re) => re.test(path));
     files.push({ path, changed: binary ? 0 : Number(added) + Number(deleted), excluded });
@@ -57,7 +59,7 @@ function main() {
   const git = (...args) => execFileSync("git", args, { cwd: PROJECT_ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 
   const numstat = git("diff", "--numstat", "-M", `${base}...HEAD`);
-  const paths = numstat.split("\n").filter(Boolean).map((l) => l.split("\t").slice(2).join("\t").replace(/^.*=> /, "").replace(/[{}]/g, ""));
+  const paths = numstat.split("\n").filter(Boolean).map((l) => renamedPath(l.split("\t").slice(2).join("\t")));
   const generated = new Set();
   if (paths.length) {
     const attrs = execFileSync("git", ["check-attr", "linguist-generated", "--stdin"], { cwd: git("rev-parse", "--show-toplevel").trim(), input: paths.join("\n"), encoding: "utf8" });

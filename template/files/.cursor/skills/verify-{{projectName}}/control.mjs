@@ -106,6 +106,15 @@ export function subsetMismatch(expected, actual, path = "$") {
   return null;
 }
 
+const parseMaybeJson = (text) => {
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 const pick = (obj, path) => path.split(".").reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
 
 function freePort() {
@@ -211,11 +220,7 @@ async function fetchJson(run, method, path, { json, headers = {} } = {}) {
     body: json === undefined ? undefined : JSON.stringify(json),
     signal: AbortSignal.timeout(15000),
   });
-  const text = await response.text();
-  let body = text;
-  try {
-    body = JSON.parse(text);
-  } catch {}
+  const body = parseMaybeJson(await response.text());
   return { status: response.status, headers: Object.fromEntries(response.headers), body, ms: Date.now() - started };
 }
 
@@ -334,7 +339,9 @@ async function stop(flags) {
     if (run.pid && isAlive(run.pid) && (cmdlineOf(run.pid) ?? "").includes(`--port ${run.port}`)) {
       try {
         process.kill(-run.pid, "SIGTERM");
-      } catch {}
+      } catch (error) {
+        if (error.code !== "ESRCH") throw error;
+      }
       for (let i = 0; i < 50 && isAlive(run.pid); i++) await new Promise((r) => setTimeout(r, 100));
       if (isAlive(run.pid)) process.kill(-run.pid, "SIGKILL");
     }
@@ -354,22 +361,8 @@ async function step(run, spec, vars) {
   }
   if (s.scheduled) return fetchJson(run, "GET", `/cdn-cgi/handler/scheduled?cron=${encodeURIComponent(s.scheduled.cron ?? "* * * * *")}`);
   if (s.d1) return { rows: await d1(run, s.d1.binding, s.d1.sql) };
-  if (s.kv) {
-    const value = await kvGet(run, s.kv.binding, s.kv.key);
-    let parsed = value;
-    try {
-      parsed = value === null ? null : JSON.parse(value);
-    } catch {}
-    return { value: parsed };
-  }
-  if (s.r2) {
-    const value = await r2Get(run, s.r2.binding, s.r2.key);
-    let parsed = value;
-    try {
-      parsed = value === null ? null : JSON.parse(value);
-    } catch {}
-    return { value: parsed };
-  }
+  if (s.kv) return { value: parseMaybeJson(await kvGet(run, s.kv.binding, s.kv.key)) };
+  if (s.r2) return { value: parseMaybeJson(await r2Get(run, s.r2.binding, s.r2.key)) };
   if (s.log) {
     const log = readFileSync(run.log, "utf8");
     return { matched: new RegExp(s.log.pattern).test(log) };

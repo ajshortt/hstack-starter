@@ -57,5 +57,5 @@ Every drive command appends to `.verify/evidence/<run-id>/transcript.jsonl`. `do
 
 - `control.mjs` is managed by pstack-kit. Fix harness gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
 - `verify.config.json` holds the ready check, `--var` overrides, seed files and doctor probes.
-- `smoke.json` holds journeys. A step is one of `request`, `scheduled`, `d1`, `kv`, `r2` or `log`, with `expect` (`status`, `json`, `headers`, `rows`, `value`, `matched`), optional `save` and `retry`. In `expect`, `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{runId}}`, `{{port}}` and `{{baseUrl}}` are substituted.
+- `smoke.json` holds journeys. A step is one of `request`, `scheduled`, `d1`, `kv`, `r2` or `log`, with `expect` (`status`, `json`, `headers`, `rows`, `value`, `matched`), optional `save` and `retry`. In `expect`, `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{!runId}}`, `{{!port}}` and `{{!baseUrl}}` are substituted.
 - `features/` is the feature map. Read `features/README.md` before driving.

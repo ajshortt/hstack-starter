@@ -44,6 +44,17 @@ To drive the Worker by hand, read `.cursor/skills/{{verifySkill}}/SKILL.md` and 
 - Fill every section of `.github/pull_request_template.md`. Reviewers read Evidence first.
 - Models: cheaper models by default per `.cursor/rules/pstack-models.mdc`. Use frontier models only when a human asks.
 
+## Context sources
+
+`/why` and `/recall` search these. Link to them from PRs and plans; do not copy them in.
+
+| Source | Where |
+|---|---|
+| Linear | <team key and project, e.g. `WEB` / "Shortlinks"> |
+| Notion | <space or page for specs and decisions> |
+| Slack | <team channel; incident channel> |
+| Owners | {{owners}} (also in `.github/CODEOWNERS`) |
+
 ## Autonomy
 
 Agents build, verify and open PRs on their own. A human merges every PR. Deploys, secrets, remote D1, KV or R2, and production DNS always stop for a human. The full table is in `.cursor/rules/autonomy.mdc`; `.cursor/hooks/pstack-kit-guard.mjs` blocks the shell forms.
