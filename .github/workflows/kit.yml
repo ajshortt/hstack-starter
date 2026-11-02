@@ -1,0 +1,51 @@
+name: kit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: kit tests (CLI and template scripts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm test
+
+  vendor:
+    name: vendored pstack matches the pin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Require owner approval when the pin changes
+        id: scope
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --quiet "origin/${{ github.base_ref }}...HEAD" -- vendor .cursor-plugin; then
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag=--require-approval" >> "$GITHUB_OUTPUT"
+          fi
+      - run: node scripts/vendor-pstack.mjs check ${{ steps.scope.outputs.flag }}
+
+  example-in-sync:
+    name: example matches the templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: node bin/pstack-kit.mjs status --target examples/shortlinks
