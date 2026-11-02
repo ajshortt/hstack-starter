@@ -1,0 +1,3 @@
+{
+  "config:blocklist": ["evil.example", "phish.example"]
+}

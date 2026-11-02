@@ -1,0 +1,34 @@
+{
+  "name": "shortlinks",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example Cloudflare Worker with the pstack kit applied: short links on D1, KV, R2, a Queue, a Durable Object and a cron.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "types": "wrangler types",
+    "types:check": "wrangler types --check",
+    "typecheck": "wrangler types --check && tsc --noEmit",
+    "lint": "eslint . && node scripts/kit/check-agents-rules.mjs && node scripts/kit/check-plans.mjs",
+    "test": "vitest run",
+    "verify": "node .cursor/skills/verify-shortlinks/control.mjs",
+    "verify:smoke": "node .cursor/skills/verify-shortlinks/control.mjs smoke",
+    "check": "npm run typecheck && npm run lint && npm test && npm run verify:smoke"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.4.12",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "globals": "17.14.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5",
+    "wrangler": "4.156.1"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "journeys": [
+    {
+      "feature": "health",
+      "steps": [
+        { "label": "health reports every binding", "request": { "path": "/health" }, "expect": { "status": 200, "json": { "ok": true, "checks": { "d1": { "ok": true }, "kv": { "ok": true }, "r2": { "ok": true } } } } }
+      ]
+    },
+    {
+      "feature": "create-link",
+      "steps": [
+        { "label": "create with custom slug", "request": { "method": "POST", "path": "/api/links", "json": { "url": "https://example.com/smoke/{{runId}}", "slug": "smoke-{{runId}}" } }, "expect": { "status": 201, "json": { "slug": "smoke-{{runId}}", "shortUrl": "{{baseUrl}}/r/smoke-{{runId}}" } } },
+        { "label": "row persisted in D1", "d1": { "binding": "DB", "sql": "SELECT slug, url FROM links WHERE slug = 'smoke-{{runId}}'" }, "expect": { "rows": [{ "slug": "smoke-{{runId}}", "url": "https://example.com/smoke/{{runId}}" }] } },
+        { "label": "duplicate slug rejected", "request": { "method": "POST", "path": "/api/links", "json": { "url": "https://example.org", "slug": "smoke-{{runId}}" } }, "expect": { "status": 409, "json": { "error": "slug_taken" } } },
+        { "label": "seeded blocklist host rejected", "request": { "method": "POST", "path": "/api/links", "json": { "url": "https://phish.example/login" } }, "expect": { "status": 422, "json": { "error": "host_blocked", "detail": { "host": "phish.example" } } } },
+        { "label": "non-http url rejected", "request": { "method": "POST", "path": "/api/links", "json": { "url": "ftp://example.com/file" } }, "expect": { "status": 400, "json": { "error": "invalid_input" } } }
+      ]
+    },
+    {
+      "feature": "redirect",
+      "steps": [
+        { "label": "seeded slug redirects", "request": { "path": "/r/docs" }, "expect": { "status": 302, "headers": { "location": "https://developers.cloudflare.com/workers/" } } },
+        { "label": "redirect populated the KV cache", "kv": { "binding": "LINK_CACHE", "key": "link:docs" }, "expect": { "value": "https://developers.cloudflare.com/workers/" } },
+        { "label": "second click", "request": { "path": "/r/docs" }, "expect": { "status": 302 } },
+        { "label": "Durable Object counted both clicks", "request": { "path": "/api/links/docs/stats" }, "expect": { "status": 200, "json": { "slug": "docs", "clicks": 2 } } },
+        { "label": "unknown slug is 404", "request": { "path": "/r/does-not-exist" }, "expect": { "status": 404 } }
+      ]
+    },
+    {
+      "feature": "archive-queue",
+      "steps": [
+        { "label": "create enqueues link.created", "request": { "method": "POST", "path": "/api/links", "json": { "url": "https://example.com/archive/{{runId}}", "slug": "arch-{{runId}}" } }, "expect": { "status": 201 } },
+        { "label": "consumer marked the row archived", "retry": { "timeoutMs": 15000, "intervalMs": 500 }, "d1": { "binding": "DB", "sql": "SELECT archived_at FROM links WHERE slug = 'arch-{{runId}}'" }, "expect": { "rows": [{ "archived_at": "$present" }] } },
+        { "label": "consumer wrote the R2 snapshot", "r2": { "binding": "ARCHIVE", "key": "archive/links/arch-{{runId}}.json" }, "expect": { "value": { "slug": "arch-{{runId}}", "url": "https://example.com/archive/{{runId}}" } } },
+        { "label": "consumer logged the archive", "log": { "pattern": "archived link arch-{{runId}}" }, "expect": { "matched": true } }
+      ]
+    },
+    {
+      "feature": "report-cron",
+      "steps": [
+        { "label": "no report before the cron fires", "request": { "path": "/api/reports/latest" }, "expect": { "status": 404, "json": { "error": "no_report_yet" } } },
+        { "label": "fire the hourly cron", "scheduled": { "cron": "0 * * * *" }, "expect": { "status": 200 } },
+        { "label": "report counts seeded and created links", "request": { "path": "/api/reports/latest" }, "expect": { "status": 200, "json": { "totalLinks": 4, "archivedLinks": 3, "generatedAt": "$match:^\\d{4}-\\d{2}-\\d{2}T" } } },
+        { "label": "report cached in KV", "kv": { "binding": "LINK_CACHE", "key": "report:latest" }, "expect": { "value": { "totalLinks": 4 } } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shortlinks",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-15",
+  "observability": { "enabled": true },
+  "vars": {
+    "PUBLIC_BASE_URL": "http://localhost:8787"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shortlinks",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [{ "binding": "LINK_CACHE", "id": "00000000000000000000000000000000" }],
+  "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "shortlinks-archive" }],
+  "queues": {
+    "producers": [{ "binding": "LINK_EVENTS", "queue": "shortlinks-events" }],
+    "consumers": [{ "queue": "shortlinks-events", "max_batch_size": 10, "max_batch_timeout": 1 }]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "LINK_COUNTER", "class_name": "LinkCounter" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LinkCounter"] }],
+  "triggers": { "crons": ["0 * * * *"] }
+}
