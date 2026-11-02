@@ -1,0 +1,15 @@
+{
+  "name": "pstack",
+  "version": "0.15.36",
+  "upstreamRepo": "https://github.com/cursor/plugins.git",
+  "upstreamPath": "pstack",
+  "upstreamCommit": "ae5650febf4320793844c12c4adaa937f417f8da",
+  "upstreamTree": "4719e1c4b4c43bac85d4206a8b41dd2899769c1c",
+  "vendoredAt": "2026-11-02",
+  "review": {
+    "owner": "Alex",
+    "approvedBy": null,
+    "notes": "Initial pin. Agent pre-review recorded in docs/pstack-upgrades.md#initial-pin-review; owner sign-off pending.",
+    "checklist": "docs/pstack-upgrades.md"
+  }
+}

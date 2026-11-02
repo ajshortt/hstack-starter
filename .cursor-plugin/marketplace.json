@@ -1,0 +1,17 @@
+{
+  "name": "pstack-kit",
+  "owner": {
+    "name": "Engineering enablement"
+  },
+  "metadata": {
+    "description": "Team marketplace serving pstack at a reviewed, pinned version. Import this repo as a Cursor team marketplace and set pstack to Required."
+  },
+  "plugins": [
+    {
+      "name": "pstack",
+      "source": "vendor/pstack",
+      "version": "0.15.36",
+      "description": "pstack 0.15.36 by Lauren Tan (MIT), vendored byte-for-byte from cursor/plugins. Bumps follow docs/pstack-upgrades.md."
+    }
+  ]
+}
