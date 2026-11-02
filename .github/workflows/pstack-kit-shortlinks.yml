@@ -1,0 +1,68 @@
+# Managed by pstack-kit. A thin wrapper: every check is defined in .pstack-kit/checks/*.json and run by
+# scripts/kit/checks.mjs, which any CI system can call the same way. Add or change checks there, not here.
+name: pstack-kit (shortlinks)
+
+on:
+  pull_request:
+    paths: ["examples/shortlinks/**", ".github/workflows/pstack-kit-shortlinks.yml"]
+  push:
+    branches: [main]
+    paths: ["examples/shortlinks/**", ".github/workflows/pstack-kit-shortlinks.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: examples/shortlinks
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    outputs:
+      checks: ${{ steps.list.outputs.checks }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - id: list
+        run: echo "checks=$(node scripts/kit/checks.mjs list --json --event ${{ github.event_name }})" >> "$GITHUB_OUTPUT"
+
+  check:
+    name: check (${{ matrix.check }})
+    needs: plan
+    if: needs.plan.outputs.checks != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJSON(needs.plan.outputs.checks) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: setup
+        run: node scripts/kit/checks.mjs setup
+      - name: ${{ matrix.check }}
+        run: node scripts/kit/checks.mjs run ${{ matrix.check }}
+      - name: Evidence summary
+        if: always()
+        run: cat .verify/evidence/*/summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: evidence-shortlinks-${{ matrix.check }}
+          path: examples/shortlinks/.verify/evidence/
+          if-no-files-found: ignore
+          retention-days: 14

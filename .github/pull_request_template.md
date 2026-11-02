@@ -9,23 +9,23 @@ Plan: <!-- docs/plans/active/<file>.md or "none" -->
 
 ## Evidence
 
-<!-- Proof on the real Worker, not "tests pass". Paste the verification skill's summary.md table, the commands you ran, and read-backs of the state that changed. Name the evidence directory or CI artifact. -->
+<!-- Proof on the running system, not "tests pass". Paste the verification skill's summary.md table, the commands you ran, and read-backs of the state that changed. Name the evidence directory or CI artifact. -->
 
 - Verification run: <!-- .verify/evidence/<run-id>/ or the CI "verify-evidence" artifact -->
-- Journeys driven: <!-- feature map entries exercised, e.g. create-link, archive-queue -->
+- Journeys driven: <!-- feature map entries exercised -->
 - Tests added or changed: <!-- file and case -->
 
 ## Risk
 
-<!-- What could break, for whom, and how we would notice. Tick every area this PR touches. Reviewers read these files in full. -->
+<!-- What could break, for whom, and how we would notice. Tick every area this PR touches. Reviewers read these files in full. Your stack's specifics are in AGENTS.md. -->
 
 - [ ] None of the areas below
-- [ ] `wrangler.jsonc` (bindings, routes, crons, compatibility date or flags)
-- [ ] D1 migrations
-- [ ] Durable Object classes or their migrations
-- [ ] Queue producers or consumers (at-least-once, idempotency)
+- [ ] Runtime or deploy configuration (environment, bindings, routes, schedules, infrastructure code)
+- [ ] Database schema or data migrations
+- [ ] Background work: queues, jobs, schedules, retries (at-least-once, idempotency)
 - [ ] Auth, input parsing, or anything handling untrusted data
-- [ ] Agent policy (`AGENTS.md`, `.cursor/`, `.github/`, `scripts/kit/`)
+- [ ] Dependencies added, removed or upgraded
+- [ ] Agent policy (`AGENTS.md`, `.cursor/`, `.github/`, `.pstack-kit/`, `scripts/kit/`)
 
 Rollback: <!-- how to undo after deploy, e.g. "revert; no data migration" -->
 
@@ -39,4 +39,4 @@ Rollback: <!-- how to undo after deploy, e.g. "revert; no data migration" -->
 ## Human gates
 
 - [ ] A human reviewed the evidence and the risky files and merges this PR.
-- [ ] Deploy, secrets, remote D1 or DNS steps after merge are listed here for a human to run: <!-- or "none" -->
+- [ ] Deploy, secrets, remote data, infrastructure or DNS steps after merge are listed here for a human to run: <!-- or "none" -->

@@ -1,13 +1,31 @@
 #!/usr/bin/env node
 // Managed by pstack-kit. Counts changed lines in a PR and warns above the review limit.
 // Usage: node scripts/kit/diff-limit.mjs [--base origin/main] [--limit 400] [--fail]
+// Excludes lock files, files marked linguist-generated, adapter "diffExclude" globs and diffLimit.exclude in .pstack-kit/config.json.
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadChecks } from "./checks.mjs";
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const DEFAULT_EXCLUDE = ["**/package-lock.json", "**/pnpm-lock.yaml", "**/yarn.lock", "**/bun.lock", "**/worker-configuration.d.ts", "**/*.snap", "**/vendor/**"];
+export const DEFAULT_EXCLUDE = [
+  "**/package-lock.json",
+  "**/pnpm-lock.yaml",
+  "**/yarn.lock",
+  "**/bun.lock",
+  "**/bun.lockb",
+  "**/poetry.lock",
+  "**/uv.lock",
+  "**/Pipfile.lock",
+  "**/Cargo.lock",
+  "**/go.sum",
+  "**/Gemfile.lock",
+  "**/composer.lock",
+  "**/mix.lock",
+  "**/*.snap",
+  "**/vendor/**",
+];
 
 export function globToRegExp(glob) {
   let re = "";
@@ -54,10 +72,16 @@ function main() {
   const configPath = join(PROJECT_ROOT, ".pstack-kit", "config.json");
   const config = existsSync(configPath) ? JSON.parse(readFileSync(configPath, "utf8")).diffLimit ?? {} : {};
   const limit = Number(flags.limit ?? config.lines ?? 400);
-  const exclude = [...DEFAULT_EXCLUDE, ...(config.exclude ?? [])];
+  const exclude = [...DEFAULT_EXCLUDE, ...loadChecks(PROJECT_ROOT).diffExclude, ...(config.exclude ?? [])];
   const base = flags.base ?? (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : "origin/main");
   const git = (...args) => execFileSync("git", args, { cwd: PROJECT_ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 
+  try {
+    git("rev-parse", "--verify", "--quiet", `${base}^{commit}`);
+  } catch {
+    console.log(`diff-limit: base ${base} does not exist here, so there is nothing to measure. Fetch it or pass --base <ref>.`);
+    return;
+  }
   const numstat = git("diff", "--numstat", "-M", `${base}...HEAD`);
   const paths = numstat.split("\n").filter(Boolean).map((l) => renamedPath(l.split("\t").slice(2).join("\t")));
   const generated = new Set();

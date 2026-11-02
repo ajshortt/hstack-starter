@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 // Managed by pstack-kit. Fails when a row in AGENTS.md's rule table does not name a real enforcer.
-// Enforcer tokens (in backticks): a repo path, `ci:<job>`, `lint:<rule>`, `hook:<rule-id>`, or `docs-only` (allowed, warned).
-import { execFileSync } from "node:child_process";
+// Enforcer tokens (in backticks): a repo path, `ci:<check-id>` (from .pstack-kit/checks), `hook:<rule-id>` (the guard),
+// `docs-only` (allowed, warned), or `<kind>:<name>` for a kind an adapter provides under "enforcers" (for example `lint:`).
+import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadChecks } from "./checks.mjs";
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const KIND = /^([a-z][a-z0-9-]*):(?!\/)(.+)$/;
 
 export function parseRuleTable(markdown) {
   const lines = markdown.split("\n");
@@ -22,24 +25,27 @@ export function parseRuleTable(markdown) {
   return rows;
 }
 
-export function checkRows(rows, { pathExists, ciJobs, lintRules, hookRules }) {
+export function checkRows(rows, { pathExists, ciChecks, hookRules, enforcers = {} }) {
   const errors = [];
   const warnings = [];
   for (const row of rows) {
     const tokens = [...row.enforcer.matchAll(/`([^`]+)`/g)].map((m) => m[1].trim());
     if (tokens.length === 0) {
-      errors.push(`AGENTS.md:${row.line} "${row.rule}" names no enforcer. Put a path, \`ci:<job>\`, \`lint:<rule>\`, \`hook:<id>\` or \`docs-only\` in backticks.`);
+      errors.push(`AGENTS.md:${row.line} "${row.rule}" names no enforcer. Put a path, \`ci:<check>\`, \`hook:<id>\`, an adapter enforcer such as \`lint:<rule>\`, or \`docs-only\` in backticks.`);
       continue;
     }
     for (const token of tokens) {
+      const kind = token.match(KIND);
       if (token === "docs-only") warnings.push(`AGENTS.md:${row.line} "${row.rule}" is docs-only. Nothing fails when an agent skips it; run /correct if it repeats.`);
-      else if (token.startsWith("ci:")) {
-        if (!ciJobs.has(token.slice(3))) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a job in .github/workflows. Jobs: ${[...ciJobs].join(", ") || "none"}.`);
-      } else if (token.startsWith("lint:")) {
-        if (!lintRules(token.slice(5))) errors.push(`AGENTS.md:${row.line} \`${token}\` is not configured in eslint.config.js or eslint.workers.js.`);
-      } else if (token.startsWith("hook:")) {
-        if (!hookRules.has(token.slice(5))) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a rule id in .cursor/hooks/pstack-kit-guard.mjs.`);
-      } else if (!pathExists(token.replace(/[#:].*$/, ""))) {
+      else if (kind?.[1] === "ci") {
+        if (!ciChecks.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a check in .pstack-kit/checks. Checks: ${[...ciChecks].join(", ") || "none"}.`);
+      } else if (kind?.[1] === "hook") {
+        if (!hookRules.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a rule id in the guard (.cursor/hooks/pstack-kit-guard.mjs and its rules/ packs).`);
+      } else if (kind && enforcers[kind[1]]) {
+        if (!enforcers[kind[1]].has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not ${enforcers[kind[1]].describe ?? `a known ${kind[1]} enforcer`}.`);
+      } else if (kind && !pathExists(token.replace(/[#:].*$/, ""))) {
+        errors.push(`AGENTS.md:${row.line} \`${token}\`: no adapter provides \`${kind[1]}:\` enforcers. Kinds available: ci, hook${Object.keys(enforcers).length ? `, ${Object.keys(enforcers).join(", ")}` : ""}.`);
+      } else if (!kind && !pathExists(token.replace(/#.*$/, ""))) {
         errors.push(`AGENTS.md:${row.line} \`${token}\` does not exist. Fix the path or name a different enforcer.`);
       }
     }
@@ -47,23 +53,25 @@ export function checkRows(rows, { pathExists, ciJobs, lintRules, hookRules }) {
   return { errors, warnings };
 }
 
-let lintCache;
-function enabledLintRules() {
-  if (lintCache) return lintCache;
-  lintCache = new Set();
-  const sample = ["src/index.ts", "src/worker.ts", "src/main.ts"].find((f) => existsSync(join(PROJECT_ROOT, f)));
-  if (!sample) return lintCache;
-  try {
-    const eslint = join(PROJECT_ROOT, "node_modules", ".bin", "eslint");
-    const out = execFileSync(eslint, ["--print-config", sample], { cwd: PROJECT_ROOT, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
-    for (const [rule, setting] of Object.entries(JSON.parse(out).rules ?? {})) {
-      const level = Array.isArray(setting) ? setting[0] : setting;
-      if (level === 2 || level === "error") lintCache.add(rule);
+function guardRuleIds(gitRoot) {
+  const hooksDir = join(gitRoot, ".cursor", "hooks");
+  const packDir = join(hooksDir, "pstack-kit-guard.rules");
+  const files = [join(hooksDir, "pstack-kit-guard.mjs"), ...(existsSync(packDir) ? readdirSync(packDir).filter((f) => f.endsWith(".mjs")).map((f) => join(packDir, f)) : [])];
+  return new Set(files.filter(existsSync).flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\bid: "([^"]+)"/g)].map((m) => m[1])));
+}
+
+function adapterEnforcers(spec) {
+  const out = {};
+  for (const [kind, { list, describe }] of Object.entries(spec.enforcers ?? {})) {
+    let names = [];
+    try {
+      names = JSON.parse(execSync(list, { cwd: PROJECT_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 16 * 1024 * 1024 }));
+    } catch (error) {
+      console.error(`Could not list \`${kind}:\` enforcers with \`${list}\`: ${String(error.message).split("\n")[0]}`);
     }
-  } catch (error) {
-    console.error(`Could not resolve ESLint config for ${sample}: ${error.message.split("\n")[0]}`);
+    out[kind] = Object.assign(new Set(names), { describe });
   }
-  return lintCache;
+  return out;
 }
 
 function main() {
@@ -79,21 +87,12 @@ function main() {
     return;
   }
   const gitRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: PROJECT_ROOT, encoding: "utf8" }).trim();
-  const workflowsDir = join(gitRoot, ".github", "workflows");
-  const ciJobs = new Set();
-  for (const file of existsSync(workflowsDir) ? readdirSync(workflowsDir) : []) {
-    const text = readFileSync(join(workflowsDir, file), "utf8");
-    const jobsAt = text.search(/^jobs:\s*$/m);
-    if (jobsAt === -1) continue;
-    for (const m of text.slice(jobsAt).matchAll(/^ {2}([A-Za-z0-9_-]+):\s*$/gm)) ciJobs.add(m[1]);
-  }
-  const guardPath = join(gitRoot, ".cursor", "hooks", "pstack-kit-guard.mjs");
-  const hookRules = new Set(existsSync(guardPath) ? [...readFileSync(guardPath, "utf8").matchAll(/\bid: "([^"]+)"/g)].map((m) => m[1]) : []);
+  const spec = loadChecks(PROJECT_ROOT);
   const { errors, warnings } = checkRows(rows, {
     pathExists: (p) => existsSync(join(PROJECT_ROOT, p)) || existsSync(join(gitRoot, p)),
-    ciJobs,
-    lintRules: (name) => enabledLintRules().has(name),
-    hookRules,
+    ciChecks: new Set(spec.checks.map((c) => c.id)),
+    hookRules: guardRuleIds(gitRoot),
+    enforcers: adapterEnforcers(spec),
   });
   for (const w of warnings) console.log(`warning: ${w}`);
   for (const e of errors) console.error(`error: ${e}`);

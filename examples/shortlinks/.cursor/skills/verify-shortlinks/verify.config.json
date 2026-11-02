@@ -1,15 +1,18 @@
 {
   "app": "shortlinks",
-  "wranglerConfig": "wrangler.jsonc",
-  "ready": { "path": "/health", "expectStatus": 200, "expectJson": { "ok": true, "checks": { "d1": { "links": 2 } } } },
-  "vars": { "PUBLIC_BASE_URL": "http://127.0.0.1:{{port}}" },
-  "seed": {
-    "d1": [{ "binding": "DB", "file": "seed/d1.sql" }],
-    "kv": [{ "binding": "LINK_CACHE", "file": "seed/kv.json" }]
-  },
-  "doctor": {
-    "d1": [{ "name": "seeded links", "binding": "DB", "sql": "SELECT slug FROM links WHERE slug IN ('docs', 'pstack') ORDER BY slug", "expect": [{ "slug": "docs" }, { "slug": "pstack" }] }],
-    "kv": [{ "binding": "LINK_CACHE", "key": "config:blocklist" }]
-  },
-  "smoke": "smoke.json"
+  "driver": "driver.mjs",
+  "ready": { "request": { "path": "/health" }, "expect": { "status": 200, "json": { "ok": true, "checks": { "d1": { "links": 2 } } } } },
+  "doctor": [
+    { "name": "seeded links", "d1": { "binding": "DB", "sql": "SELECT slug FROM links WHERE slug IN ('docs', 'pstack') ORDER BY slug" }, "expect": { "rows": [{ "slug": "docs" }, { "slug": "pstack" }] } },
+    { "name": "seeded blocklist", "kv": { "binding": "LINK_CACHE", "key": "config:blocklist" }, "expect": { "value": "$present" } }
+  ],
+  "smoke": "smoke.json",
+  "workers": {
+    "wranglerConfig": "wrangler.jsonc",
+    "vars": { "PUBLIC_BASE_URL": "http://127.0.0.1:{{port}}" },
+    "seed": {
+      "d1": [{ "binding": "DB", "file": "seed/d1.sql" }],
+      "kv": [{ "binding": "LINK_CACHE", "file": "seed/kv.json" }]
+    }
+  }
 }

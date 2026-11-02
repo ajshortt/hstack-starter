@@ -1,6 +1,9 @@
 {
   "projectName": "shortlinks",
   "phase": 2,
+  "adapters": [
+    "workers"
+  ],
   "owners": "@hugeinc/REPLACE-WITH-TEAM",
   "nodeVersion": "22",
   "diffLimit": {

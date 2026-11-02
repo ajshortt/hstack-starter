@@ -19,11 +19,11 @@ Seed data: links `docs` (archived) and `pstack` (not archived), and the blocklis
 
 ## Launch
 
-`start` creates an isolated run under `.verify/runs/<run-id>/`. It applies every D1 migration with `--local`, loads the seed data from `verify.config.json`, then launches `wrangler dev --local --test-scheduled` on a free port and a free inspector port. It is ready when `ready.path` returns `ready.expectJson`, which must prove usable data, not only an open port. Two runs can live side by side. Pass `--run <id>` to address one that is not the latest.
+`start` creates an isolated run under `.verify/runs/<run-id>/`. It applies every D1 migration with `--local`, loads the seed data from `verify.config.json`, then launches `wrangler dev --local --test-scheduled` on a free port and a free inspector port. It is ready when the `ready` step in `verify.config.json` passes its `expect`, which must prove usable data, not only an open port. Two runs can live side by side. Pass `--run <id>` to address one that is not the latest.
 
 ## Doctor
 
-Run `doctor` first, and again after any surprising result. It is read-only. It checks that the process is the one this harness started on this port, that the ready route returns the expected body, that every binding declared in the wrangler config is loaded and in `local` mode, that no D1 migration is pending, that the seed data in `doctor` is present, and that `compatibility_date` is not in the future. Do not drive an instance whose doctor fails.
+Run `doctor` first, and again after any surprising result. It is read-only. It checks that the process is the one this harness started on this port, that the ready route returns the expected body, that every binding declared in the wrangler config is loaded and in `local` mode, that no D1 migration is pending, that the seed probes in `doctor` pass, and that `compatibility_date` is not in the future. Do not drive an instance whose doctor fails.
 
 ## Drive
 
@@ -49,11 +49,11 @@ Every drive command appends to `.verify/evidence/<run-id>/transcript.jsonl`. `do
 
 ## Cleanup
 
-`stop` kills only the process group this harness started, after checking its command line contains the run's port. It deletes the run's persisted state and keeps `.verify/evidence/<run-id>/`. `stop --all` stops every run under `.verify/runs/`. Never kill `workerd` or `wrangler` by name.
+`stop` kills only the process group this harness started, after checking the process start time recorded at launch. It deletes the run's persisted state and keeps `.verify/evidence/<run-id>/`. `stop --all` stops every run under `.verify/runs/`. Never kill `workerd` or `wrangler` by name.
 
 ## Helpers
 
-- `control.mjs` is managed by pstack-kit. Fix harness gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
-- `verify.config.json` holds the ready check, `--var` overrides, seed files and doctor probes.
-- `smoke.json` holds journeys. A step is one of `request`, `scheduled`, `d1`, `kv`, `r2` or `log`, with `expect` (`status`, `json`, `headers`, `rows`, `value`, `matched`), optional `save` and `retry`. In `expect`, `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{runId}}`, `{{port}}` and `{{baseUrl}}` are substituted.
+- `control.mjs` (the stack-neutral harness) and `driver.mjs` (the workers adapter's `wrangler dev --local` driver) are managed by pstack-kit. `DRIVER.md` documents the driver. Fix gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
+- `verify.config.json` holds the ready step, doctor probes, and under `workers` the wrangler config, `--var` overrides and seed files.
+- `smoke.json` holds journeys. A step is one of `request`, `run`, `log`, `file` (core) or `scheduled`, `d1`, `kv`, `r2` (driver), with `expect` (`status`, `json`, `headers`, `rows`, `value`, `matched`, `exitCode`, `stdout`), optional `save` and `retry`. In `expect`, `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{runId}}`, `{{port}}` and `{{baseUrl}}` are substituted.
 - `features/` is the feature map. Read `features/README.md` before driving.
