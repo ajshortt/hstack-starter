@@ -1,6 +1,9 @@
-# Seeded by pstack-kit. Agent policy and verification changes need the owners' review.
-/examples/shortlinks/AGENTS.md @hugeinc/shortlinks-owners
-/examples/shortlinks/.cursor/ @hugeinc/shortlinks-owners
-/examples/shortlinks/.pstack-kit/ @hugeinc/shortlinks-owners
-/examples/shortlinks/scripts/kit/ @hugeinc/shortlinks-owners
-/.github/ @hugeinc/shortlinks-owners
+# Seeded by pstack-kit. Apply will not overwrite this file.
+# PLACEHOLDER TEAM: @hugeinc/REPLACE-WITH-TEAM is not a code owner until that team exists.
+# The kit ships @hugeinc/REPLACE-WITH-TEAM, which is not a real team.
+# Replace it before turning on required code owner review, or review requests go nowhere.
+/examples/shortlinks/AGENTS.md @hugeinc/REPLACE-WITH-TEAM
+/examples/shortlinks/.cursor/ @hugeinc/REPLACE-WITH-TEAM
+/examples/shortlinks/.pstack-kit/ @hugeinc/REPLACE-WITH-TEAM
+/examples/shortlinks/scripts/kit/ @hugeinc/REPLACE-WITH-TEAM
+/.github/ @hugeinc/REPLACE-WITH-TEAM

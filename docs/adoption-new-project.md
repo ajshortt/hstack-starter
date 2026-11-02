@@ -24,10 +24,14 @@ npx wrangler types
 
 ## 3. Apply the kit
 
+Sign in to Origin once, as in the [README](../README.md#apply-or-update), then:
+
 ```bash
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --owners "@<org>/<team>"           # read the plan
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --owners "@<org>/<team>" --write
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM"
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM" --write
 ```
+
+`@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review. The example in this repo keeps the placeholder on purpose.
 
 ## 4. Wire the project files to the kit
 
@@ -85,5 +89,5 @@ Follow [engineer-bot.md](engineer-bot.md). Its first job is a `/maintain-verific
 
 - `npm run check` passes locally and in CI on the first PR.
 - The first PR's description includes the smoke `summary.md` table.
-- `npx --yes github:<org>/pstack-kit#v0.1.0 status --target .` prints `Up to date.`
+- `npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 status --target .` prints `Up to date.`
 - The engineer bot's daily routine is scheduled.

@@ -53,7 +53,7 @@ To drive the Worker by hand, read `.cursor/skills/verify-shortlinks/SKILL.md` an
 | Linear | Team `KIT`, project "pstack kit" |
 | Notion | "Agentic engineering / pstack kit" page |
 | Slack | `#eng-pstack-kit` |
-| Owners | @hugeinc/shortlinks-owners (also in `.github/CODEOWNERS`) |
+| Owners | @hugeinc/REPLACE-WITH-TEAM (placeholder, not a real team; also in `.github/CODEOWNERS`) |
 
 ## Autonomy
 

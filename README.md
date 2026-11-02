@@ -26,12 +26,29 @@ Alternatives we rejected: a git submodule or subtree (files must sit at fixed pa
 
 ### Apply or update
 
+The kit is the private Origin repo [hugeinc/pstack-kit](https://cursor.com/codebase/hugeinc/pstack-kit). npm's `github:` installer only talks to GitHub, so install from the Origin git URL instead. The repo is private: git has to be signed in to Origin before `npx` can clone it.
+
+Once per machine:
+
 ```bash
-# From the project root (or the Worker's directory in a monorepo).
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target .            # dry run: shows what would change
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --write    # writes files, .pstack-kit/config.json and .pstack-kit/lock.json
-npx --yes github:<org>/pstack-kit#v0.1.0 status --target .           # exit 1 if the project is behind the kit
+curl -fsSL https://downloads.cursor.com/origin/install.sh | sh
+origin auth login       # signs in and installs the git credential helper
+origin auth setup-git   # run this if login did not configure git
 ```
+
+`origin auth login` covers HTTPS (`https://origin.cursor.com/hugeinc/pstack-kit.git`). To use SSH instead, register a key with `origin ssh-key add ~/.ssh/id_ed25519.pub` and call `npx` with `git+ssh://git@origin.cursor.com/hugeinc/pstack-kit.git`. Confirm the host key fingerprint on the [clone docs](https://cursor.com/docs/origin/git) before accepting it.
+
+From the project root, or from the Worker's directory in a monorepo:
+
+```bash
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target .            # dry run
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --write    # writes files, .pstack-kit/config.json and lock.json
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 status --target .           # exit 1 when the project is behind the kit
+```
+
+`#v0.1.0` is the release tag. Drop the fragment to track the default branch. A newer kit release is a new tag; projects change the tag in this command.
+
+`--owners` sets the CODEOWNERS team. `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 
 `apply` is safe to re-run. Each file has a mode:
 
@@ -42,7 +59,7 @@ npx --yes github:<org>/pstack-kit#v0.1.0 status --target .           # exit 1 if
 | `json-merge` (`.cursor/settings.json`) | Adds the kit's keys | Adds missing keys only. Your values win. |
 | `lines` (`.gitignore`) | Appends missing lines | Appends missing lines |
 
-Flags: `--name <worker>` (defaults to `package.json` name), `--phase 0|1|2` (how much of the kit to install, see below; never goes down), `--owners "@org/team"` (CODEOWNERS), `--json`.
+Flags: `--name <worker>` (defaults to `package.json` name), `--phase 0|1|2` (how much of the kit to install, see below; never goes down), `--owners "@hugeinc/<team>"` (CODEOWNERS; the shipped example uses the placeholder `@hugeinc/REPLACE-WITH-TEAM`), `--json`.
 
 The kit detects the git root. In a monorepo, the hooks, `.github/` files and cloud-agent environment go to the git root and the CI workflow is named `worker-ci-<name>.yml` with path filters for that Worker.
 
@@ -91,7 +108,7 @@ scripts/vendor-pstack.mjs     check (tree hash and approval) and bump
 examples/shortlinks/          Worker with the kit applied: D1, KV, R2, Queue, Durable Object, cron
 .github/workflows/kit.yml     CI for this repo: kit tests, vendor check, example in sync
 .github/workflows/worker-ci-shortlinks.yml  The kit's Worker CI, applied to the example
-docs/                         Adoption, upgrades, models, engineer bot, review, GitHub settings
+docs/                         Adoption, CI on Origin, upgrades, models, engineer bot, review, GitHub settings
 test/                         node:test suites for the CLI and the template scripts
 ```
 
@@ -105,7 +122,9 @@ node bin/pstack-kit.mjs apply --target examples/shortlinks --write   # after edi
 cd examples/shortlinks && npm ci && npm run check && npm run verify:smoke
 ```
 
-A template change ships as: edit `template/files/`, re-apply to the example, run the example's checks and smoke, bump `version` in `package.json`, tag `vX.Y.Z`. Projects pick it up by changing the tag in their `apply` command.
+A template change ships as: edit `template/files/`, re-apply to the example, run the example's checks and smoke, bump `version` in `package.json`, tag `vX.Y.Z` and push the tag. Projects pick it up by changing the tag in their `apply` command.
+
+The workflows in `.github/workflows/` do not run on Origin by themselves. What has to be connected is in [docs/ci.md](docs/ci.md). Until then, `npm test` and `cd examples/shortlinks && npm run check` are the checks.
 
 ## Future phase: Slack → Linear → draft PR
 

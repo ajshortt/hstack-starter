@@ -1,7 +1,7 @@
 ---
 title: Let links expire
 status: proposed
-owner: "@hugeinc/shortlinks-owners"
+owner: "@hugeinc/REPLACE-WITH-TEAM"
 linear: none
 created: 2026-11-02
 updated: 2026-11-02

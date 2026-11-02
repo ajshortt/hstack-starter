@@ -1,6 +1,8 @@
 # GitHub settings for a kit project
 
-The hook guard stops agents from running merge, deploy and secret commands, but hooks can be bypassed by anything outside Cursor. GitHub is the real merge boundary. Configure these once per repository; an org admin can apply them to every Workers repo with a ruleset.
+These settings are for a Worker repo whose source of truth is GitHub. The kit itself lives on Origin, and Origin does not run the workflows it ships. What has to be connected for `hugeinc/pstack-kit` is in [ci.md](ci.md). A project hosted on Origin uses an Origin ruleset the same way, once Depot or Buildkite is posting checks.
+
+The hook guard stops agents from running merge, deploy and secret commands, but hooks can be bypassed by anything outside Cursor. The forge is the real merge boundary. Configure these once per repository; an org admin can apply them to every Workers repo with a ruleset.
 
 ## Branch protection (or a ruleset) on the default branch
 

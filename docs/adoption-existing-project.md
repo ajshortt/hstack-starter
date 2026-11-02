@@ -6,10 +6,10 @@ Before you start, pick one owner for the project's adoption and one Worker to go
 
 ## Phase 0: pilot (`--phase 0`)
 
-Goal: try pstack on real work with the guardrails on and nothing else changed.
+Goal: try pstack on real work with the guardrails on and nothing else changed. Sign in to the private Origin repo first ([README](../README.md#apply-or-update)).
 
 ```bash
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --phase 0 --write
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --phase 0 --write
 ```
 
 This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/settings.json`. The build, CI and review process are untouched.
@@ -23,10 +23,10 @@ This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/setti
 Goal: an agent can start the Worker from empty and prove a change on it.
 
 ```bash
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --phase 1 --owners "@<org>/<team>" --write
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --phase 1 --owners "@hugeinc/REPLACE-WITH-TEAM" --write
 ```
 
-This adds the verification skill draft, the cloud-agent environment, `tsconfig.kit.json`, the CI workflow, the PR template, CODEOWNERS and the diff-limit script. If the repo already has a CODEOWNERS file, the kit leaves it alone.
+This adds the verification skill draft, the cloud-agent environment, `tsconfig.kit.json`, the CI workflow, the PR template, CODEOWNERS and the diff-limit script. If the repo already has a CODEOWNERS file, the kit leaves it alone. `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team: pass the team's actual handle. Sign-in for the private Origin repo is in the [README](../README.md#apply-or-update).
 
 1. **Fix "doesn't start from empty".** `wrangler dev --local` must start with only `npm ci` and the files in the repo. Typical fixes: commit the D1 migrations, replace a dependency on a remote binding with a local one, move required secrets into `.dev.vars.example` with dev-only values.
 2. **Add Vitest in `workerd`** if the project has no tests, using `@cloudflare/vitest-plugin` as in the example. Before refactoring anything, add characterization tests for current behavior.
@@ -42,7 +42,7 @@ Exit when `npm run verify:smoke` passes in CI on every PR and the engineer bot h
 Goal: turn what reviewers keep repeating into checks.
 
 ```bash
-npx --yes github:<org>/pstack-kit#v0.1.0 apply --target . --write
+npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.1.0 apply --target . --write
 ```
 
 This adds `AGENTS.md` (only if you do not have one), `workers.mdc`, `eslint.workers.js`, the rule-table and plan checks, and `docs/plans/`.
