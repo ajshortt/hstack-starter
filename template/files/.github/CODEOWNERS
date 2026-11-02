@@ -1,0 +1,6 @@
+# Seeded by pstack-kit. Agent policy and verification changes need the owners' review.
+/{{workdirPrefix}}AGENTS.md {{owners}}
+/{{workdirPrefix}}.cursor/ {{owners}}
+/{{workdirPrefix}}.pstack-kit/ {{owners}}
+/{{workdirPrefix}}scripts/kit/ {{owners}}
+/.github/ {{owners}}

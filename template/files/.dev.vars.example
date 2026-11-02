@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# Use local or test values only. Production secrets are set by a human with `wrangler secret put`.
