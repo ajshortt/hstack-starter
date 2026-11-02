@@ -1,24 +1,82 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
-import { decideMcp, decideShell } from "../template/files/.cursor/hooks/pstack-kit-guard.mjs";
-import { countDiff, globToRegExp } from "../template/files/scripts/kit/diff-limit.mjs";
-import { checkRows, parseRuleTable } from "../template/files/scripts/kit/check-agents-rules.mjs";
-import { checkPlan } from "../template/files/scripts/kit/check-plans.mjs";
-import { declaredBindings, parseBindingTable, parseJsonc, subsetMismatch } from "../template/files/.cursor/skills/verify-{{projectName}}/control.mjs";
+import { CORE_MCP_RULES, CORE_RULES, decideMcp, decideShell, loadRules } from "../core/files/.cursor/hooks/pstack-kit-guard.mjs";
+import { countDiff, DEFAULT_EXCLUDE, globToRegExp } from "../core/files/scripts/kit/diff-limit.mjs";
+import { checkRows, parseRuleTable } from "../core/files/scripts/kit/check-agents-rules.mjs";
+import { checkPlan } from "../core/files/scripts/kit/check-plans.mjs";
+import { mergeChecks, selectChecks } from "../core/files/scripts/kit/checks.mjs";
+import { judge, render, subsetMismatch } from "../core/files/.cursor/skills/verify-{{projectName}}/control.mjs";
+import { declaredBindings, parseBindingTable, parseJsonc } from "../adapters/workers/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
+import * as workersPack from "../adapters/workers/files/.cursor/hooks/pstack-kit-guard.rules/workers.mjs";
 
-test("guard blocks every always-pause action", () => {
+const WORKERS_SHELL = [...CORE_RULES, ...workersPack.RULES];
+const WORKERS_MCP = [...CORE_MCP_RULES, ...workersPack.MCP_RULES];
+
+test("core guard blocks the stack-neutral always-pause actions", () => {
   const blocked = {
     "gh pr merge 12 --squash": "merge",
     "gh pr merge --auto 12": "merge",
     "gh pr review 12 --approve": "merge",
     "origin pr merge 4": "merge",
-    "npx wrangler deploy": "deploy",
-    "wrangler versions deploy 1@100%": "deploy",
+    "glab mr merge 7": "merge",
     "npm run deploy": "deploy",
-    "wrangler rollback": "deploy",
-    "echo $TOKEN | npx wrangler secret put API_KEY": "secrets",
-    "wrangler secret bulk secrets.json": "secrets",
-    "gh secret set CLOUDFLARE_API_TOKEN": "secrets",
+    "pnpm deploy": "deploy",
+    "make deploy": "deploy",
+    "make build deploy ENV=prod": "deploy",
+    "fly deploy": "deploy",
+    "vercel deploy --prod": "deploy",
+    "gcloud run deploy api --image x": "deploy",
+    "serverless deploy --stage prod": "deploy",
+    "git push heroku main": "deploy",
+    "gh secret set API_TOKEN": "secrets",
+    "vault kv put secret/app key=v": "secrets",
+    "aws secretsmanager put-secret-value --secret-id x": "secrets",
+    "kubectl create secret generic db --from-literal=p=x": "secrets",
+    "terraform apply -auto-approve": "infra",
+    "pulumi up --yes": "infra",
+    "kubectl apply -f deploy.yaml": "infra",
+    "helm upgrade api ./chart": "infra",
+    "git push --force origin feature": "shared-history",
+    "git push origin main": "shared-history",
+    "git push origin HEAD:main": "shared-history",
+    "npm test && npm run deploy": "deploy",
+    'git commit -m "x" && make deploy': "deploy",
+  };
+  for (const [command, rule] of Object.entries(blocked)) assert.equal(decideShell(command)?.id, rule, command);
+});
+
+test("core guard allows ordinary local work in any stack", () => {
+  for (const command of [
+    "npm ci",
+    "pip install -r requirements.txt",
+    "pytest -q",
+    "cargo test",
+    "go test ./...",
+    "make test",
+    "terraform plan",
+    "kubectl get pods",
+    "node scripts/kit/checks.mjs run --all",
+    "node .cursor/skills/verify-api/control.mjs smoke",
+    "git push -u origin cursor/fix-redirect",
+    "git push --force-with-lease origin cursor/fix-redirect",
+    'git commit -m "document why make deploy is human-only"',
+    "gh pr create --fill",
+    "grep -rn 'npm run deploy' docs",
+  ]) {
+    assert.equal(decideShell(command), null, command);
+  }
+});
+
+test("workers rule pack adds the Wrangler and Cloudflare forms", () => {
+  const blocked = {
+    "npx wrangler deploy": "deploy-workers",
+    "wrangler versions deploy 1@100%": "deploy-workers",
+    "wrangler rollback": "deploy-workers",
+    "echo $TOKEN | npx wrangler secret put API_KEY": "secrets-workers",
+    "wrangler secret bulk secrets.json": "secrets-workers",
     "npx wrangler d1 execute DB --remote --command 'DELETE FROM links'": "remote-data",
     "wrangler d1 migrations apply DB --remote": "remote-data",
     "wrangler d1 delete shortlinks": "remote-data",
@@ -27,47 +85,37 @@ test("guard blocks every always-pause action", () => {
     "wrangler d1 execute DB --command 'select 1'": "implicit-remote",
     "wrangler kv key put --binding CACHE k v": "implicit-remote",
     "curl -X POST https://api.cloudflare.com/client/v4/zones/abc/dns_records": "dns",
-    "terraform apply -auto-approve": "dns",
-    "git push --force origin feature": "shared-history",
-    "git push origin main": "shared-history",
-    "git push origin HEAD:main": "shared-history",
-    "npm test && wrangler deploy": "deploy",
-    'git commit -m "x" && wrangler deploy': "deploy",
+    "npm test && wrangler deploy": "deploy-workers",
   };
-  for (const [command, rule] of Object.entries(blocked)) assert.equal(decideShell(command)?.id, rule, command);
-});
-
-test("guard allows ordinary local work", () => {
-  for (const command of [
-    "npm ci",
-    "npx vitest run",
-    "npx wrangler dev --local --port 4000",
-    "npx wrangler types --check",
-    "wrangler d1 execute DB --local --persist-to .verify/x --command 'select 1'",
-    "wrangler d1 migrations apply DB --local",
-    "node .cursor/skills/verify-api/control.mjs smoke",
-    "git push -u origin cursor/fix-redirect",
-    "git push --force-with-lease origin cursor/fix-redirect",
-    'git commit -m "document why wrangler deploy is human-only"',
-    "gh pr create --fill",
-    "gh pr view 12 --comments",
-    "grep -rn 'wrangler deploy' docs",
-  ]) {
-    assert.equal(decideShell(command), null, command);
+  for (const [command, rule] of Object.entries(blocked)) {
+    assert.equal(decideShell(command, WORKERS_SHELL)?.id, rule, command);
+    assert.equal(decideShell(command), null, `core alone does not know ${command}`);
+  }
+  for (const command of ["npx wrangler dev --local --port 4000", "npx wrangler types --check", "wrangler d1 execute DB --local --persist-to .verify/x --command 'select 1'", "wrangler d1 migrations apply DB --local"]) {
+    assert.equal(decideShell(command, WORKERS_SHELL), null, command);
   }
 });
 
-test("guard blocks Cloudflare MCP writes and any MCP merge", () => {
-  assert.equal(decideMcp({ mcp_server_name: "Cloudflare-bindings", tool_name: "d1_database_query" })?.id, "mcp-cloudflare-write");
-  assert.equal(decideMcp({ mcp_server_name: "Cloudflare-builds", tool_name: "workers_builds_list" }), null);
+test("guard MCP rules: any merge in core, Cloudflare writes in the workers pack", () => {
   assert.equal(decideMcp({ mcp_server_name: "Linear", tool_name: "merge_diff" })?.id, "mcp-merge");
   assert.equal(decideMcp({ mcp_server_name: "Linear", tool_name: "save_issue" }), null);
+  assert.equal(decideMcp({ mcp_server_name: "Cloudflare-bindings", tool_name: "d1_database_query" }), null);
+  assert.equal(decideMcp({ mcp_server_name: "Cloudflare-bindings", tool_name: "d1_database_query" }, WORKERS_MCP)?.id, "mcp-cloudflare-write");
+  assert.equal(decideMcp({ mcp_server_name: "Cloudflare-builds", tool_name: "workers_builds_list" }, WORKERS_MCP), null);
 });
 
-test("diff limit excludes lock, generated, vendored and binary files", () => {
-  assert.ok(globToRegExp("**/package-lock.json").test("package-lock.json"));
-  assert.ok(globToRegExp("**/package-lock.json").test("a/b/package-lock.json"));
-  assert.ok(globToRegExp("**/vendor/**").test("vendor/pstack/README.md"));
+test("guard loads adapter rule packs from its rules directory", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "guard-"));
+  writeFileSync(join(dir, "acme.mjs"), 'export const RULES = [{ id: "acme-deploy", why: "x", re: [/\\bacme ship\\b/] }];');
+  const rules = await loadRules(dir);
+  assert.equal(decideShell("acme ship prod", rules.shell)?.id, "acme-deploy");
+  assert.equal((await loadRules(join(dir, "missing"))).shell.length, CORE_RULES.length);
+});
+
+test("diff limit excludes lock files across ecosystems, generated, vendored and binary files", () => {
+  for (const path of ["package-lock.json", "a/b/package-lock.json", "poetry.lock", "svc/Cargo.lock", "go.sum", "vendor/pstack/README.md"]) {
+    assert.ok(DEFAULT_EXCLUDE.some((g) => globToRegExp(g).test(path)), path);
+  }
   assert.ok(!globToRegExp("src/*.ts").test("src/a/b.ts"));
   const numstat = ["10\t5\tsrc/index.ts", "900\t0\tpackage-lock.json", "300\t0\tworker-configuration.d.ts", "-\t-\tassets/logo.png", "50\t0\tgen/api.ts", "1\t1\tsrc/{old => new}.ts"].join("\n");
   const { total, counted } = countDiff(numstat, ["**/package-lock.json", "**/worker-configuration.d.ts"], new Set(["gen/api.ts"]));
@@ -75,14 +123,34 @@ test("diff limit excludes lock, generated, vendored and binary files", () => {
   assert.deepEqual(counted.map((f) => f.path), ["src/index.ts", "src/new.ts"]);
 });
 
-test("rule table check rejects rows without a real enforcer", () => {
-  const rows = parseRuleTable(["| Rule | Enforced by |", "|---|---|", "| a | `ci:test` |", "| b | human review |", "| c | `ci:deploy` |", "| d | `lint:no-eval` |", "| e | `docs-only` |", "| f | `src/missing.ts` |", "| g | `hook:merge` |"].join("\n"));
-  const { errors, warnings } = checkRows(rows, { pathExists: () => false, ciJobs: new Set(["test"]), lintRules: (r) => r === "no-console", hookRules: new Set(["merge"]) });
-  assert.equal(errors.length, 4);
+test("check registry merges core, adapters and local overrides in order", () => {
+  const merged = mergeChecks([
+    { name: "core.json", spec: { checks: [{ id: "agents-rules", run: "a" }, { id: "diff-limit", run: "d", events: ["pull_request"] }] } },
+    { name: "workers.json", spec: { setup: ["npm ci"], checks: [{ id: "test", run: "vitest" }], diffExclude: ["**/gen.d.ts"], enforcers: { lint: { list: "x" } } } },
+    { name: "local.json", spec: { setup: ["make deps"], checks: [{ id: "test", run: "make test" }, { id: "diff-limit", disabled: true }] } },
+  ]);
+  assert.deepEqual(merged.setup, ["npm ci", "make deps"]);
+  assert.deepEqual(merged.checks.map((c) => [c.id, c.run, c.source]), [["agents-rules", "a", "core.json"], ["test", "make test", "local.json"]]);
+  assert.deepEqual(merged.diffExclude, ["**/gen.d.ts"]);
+  assert.deepEqual(Object.keys(merged.enforcers), ["lint"]);
+  const all = mergeChecks([{ name: "core.json", spec: { checks: [{ id: "a", run: "x" }, { id: "b", run: "y", events: ["pull_request"] }] } }]).checks;
+  assert.deepEqual(selectChecks(all, { event: "push" }).map((c) => c.id), ["a"]);
+  assert.deepEqual(selectChecks(all, { event: "pull_request" }).map((c) => c.id), ["a", "b"]);
+  assert.throws(() => selectChecks(all, { ids: ["nope"] }), /Unknown check nope/);
+  assert.throws(() => mergeChecks([{ name: "x.json", spec: { checks: [{ id: "Bad Id", run: "x" }] } }]), /must be lowercase/);
+});
+
+test("rule table check resolves ci:, hook:, adapter kinds, paths and docs-only", () => {
+  const rows = parseRuleTable(
+    ["| Rule | Enforced by |", "|---|---|", "| a | `ci:test` |", "| b | human review |", "| c | `ci:deploy` |", "| d | `lint:no-eval` |", "| e | `docs-only` |", "| f | `src/missing.ts` |", "| g | `hook:merge` |", "| h | `lint:no-console` |", "| i | `ruff:E501` |"].join("\n"),
+  );
+  const { errors, warnings } = checkRows(rows, { pathExists: () => false, ciChecks: new Set(["test"]), hookRules: new Set(["merge"]), enforcers: { lint: Object.assign(new Set(["no-console"]), { describe: "an ESLint rule" }) } });
+  assert.equal(errors.length, 5, errors.join("\n"));
   assert.match(errors.join("\n"), /"b" names no enforcer/);
   assert.match(errors.join("\n"), /ci:deploy/);
-  assert.match(errors.join("\n"), /lint:no-eval/);
+  assert.match(errors.join("\n"), /`lint:no-eval` is not an ESLint rule/);
   assert.match(errors.join("\n"), /src\/missing.ts/);
+  assert.match(errors.join("\n"), /no adapter provides `ruff:` enforcers/);
   assert.equal(warnings.length, 1);
 });
 
@@ -99,13 +167,26 @@ test("plan check enforces front matter, directory, proof and outcome", () => {
   assert.match(noProof.errors.join("\n"), /does not link its PR/);
 });
 
-test("verification harness parses wrangler config and output", () => {
+test("generic harness judges results by field and renders run variables", () => {
+  assert.equal(subsetMismatch({ a: { b: 1 }, c: "$present", d: "$match:^x" }, { a: { b: 1, z: 2 }, c: 0, d: "xyz" }), null);
+  assert.match(subsetMismatch({ c: "$present" }, { c: null }), /expected a value/);
+  assert.match(subsetMismatch([{ s: "a" }], [{ s: "b" }]), /\$\.0\.s/);
+  assert.equal(judge({ status: 200, json: { ok: true } }, { status: 200, body: { ok: true, extra: 1 } }), null);
+  assert.match(judge({ exitCode: 0, stdout: "$match:ready" }, { exitCode: 0, stdout: "booting" }), /stdout/);
+  assert.deepEqual(render({ a: ["{{port}}", "{{unknown}}"] }, { port: 41 }), { a: ["41", "{{unknown}}"] });
+});
+
+test("workers driver parses wrangler config and output", () => {
   const wc = parseJsonc('{\n // comment\n "name": "x", "vars": {"URL": "https://a.b//c"}, /* block */ "d1_databases": [{"binding": "DB"},], "durable_objects": {"bindings": [{"name": "C"}]}\n}');
   assert.equal(wc.vars.URL, "https://a.b//c");
   assert.deepEqual(declaredBindings(wc), ["C", "DB", "URL"]);
   const table = parseBindingTable("env.DB (shortlinks)        D1 Database     local\nenv.C (Counter)    Durable Object   remote\nnoise");
   assert.deepEqual(table, [{ name: "DB", mode: "local" }, { name: "C", mode: "remote" }]);
-  assert.equal(subsetMismatch({ a: { b: 1 }, c: "$present", d: "$match:^x" }, { a: { b: 1, z: 2 }, c: 0, d: "xyz" }), null);
-  assert.match(subsetMismatch({ c: "$present" }, { c: null }), /expected a value/);
-  assert.match(subsetMismatch([{ s: "a" }], [{ s: "b" }]), /\$\.0\.s/);
+});
+
+test("shipped check files are valid", () => {
+  for (const file of ["../core/files/.pstack-kit/checks/core.json", "../adapters/workers/files/.pstack-kit/checks/workers.json"]) {
+    const spec = JSON.parse(readFileSync(new URL(file, import.meta.url), "utf8"));
+    assert.ok(mergeChecks([{ name: file, spec }]).checks.length >= 3, file);
+  }
 });

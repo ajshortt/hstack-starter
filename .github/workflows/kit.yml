@@ -41,7 +41,7 @@ jobs:
       - run: node scripts/vendor-pstack.mjs check ${{ steps.scope.outputs.flag }}
 
   example-in-sync:
-    name: example matches the templates
+    name: example matches core + workers adapter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

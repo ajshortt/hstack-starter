@@ -1,12 +1,18 @@
 #!/usr/bin/env node
-import { KitError, kitInfo, pendingActions, plan, write } from "../lib/kit.mjs";
+import { KitError, availableAdapters, kitInfo, pendingActions, plan, write } from "../lib/kit.mjs";
 
-const HELP = `pstack-kit: apply and update the team's pstack starter kit in a Cloudflare Workers project.
+const HELP = `pstack-kit: apply and update the team's pstack starter kit in any repo.
 
 Usage:
-  pstack-kit apply  --target <dir> [--name <worker>] [--phase 0|1|2] [--owners "@org/team"] [--write]
+  pstack-kit apply  --target <dir> [--adapter <name>|none] [--name <project>] [--phase 0|1|2] [--owners "@org/team"] [--write]
   pstack-kit status --target <dir>          exit 1 when the project is behind the kit or has conflicts
+  pstack-kit adapters                       list the stack adapters this kit version ships
   pstack-kit version
+
+The core (agent rules, guard hook, verification skill, check runner, CI wrapper, PR template,
+plans) makes no assumption about your stack. --adapter adds one stack's rules, verification
+driver and checks; repeat it or pass a comma-separated list. The default is none. Adapters are
+remembered in .pstack-kit/config.json and are never removed by the kit.
 
 apply is a dry run unless you pass --write. It is safe to re-run: it creates missing files,
 updates kit-managed files you have not edited, never touches seeded files you own, and stages
@@ -45,12 +51,14 @@ function parseArgs(argv) {
 function report(result, { json, wrote }) {
   const pending = pendingActions(result);
   if (json) {
-    console.log(JSON.stringify({ target: result.target, config: result.config, wrote, pending: pending.length, actions: result.actions.map(({ content, abs, ...a }) => a) }, null, 2));
+    console.log(JSON.stringify({ target: result.target, config: result.config, wrote, pending: pending.length, warnings: result.warnings, actions: result.actions.map(({ content, abs, ...a }) => a) }, null, 2));
     return;
   }
   const kit = kitInfo();
   console.log(`pstack-kit ${kit.version} (pstack ${kit.pstackVersion}) -> ${result.target}`);
-  console.log(`project ${result.config.projectName}, phase ${result.config.phase}${result.isNew ? " (new adoption)" : ""}\n`);
+  console.log(`project ${result.config.projectName}, phase ${result.config.phase}, adapters: ${result.config.adapters.join(", ") || "none (core only)"}${result.isNew ? " (new adoption)" : ""}\n`);
+  for (const w of result.warnings) console.log(`  warning: ${w}`);
+  if (result.warnings.length) console.log("");
   const width = Math.max(...Object.values(LABELS).map((l) => l.length));
   for (const a of result.actions) {
     if (a.kind === "unchanged" || a.kind === "seed-exists") continue;
@@ -65,6 +73,7 @@ function report(result, { json, wrote }) {
 function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   if (command === "version") return console.log(JSON.stringify(kitInfo()));
+  if (command === "adapters") return console.log(availableAdapters().join("\n") || "No adapters shipped.");
   if (command !== "apply" && command !== "status") return console.log(HELP);
   if (!flags.target) throw new KitError("--target <dir> is required.");
   const result = plan(String(flags.target), flags);

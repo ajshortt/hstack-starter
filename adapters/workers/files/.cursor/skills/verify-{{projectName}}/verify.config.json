@@ -1,0 +1,13 @@
+{
+  "_template": true,
+  "app": "{{projectName}}",
+  "driver": "driver.mjs",
+  "ready": { "request": { "path": "/health" }, "expect": { "status": 200, "json": { "ok": true } } },
+  "doctor": [],
+  "smoke": "smoke.json",
+  "workers": {
+    "wranglerConfig": "wrangler.jsonc",
+    "vars": {},
+    "seed": { "d1": [], "kv": [], "r2": [] }
+  }
+}

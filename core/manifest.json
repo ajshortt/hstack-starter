@@ -1,0 +1,34 @@
+{
+  "$comment": "Core: every file the kit writes in any project, whatever the stack. mode: managed (kit owns it; safe 3-way update), seed (written once, then yours), json-merge (kit keys merged into your JSON), lines (kit lines appended if missing). root: project (default) or git. phase: the adoption phase that introduces the file. Adapters (adapters/<name>/adapter.json) add files; an adapter file with the same dest replaces the core one, and lines files with the same dest are combined.",
+  "agents": { "summary": "agents/summary.md", "map": "agents/map.md", "commands": "agents/commands.md" },
+  "files": [
+    { "src": ".cursor/rules/autonomy.mdc", "mode": "managed", "phase": 0 },
+    { "src": ".cursor/rules/pstack-models.mdc", "mode": "managed", "phase": 0 },
+    { "src": ".cursor/hooks.json", "mode": "managed", "phase": 0, "root": "git" },
+    { "src": ".cursor/hooks/pstack-kit-guard.mjs", "mode": "managed", "phase": 0, "root": "git" },
+    { "src": ".cursor/settings.json", "mode": "json-merge", "phase": 0, "root": "git" },
+    { "src": ".gitignore.kit", "dest": ".gitignore", "mode": "lines", "phase": 0 },
+
+    { "src": ".cursor/skills/verify-{{projectName}}/control.mjs", "mode": "managed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/SKILL.md", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/verify.config.json", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/smoke.json", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/features/README.md", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/features/health.md", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/environment.json", "mode": "seed", "phase": 1, "root": "git" },
+    { "src": "scripts/kit/checks.mjs", "mode": "managed", "phase": 1 },
+    { "src": ".pstack-kit/checks/core.json", "mode": "managed", "phase": 1 },
+    { "src": ".github/workflows/pstack-kit.yml", "dest": ".github/workflows/{{workflowFile}}", "mode": "managed", "phase": 1, "root": "git" },
+    { "src": ".github/pull_request_template.md", "mode": "managed", "phase": 1, "root": "git" },
+    { "src": ".github/CODEOWNERS", "mode": "seed", "phase": 1, "root": "git" },
+    { "src": "scripts/kit/diff-limit.mjs", "mode": "managed", "phase": 1 },
+
+    { "src": "AGENTS.md", "mode": "seed", "phase": 2 },
+    { "src": "scripts/kit/check-agents-rules.mjs", "mode": "managed", "phase": 2 },
+    { "src": "scripts/kit/check-plans.mjs", "mode": "managed", "phase": 2 },
+    { "src": "docs/plans/README.md", "mode": "managed", "phase": 2 },
+    { "src": "docs/plans/_template.md", "mode": "managed", "phase": 2 },
+    { "src": "docs/plans/active/.gitkeep", "mode": "seed", "phase": 2 },
+    { "src": "docs/plans/done/.gitkeep", "mode": "seed", "phase": 2 }
+  ]
+}
