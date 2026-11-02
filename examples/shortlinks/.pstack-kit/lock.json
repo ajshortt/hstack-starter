@@ -1,0 +1,86 @@
+{
+  "kit": "0.1.0",
+  "pstack": "0.15.36",
+  "phase": 2,
+  "files": {
+    ".cursor/environment.json": {
+      "mode": "seed"
+    },
+    ".cursor/hooks.json": {
+      "mode": "managed",
+      "hash": "167013af5015d6e178159611bf80a8ad40ee9cc60c0a889971ec6a89d93d062c"
+    },
+    ".cursor/hooks/pstack-kit-guard.mjs": {
+      "mode": "managed",
+      "hash": "8f9e8a3b9a82704b45d89ac0ba3a6e657b782713c79008ae1fda4492e38d354f"
+    },
+    ".github/CODEOWNERS": {
+      "mode": "seed"
+    },
+    ".github/pull_request_template.md": {
+      "mode": "managed",
+      "hash": "f5c6f2e2ddc632463a4444994bdd1ff5343136c10b7a6c2b4b51211aa1993af4"
+    },
+    ".github/workflows/worker-ci-shortlinks.yml": {
+      "mode": "managed",
+      "hash": "4c5f44d1f6a55173aedd4b9f3b0c3a3907d6bb305ffa41432738b45716dbd1aa"
+    },
+    "examples/shortlinks/.cursor/rules/autonomy.mdc": {
+      "mode": "managed",
+      "hash": "8c9cc308999838ad734cbf4a62874800d31e53919cc9f6f934a2eabebd19a03d"
+    },
+    "examples/shortlinks/.cursor/rules/pstack-models.mdc": {
+      "mode": "managed",
+      "hash": "d0c3668fece0116c1edbf907e0fa1e02604065d24a03c2c89c20801a33f8c443"
+    },
+    "examples/shortlinks/.cursor/rules/workers.mdc": {
+      "mode": "managed",
+      "hash": "371e016bb4587562a1c86ef0f4845f5ea4b541ebdd81ed6ce73ad9c338fac08b"
+    },
+    "examples/shortlinks/.cursor/skills/verify-shortlinks/control.mjs": {
+      "mode": "managed",
+      "hash": "ecbdd0645a804c31444d1af97aff4cbaa456f1cceba606661e6f73c23df44037"
+    },
+    "examples/shortlinks/.dev.vars.example": {
+      "mode": "seed"
+    },
+    "examples/shortlinks/AGENTS.md": {
+      "mode": "seed"
+    },
+    "examples/shortlinks/docs/plans/_template.md": {
+      "mode": "managed",
+      "hash": "e4d9ef811abe88f5a5a53ad48ba6d6fbac5017bc8d081936b4ee0ac92f471e95"
+    },
+    "examples/shortlinks/docs/plans/active/.gitkeep": {
+      "mode": "seed"
+    },
+    "examples/shortlinks/docs/plans/done/.gitkeep": {
+      "mode": "seed"
+    },
+    "examples/shortlinks/docs/plans/README.md": {
+      "mode": "managed",
+      "hash": "3931dd17c6611d29d4b8e67e05badc66ca261c07bf61218118b446fe564d009a"
+    },
+    "examples/shortlinks/eslint.workers.js": {
+      "mode": "managed",
+      "hash": "fadfa624a604c5ef07e0c02b5efb4290bd39d050da3358aae55f39e7a60807db"
+    },
+    "examples/shortlinks/scripts/kit/check-agents-rules.mjs": {
+      "mode": "managed",
+      "hash": "f39fc2d8943806cbc5b010b9dbbc9f318ce983d9430199ff2870957e643574c9"
+    },
+    "examples/shortlinks/scripts/kit/check-plans.mjs": {
+      "mode": "managed",
+      "hash": "e9688f5205373d914e8ef93a4a967a078c16dffcf5eeaf229c3c59d6c104ebdb"
+    },
+    "examples/shortlinks/scripts/kit/diff-limit.mjs": {
+      "mode": "managed",
+      "hash": "50e39bf0e368e05dbf6b4e15702a6e9738031073b9f777164cb4e21dac32ca9a"
+    },
+    "examples/shortlinks/tsconfig.kit.json": {
+      "mode": "managed",
+      "hash": "f91eb60dd99be3b318d6fe8bb6711114cc6772af551df8896181d84f9ba7fc91"
+    }
+  },
+  "appliedAt": "2026-11-02"
+}

@@ -1,0 +1,3 @@
+{
+  "install": "cd examples/shortlinks && npm ci"
+}

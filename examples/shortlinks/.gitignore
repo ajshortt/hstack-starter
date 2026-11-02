@@ -1,0 +1,5 @@
+node_modules/
+.wrangler/
+.verify/
+.dev.vars
+.pstack-kit/incoming/

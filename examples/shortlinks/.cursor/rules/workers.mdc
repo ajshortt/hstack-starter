@@ -1,0 +1,43 @@
+---
+description: How to write Cloudflare Workers code in this repo. Bindings, runtime limits, parsing at boundaries, async work, D1, Durable Objects, Queues, crons and tests.
+globs: src/**/*.ts,test/**/*.ts,wrangler.jsonc,wrangler.json,wrangler.toml,migrations/**/*.sql
+alwaysApply: false
+---
+
+# Cloudflare Workers (managed by pstack-kit)
+
+Most of these rules are enforced by `eslint.workers.js`, `tsconfig.kit.json` or CI. This file explains the judgment calls the tools cannot make.
+
+## Configuration and bindings
+
+- `wrangler.jsonc` is the source of truth for bindings. After changing it, run `npx wrangler types` and commit `worker-configuration.d.ts`. CI runs `wrangler types --check`.
+- Read config and bindings from the `env` argument, typed as `Env`. Never `process.env`, never module-scope copies of `env`.
+- Secrets live in `.dev.vars` locally (copy `.dev.vars.example`) and in Cloudflare for deployed environments. Never commit them, never print them, never ask for production values.
+- Every environment in `wrangler.jsonc` (`env.preview`, `env.production`) redeclares its bindings. Bindings are not inherited.
+
+## Runtime
+
+- Workers are not Node. No `fs`, `child_process` or `Buffer`. Use Web APIs: `fetch`, `crypto.subtle`, `URL`, streams, `TextEncoder`.
+- No module-scope mutable state. An isolate serves many requests and can be evicted at any time. Durable state goes in D1, KV, R2 or a Durable Object.
+- Work after the response goes in `ctx.waitUntil(...)`. Unawaited promises are dropped (`no-floating-promises` catches most).
+- Respect CPU and subrequest limits. Batch D1 calls with `db.batch([...])`, avoid N+1 queries in loops.
+
+## Boundaries and types
+
+- Parse every untrusted input at the edge with zod: request bodies, query strings, queue messages, KV and R2 JSON. Inside, trust the types.
+- Brand identifiers (`Slug`, `UserId`) with `z.string().brand<...>()` so they cannot be mixed up.
+- Model outcomes as discriminated unions and `switch` exhaustively. Map them to HTTP status codes in one place.
+
+## Data
+
+- D1: always `prepare(...).bind(...)` with `?1` placeholders. Schema changes are new files in `migrations/`, never edits to applied migrations.
+- KV is eventually consistent and last-write-wins. Use it for caches and config, not counters or anything read-after-write.
+- Durable Objects own state that needs strong consistency or coordination. Prefer SQLite-backed classes (`new_sqlite_classes`) and RPC methods over `fetch` handlers.
+- Queues deliver at least once. Consumers must be idempotent (for example `UPDATE ... WHERE archived_at IS NULL`). Ack poison messages after logging them; do not let one message retry forever.
+- Crons must be idempotent and safe to run twice.
+
+## Tests and proof
+
+- Tests run in `workerd` through `@cloudflare/vitest-plugin`. Test behavior through `exports.default.fetch`, `queue` and `scheduled`, not private functions.
+- New routes, crons, queue consumers and Durable Object classes get an entry in the verification skill's feature map and a journey in `smoke.json` in the same PR.
+- "Tests pass" is not done. Done is the verification skill's evidence for the changed behavior.

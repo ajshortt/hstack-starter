@@ -1,0 +1,10 @@
+{
+  "projectName": "shortlinks",
+  "phase": 2,
+  "owners": "@hugeinc/shortlinks-owners",
+  "nodeVersion": "22",
+  "diffLimit": {
+    "lines": 400,
+    "exclude": []
+  }
+}

@@ -1,0 +1,6 @@
+# Seeded by pstack-kit. Agent policy and verification changes need the owners' review.
+/examples/shortlinks/AGENTS.md @hugeinc/shortlinks-owners
+/examples/shortlinks/.cursor/ @hugeinc/shortlinks-owners
+/examples/shortlinks/.pstack-kit/ @hugeinc/shortlinks-owners
+/examples/shortlinks/scripts/kit/ @hugeinc/shortlinks-owners
+/.github/ @hugeinc/shortlinks-owners

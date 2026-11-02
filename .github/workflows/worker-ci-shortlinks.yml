@@ -1,0 +1,119 @@
+# Managed by pstack-kit. Same commands agents run locally. Change thresholds in .pstack-kit/config.json, not here.
+name: worker-ci (shortlinks)
+
+on:
+  pull_request:
+    paths: ["examples/shortlinks/**", ".github/workflows/worker-ci-shortlinks.yml"]
+  push:
+    branches: [main]
+    paths: ["examples/shortlinks/**", ".github/workflows/worker-ci-shortlinks.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: examples/shortlinks
+
+env:
+  WRANGLER_SEND_METRICS: "false"
+  NODE_VERSION: "22"
+
+jobs:
+  typecheck:
+    name: typecheck (strict tsc + wrangler types --check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: examples/shortlinks/package-lock.json
+      - run: npm ci
+      - name: Worker types match wrangler config
+        run: npx wrangler types --check
+      - name: Strict typecheck
+        run: npx tsc --noEmit
+
+  lint:
+    name: lint (eslint + agent rules + plans)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: examples/shortlinks/package-lock.json
+      - run: npm ci
+      - name: ESLint
+        run: |
+          if ls eslint.config.* >/dev/null 2>&1; then npx eslint . --max-warnings 0
+          else echo "::warning title=No ESLint config::Add eslint.config.js importing eslint.workers.js (phase 2 of the kit)."; fi
+      - name: AGENTS.md rules name real enforcers
+        run: node scripts/kit/check-agents-rules.mjs
+        if: hashFiles('examples/shortlinks/scripts/kit/check-agents-rules.mjs') != ''
+      - name: Plans follow the lifecycle
+        run: node scripts/kit/check-plans.mjs
+        if: hashFiles('examples/shortlinks/scripts/kit/check-plans.mjs') != ''
+
+  test:
+    name: test (vitest in workerd)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: examples/shortlinks/package-lock.json
+      - run: npm ci
+      - run: npx vitest run
+
+  verify-smoke:
+    name: verify-smoke (wrangler dev --local + verification skill)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: examples/shortlinks/package-lock.json
+      - run: npm ci
+      - name: Smoke journeys from the verification skill
+        run: |
+          config=.cursor/skills/verify-shortlinks/verify.config.json
+          if node -e "process.exit(JSON.parse(require('fs').readFileSync('$config','utf8'))._template ? 0 : 1)"; then
+            echo "::warning title=Verification skill not tailored::$config still has _template. Tailor the skill (adoption phase 1) so CI can prove behavior."
+            exit 0
+          fi
+          set +e
+          node .cursor/skills/verify-shortlinks/control.mjs smoke | tee smoke-result.json
+          status=${PIPESTATUS[0]}
+          cat .verify/evidence/*/summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null
+          exit $status
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: verify-evidence-shortlinks
+          path: examples/shortlinks/.verify/evidence/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  diff-limit:
+    name: diff-limit (warn above review limit)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: node scripts/kit/diff-limit.mjs --base origin/${{ github.base_ref }}
