@@ -138,7 +138,7 @@ export default {
   launch(ctx) {
     const { run } = ctx;
     const s = settings(ctx);
-    const vars = ctx.render(s.vars ?? {}, { port: run.port, runId: run.runId });
+    const vars = ctx.render(s.vars ?? {}, ctx.vars);
     const args = [
       "dev", "--local", "--ip", "127.0.0.1", "--port", String(run.port), "--inspector-port", String(run.inspectorPort),
       "--persist-to", run.persistTo, "--test-scheduled", "--show-interactive-dev-session=false",

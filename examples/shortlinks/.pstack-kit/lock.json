@@ -50,7 +50,7 @@
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/control.mjs": {
       "mode": "managed",
-      "hash": "47ac154eddaca9872eb528e0aaa9433f99272a848ab6d0a2b296a5f9bd60e0dd"
+      "hash": "fec3aa76ec1ed98c8780d5b133944526028c87569034aecebc0861dc9f5f532b"
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/DRIVER.md": {
       "mode": "managed",
@@ -58,7 +58,7 @@
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/driver.mjs": {
       "mode": "managed",
-      "hash": "5da6f5ec7d2db308132b594252dffd915831b7ac89fcb7faac700809e0492b55"
+      "hash": "26380bf924857f6eb2dc814be4f48798303cea000d3faf3b72c02c4ac1d9cfd4"
     },
     "examples/shortlinks/.dev.vars.example": {
       "mode": "seed"
@@ -76,7 +76,7 @@
     },
     "examples/shortlinks/docs/plans/_template.md": {
       "mode": "managed",
-      "hash": "e4d9ef811abe88f5a5a53ad48ba6d6fbac5017bc8d081936b4ee0ac92f471e95"
+      "hash": "7691c468e3be6f33c2dbb664adce69460aef0ec684e56b5da8d7b5f11b5b774a"
     },
     "examples/shortlinks/docs/plans/active/.gitkeep": {
       "mode": "seed"

@@ -158,6 +158,7 @@ function context(run) {
     run,
     projectRoot: PROJECT_ROOT,
     skillDir: SKILL_DIR,
+    vars: runVars(run),
     env: CHILD_ENV,
     UsageError,
     render,
