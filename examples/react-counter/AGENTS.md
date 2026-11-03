@@ -32,7 +32,7 @@ node .cursor/skills/verify-react-counter/control.mjs smoke            # verifica
 The react adapter's checks (`.hstack-kit/checks/react.json`) run these:
 
 ```bash
-npm ci                                                           # setup (pnpm/yarn if their lockfile is present)
+node scripts/kit/checks.mjs install                              # setup; nearest pnpm, yarn, bun or npm lockfile up to the git root
 npx tsc --noEmit                                                 # typecheck
 npx eslint . --max-warnings 0                                    # lint
 npx vitest run                                                   # component tests (jsdom/happy-dom + Testing Library)

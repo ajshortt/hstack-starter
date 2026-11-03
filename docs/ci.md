@@ -25,7 +25,7 @@ node scripts/kit/checks.mjs run <id>                  # one check per job, or ru
 
 `run` exits 1 when a check fails and prints `::group::` markers under GitHub Actions. The verification smoke writes `.verify/evidence/<run-id>/summary.md`; collect `.verify/evidence/` as an artifact. The diff-limit check needs the base branch fetched (`fetch-depth: 0` or `git fetch origin main`), and skips with a message when the base ref is missing.
 
-`.github/workflows/hstack-kit.yml` is the kit's GitHub Actions wrapper: a `plan` job lists the checks for the event, and a matrix job runs each as `check (<id>)`. For GitLab CI, Buildkite, CircleCI or Jenkins, write the same three commands in that system's format. The kit ships only the GitHub Actions wrapper.
+`.github/workflows/hstack-kit.yml` is the kit's GitHub Actions wrapper. The workflow is named `hstack-kit-<project>`. A `plan (<project>)` job lists the checks for the event, and a matrix job runs each as `check (<project> <id>)`, so an api target and a web target in one repo do not publish the same check name. For a nested project the path filters also include the root manifest, lockfile, `turbo.json`, `tsconfig*` and `extraPaths` from `.hstack-kit/config.json`. `setup` runs `checks.mjs install` when an adapter defines it, and that command uses the lockfile in the project or a parent up to the git root. For GitLab CI, Buildkite, CircleCI or Jenkins, write the same three commands in that system's format. The kit ships only the GitHub Actions wrapper.
 
 ## What runs the workflows
 

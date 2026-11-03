@@ -22,7 +22,7 @@ Checks it defines, run by `node scripts/kit/checks.mjs` locally and in CI:
 
 | Check | Command |
 |---|---|
-| setup | `npm ci` (or the pnpm/yarn equivalent) |
+| setup | `node scripts/kit/checks.mjs install` (nearest pnpm, yarn, bun or npm lockfile, up to the git root) |
 | `typecheck` | `npx tsc --noEmit` |
 | `lint` | `npx eslint . --max-warnings 0` (skipped until an `eslint.config.*` exists) |
 | `test` | `npx vitest run` |

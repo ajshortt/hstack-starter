@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, writeFile
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { KitError, guessName, pendingActions, plan, render, sha256, slugify, write } from "../lib/kit.mjs";
+import { KitError, ciPaths, guessName, pendingActions, plan, render, sha256, slugify, write } from "../lib/kit.mjs";
 
 function repo({ nested = false, files = { "package.json": JSON.stringify({ name: "@acme/api-worker" }) } } = {}) {
   const root = mkdtempSync(join(tmpdir(), "kit-test-"));
@@ -46,6 +46,10 @@ test("core-only is the default: no stack files, a thin workflow, and a re-run is
   const workflow = read(target, ".github/workflows/hstack-kit.yml");
   assert.match(workflow, /working-directory: \.\n/);
   assert.match(workflow, /node scripts\/kit\/checks.mjs run \$\{\{ matrix.check \}\}/);
+  assert.match(workflow, /name: hstack-kit-api-worker\n/);
+  assert.match(workflow, /name: plan \(api-worker\)/);
+  assert.match(workflow, /name: check \(api-worker \$\{\{ matrix.check \}\}\)/);
+  assert.doesNotMatch(workflow, /package-lock\.json|turbo\.json/);
   assert.doesNotMatch(workflow, /npm|wrangler|vitest/);
   assert.doesNotMatch(read(target, ".gitignore"), /node_modules|wrangler/);
   assert.doesNotMatch(read(target, "AGENTS.md"), /\{\{|Worker|wrangler/);
@@ -117,6 +121,15 @@ test("react and workers apply independently to sibling nested projects in one re
   assert.ok(existsSync(join(web, ".cursor/skills/verify-web/driver.mjs")));
   assert.ok(existsSync(join(root, ".github/workflows/hstack-kit-api.yml")));
   assert.ok(existsSync(join(root, ".github/workflows/hstack-kit-web.yml")));
+  const apiWf = read(root, ".github/workflows/hstack-kit-api.yml");
+  const webWf = read(root, ".github/workflows/hstack-kit-web.yml");
+  assert.match(apiWf, /name: hstack-kit-api\n/);
+  assert.match(webWf, /name: hstack-kit-web\n/);
+  assert.match(apiWf, /name: plan \(api\)/);
+  assert.match(webWf, /name: plan \(web\)/);
+  assert.match(apiWf, /name: check \(api \$\{\{ matrix.check \}\}\)/);
+  assert.match(webWf, /name: check \(web \$\{\{ matrix.check \}\}\)/);
+  assert.notEqual(apiWf.match(/name: plan \([^)]+\)/)[0], webWf.match(/name: plan \([^)]+\)/)[0]);
   assert.equal(pendingActions(plan(api)).length, 0);
   assert.equal(pendingActions(plan(web)).length, 0);
 });
@@ -277,11 +290,32 @@ test("nested projects put shared files at the git root with a scoped workflow", 
   const workflow = read(root, ".github/workflows/hstack-kit-api-worker.yml");
   assert.match(workflow, /working-directory: services\/api\n/);
   assert.match(workflow, /paths: \["services\/api\/\*\*"/);
+  assert.match(workflow, /"package.json"/);
+  assert.match(workflow, /package-lock\.json/);
+  assert.match(workflow, /turbo\.json/);
+  assert.match(workflow, /tsconfig\*/);
   assert.match(workflow, /path: services\/api\/\.verify\/evidence\//);
   assert.ok(existsSync(join(root, ".cursor/hooks.json")));
   assert.ok(existsSync(join(target, ".cursor/skills/verify-api-worker/SKILL.md")));
   assert.match(read(root, ".github/CODEOWNERS"), /\/services\/api\/AGENTS.md @acme\/api/);
   assert.equal(JSON.parse(read(root, ".cursor/environment.json")).install, "cd services/api && node scripts/kit/checks.mjs setup");
+});
+
+test("ci path filters add the workspace root for a nested project, and extraPaths is preserved", () => {
+  assert.deepEqual(ciPaths({ nested: false, workingDirectory: ".", workflowFile: "hstack-kit.yml" }), ["**", ".github/workflows/hstack-kit.yml"]);
+  const paths = ciPaths({ nested: true, workingDirectory: "apps/api", workflowFile: "hstack-kit-api.yml", extraPaths: ["packages/**"] });
+  for (const glob of ["apps/api/**", "package.json", "package-lock.json", "pnpm-lock.yaml", "turbo.json", "tsconfig*", "packages/**"]) assert.ok(paths.includes(glob), glob);
+  const { root, target } = repo({ nested: true });
+  apply(target);
+  const config = JSON.parse(read(target, ".hstack-kit/config.json"));
+  config.extraPaths = ["packages/**"];
+  writeFileSync(join(target, ".hstack-kit/config.json"), JSON.stringify(config));
+  apply(target);
+  assert.match(read(root, ".github/workflows/hstack-kit-api-worker.yml"), /packages\/\*\*/);
+  assert.deepEqual(JSON.parse(read(target, ".hstack-kit/config.json")).extraPaths, ["packages/**"]);
+  config.extraPaths = ["../outside"];
+  writeFileSync(join(target, ".hstack-kit/config.json"), JSON.stringify(config));
+  assert.throws(() => plan(target), /extraPaths/);
 });
 
 test("the CLI is a dry run by default, status exits 1 when behind, and adapter warnings print", () => {

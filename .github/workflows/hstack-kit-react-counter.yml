@@ -1,13 +1,13 @@
 # Managed by hstack-kit. A thin wrapper: every check is defined in .hstack-kit/checks/*.json and run by
 # scripts/kit/checks.mjs, which any CI system can call the same way. Add or change checks there, not here.
-name: hstack-kit (react-counter)
+name: hstack-kit-react-counter
 
 on:
   pull_request:
-    paths: ["examples/react-counter/**", ".github/workflows/hstack-kit-react-counter.yml"]
+    paths: ["examples/react-counter/**",".github/workflows/hstack-kit-react-counter.yml","package.json","package-lock.json","npm-shrinkwrap.json","pnpm-lock.yaml","yarn.lock","bun.lock","bun.lockb","turbo.json","tsconfig*"]
   push:
     branches: [main]
-    paths: ["examples/react-counter/**", ".github/workflows/hstack-kit-react-counter.yml"]
+    paths: ["examples/react-counter/**",".github/workflows/hstack-kit-react-counter.yml","package.json","package-lock.json","npm-shrinkwrap.json","pnpm-lock.yaml","yarn.lock","bun.lock","bun.lockb","turbo.json","tsconfig*"]
   workflow_dispatch:
 
 permissions:
@@ -23,7 +23,7 @@ defaults:
 
 jobs:
   plan:
-    name: plan
+    name: plan (react-counter)
     runs-on: ubuntu-latest
     outputs:
       checks: ${{ steps.list.outputs.checks }}
@@ -36,7 +36,7 @@ jobs:
         run: echo "checks=$(node scripts/kit/checks.mjs list --json --event ${{ github.event_name }})" >> "$GITHUB_OUTPUT"
 
   check:
-    name: check (${{ matrix.check }})
+    name: check (react-counter ${{ matrix.check }})
     needs: plan
     if: needs.plan.outputs.checks != '[]'
     runs-on: ubuntu-latest

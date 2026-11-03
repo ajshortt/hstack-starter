@@ -1,10 +1,10 @@
 // Managed by hstack-kit (workers adapter). Verification driver for a Cloudflare Worker under `wrangler dev --local`.
 // control.mjs owns runs, doctor, journeys and evidence; this file owns how a Worker is prepared, launched and read back.
 // Project settings live under "workers" in verify.config.json.
-import { execFile, spawn } from "node:child_process";
+import { execFile, execFileSync, spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { existsSync, openSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 
 const execFileP = promisify(execFile);
@@ -59,8 +59,33 @@ export function parseBindingTable(log) {
 }
 
 const settings = (ctx) => ctx.config.workers ?? {};
-const wranglerBin = (ctx) => join(ctx.projectRoot, "node_modules", ".bin", "wrangler");
 const childEnv = (ctx) => ({ ...ctx.env, WRANGLER_SEND_METRICS: "false" });
+
+function gitTop(dir) {
+  try {
+    return execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() || resolve(dir);
+  } catch {
+    return resolve(dir);
+  }
+}
+
+export function resolveWrangler(start, stop = gitTop(start)) {
+  let dir = resolve(start);
+  const halt = resolve(stop);
+  while (true) {
+    const bin = join(dir, "node_modules", ".bin", "wrangler");
+    if (existsSync(bin)) return bin;
+    if (dir === halt) return null;
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
+export function wranglerCommand(start, stop) {
+  const bin = resolveWrangler(start, stop);
+  return bin ? { command: bin, args: [] } : { command: "npm", args: ["exec", "--offline", "--", "wrangler"] };
+}
 
 function wranglerConfig(ctx) {
   const s = settings(ctx);
@@ -69,7 +94,8 @@ function wranglerConfig(ctx) {
 }
 
 async function wrangler(ctx, args, { json = false } = {}) {
-  const { stdout } = await execFileP(wranglerBin(ctx), args, { cwd: ctx.projectRoot, env: childEnv(ctx), maxBuffer: 32 * 1024 * 1024 });
+  const cmd = wranglerCommand(ctx.projectRoot);
+  const { stdout } = await execFileP(cmd.command, [...cmd.args, ...args], { cwd: ctx.projectRoot, env: childEnv(ctx), maxBuffer: 32 * 1024 * 1024 });
   return json ? JSON.parse(stdout.slice(stdout.indexOf("["))) : stdout;
 }
 
@@ -146,7 +172,8 @@ export default {
       ...Object.entries(vars).flatMap(([k, v]) => ["--var", `${k}:${v}`]),
     ];
     const logFd = openSync(run.log, "a");
-    return spawn(wranglerBin(ctx), args, { cwd: ctx.projectRoot, env: childEnv(ctx), detached: true, stdio: ["ignore", logFd, logFd] });
+    const cmd = wranglerCommand(ctx.projectRoot);
+    return spawn(cmd.command, [...cmd.args, ...args], { cwd: ctx.projectRoot, env: childEnv(ctx), detached: true, stdio: ["ignore", logFd, logFd] });
   },
 
   async doctor(ctx) {

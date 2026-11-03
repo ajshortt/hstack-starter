@@ -20,7 +20,7 @@
     },
     ".github/workflows/hstack-kit-react-counter.yml": {
       "mode": "managed",
-      "hash": "2b427d81e2bd000964b346018cd7d469d2abeee875c579cf00ada6eaea0a5886"
+      "hash": "0f71028147d6fa943b323cc37797388feed95d4d82a1224b9b14e0781aa4b760"
     },
     "examples/react-counter/.cursor/rules/autonomy.mdc": {
       "mode": "managed",
@@ -67,7 +67,7 @@
     },
     "examples/react-counter/.hstack-kit/checks/react.json": {
       "mode": "managed",
-      "hash": "184b299ea797c48e04faf535ec7df6ab332b29d4a7789c6450e2913a8990f0d5"
+      "hash": "2ce8779381c8d3475f26399a8a56b44eb9a3cb55cb76a159250ea546112cbfe2"
     },
     "examples/react-counter/AGENTS.md": {
       "mode": "seed"
@@ -100,7 +100,7 @@
     },
     "examples/react-counter/scripts/kit/checks.mjs": {
       "mode": "managed",
-      "hash": "918b352391646eaee51d942c4681c92ba2b0d91597633d987864d588252448f0"
+      "hash": "39226728d5a388792c33fc67104b8579ba6f5bd8ab867b97e7c28245aa98a4d5"
     },
     "examples/react-counter/scripts/kit/diff-limit.mjs": {
       "mode": "managed",

@@ -2,6 +2,7 @@
 // Managed by hstack-kit. Stack-neutral check runner. Any CI system calls this; the GitHub Actions workflow is one thin wrapper.
 //   node scripts/kit/checks.mjs list [--event push|pull_request] [--json]
 //   node scripts/kit/checks.mjs setup
+//   node scripts/kit/checks.mjs install   nearest lockfile, walking up to the git root
 //   node scripts/kit/checks.mjs run <id>... | --all [--event push|pull_request]
 // Checks live in .hstack-kit/checks/*.json (.pstack-kit/checks/ is still read for projects applied before the rename).
 // core.json and one file per adapter are managed by the kit.
@@ -12,6 +13,32 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+const LOCKFILES = [
+  ["pnpm-lock.yaml", "corepack enable && pnpm install --frozen-lockfile"],
+  ["yarn.lock", "corepack enable && yarn install --immutable"],
+  ["bun.lock", "bun install --frozen-lockfile"],
+  ["bun.lockb", "bun install --frozen-lockfile"],
+  ["package-lock.json", "npm ci"],
+  ["npm-shrinkwrap.json", "npm ci"],
+];
+
+function gitTop(dir) {
+  const out = spawnSync("git", ["rev-parse", "--show-toplevel"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  return out.status === 0 && out.stdout.trim() ? out.stdout.trim() : resolve(dir);
+}
+
+export function findInstall(start, stop = gitTop(start)) {
+  let dir = resolve(start);
+  const halt = resolve(stop);
+  while (true) {
+    for (const [name, command] of LOCKFILES) if (existsSync(join(dir, name))) return { dir, name, command };
+    if (dir === halt) return null;
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
 
 const fileOrder = (name) => (name === "core.json" ? 0 : name === "local.json" ? 2 : 1);
 
@@ -96,6 +123,18 @@ function main() {
     return;
   }
 
+  if (command === "install") {
+    const found = findInstall(PROJECT_ROOT);
+    if (!found) {
+      console.error("install: no lockfile found in this project or a parent up to the git root.");
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`install: ${found.command} (${found.name} in ${found.dir})`);
+    process.exitCode = sh(found.command, found.dir);
+    return;
+  }
+
   if (command === "setup") {
     for (const step of spec.setup) {
       const status = group(`setup: ${step}`, () => sh(step, PROJECT_ROOT));
@@ -129,7 +168,7 @@ function main() {
     return;
   }
 
-  console.log("Usage: checks.mjs list [--event E] [--json] | setup | run <id>... | run --all [--event E]");
+  console.log("Usage: checks.mjs list [--event E] [--json] | setup | install | run <id>... | run --all [--event E]");
   process.exitCode = command ? 2 : 0;
 }
 

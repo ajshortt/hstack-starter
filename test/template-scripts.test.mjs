@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { CORE_MCP_RULES, CORE_RULES, decideMcp, decideShell, loadRules } from "../core/files/.cursor/hooks/hstack-kit-guard.mjs";
 import { countDiff, DEFAULT_EXCLUDE, globToRegExp } from "../core/files/scripts/kit/diff-limit.mjs";
 import { checkRows, parseRuleTable } from "../core/files/scripts/kit/check-agents-rules.mjs";
 import { checkPlan } from "../core/files/scripts/kit/check-plans.mjs";
-import { loadChecks, mergeChecks, selectChecks } from "../core/files/scripts/kit/checks.mjs";
+import { findInstall, loadChecks, mergeChecks, selectChecks } from "../core/files/scripts/kit/checks.mjs";
 import { judge, render, subsetMismatch } from "../core/files/.cursor/skills/verify-{{projectName}}/control.mjs";
-import { declaredBindings, parseBindingTable, parseJsonc } from "../adapters/workers/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
+import { declaredBindings, parseBindingTable, parseJsonc, resolveWrangler, wranglerCommand } from "../adapters/workers/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
 import * as workersPack from "../adapters/workers/files/.cursor/hooks/hstack-kit-guard.rules/workers.mjs";
 import { slugFor } from "../adapters/react/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
 
@@ -200,6 +200,42 @@ test("shipped check files are valid", () => {
     const spec = JSON.parse(readFileSync(new URL(file, import.meta.url), "utf8"));
     assert.ok(mergeChecks([{ name: file, spec }]).checks.length >= 3, file);
   }
+  for (const file of ["../adapters/workers/files/.hstack-kit/checks/workers.json", "../adapters/react/files/.hstack-kit/checks/react.json"]) {
+    assert.equal(JSON.parse(readFileSync(new URL(file, import.meta.url), "utf8")).setup[0], "node scripts/kit/checks.mjs install");
+  }
+});
+
+test("install uses the nearest lockfile and stops at the repo boundary", () => {
+  const root = mkdtempSync(join(tmpdir(), "lock-"));
+  const app = join(root, "apps", "api");
+  mkdirSync(app, { recursive: true });
+  assert.equal(findInstall(app, root), null);
+  writeFileSync(join(root, "pnpm-lock.yaml"), "");
+  assert.deepEqual(findInstall(app, root), { dir: root, name: "pnpm-lock.yaml", command: "corepack enable && pnpm install --frozen-lockfile" });
+  writeFileSync(join(app, "package-lock.json"), "");
+  assert.equal(findInstall(app, root).name, "package-lock.json");
+  assert.equal(findInstall(app, root).dir, app);
+  const outside = mkdtempSync(join(tmpdir(), "out-"));
+  writeFileSync(join(outside, "package-lock.json"), "");
+  const inner = join(outside, "repo", "apps", "api");
+  mkdirSync(inner, { recursive: true });
+  assert.equal(findInstall(inner, join(outside, "repo")), null);
+});
+
+test("workers driver resolves a hoisted wrangler by walking up to the repo root", () => {
+  const root = mkdtempSync(join(tmpdir(), "wrangler-"));
+  const app = join(root, "apps", "api");
+  const local = join(app, "node_modules", ".bin", "wrangler");
+  const hoisted = join(root, "node_modules", ".bin", "wrangler");
+  mkdirSync(dirname(local), { recursive: true });
+  mkdirSync(dirname(hoisted), { recursive: true });
+  writeFileSync(local, "");
+  writeFileSync(hoisted, "");
+  assert.equal(resolveWrangler(app, root), local);
+  rmSync(local);
+  assert.equal(resolveWrangler(app, root), hoisted);
+  rmSync(hoisted);
+  assert.deepEqual(wranglerCommand(app, root), { command: "npm", args: ["exec", "--offline", "--", "wrangler"] });
 });
 
 test("react driver's screenshot slug is filesystem-safe and stable for the root route", () => {

@@ -1,6 +1,6 @@
 {
   "$comment": "Managed by hstack-kit (workers adapter). Add or replace checks in .hstack-kit/checks/local.json, not here.",
-  "setup": ["npm ci"],
+  "setup": ["node scripts/kit/checks.mjs install"],
   "checks": [
     { "id": "typecheck", "name": "strict tsc + wrangler types --check", "run": "npx wrangler types --check && npx tsc --noEmit" },
     { "id": "lint", "name": "eslint with the Workers rules", "run": "npx eslint . --max-warnings 0", "requires": ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"] },
