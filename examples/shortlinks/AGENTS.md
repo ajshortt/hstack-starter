@@ -2,7 +2,7 @@
 
 <!-- Seeded by pstack-kit. This file is yours: edit it, and keep it near 100 lines. It is a map, not a manual. -->
 
-shortlinks is a Cloudflare Worker that shortens URLs. It is the pstack-kit's reference project: every kit change must keep its CI and verification smoke green. Clients call `POST /api/links`; browsers follow `/r/<slug>`.
+shortlinks is a Cloudflare Worker that shortens URLs. It is the reference project for pstack-kit's workers adapter: every kit change must keep its checks and verification smoke green. Clients call `POST /api/links`; browsers follow `/r/<slug>`.
 
 ## Map
 
@@ -12,23 +12,31 @@ shortlinks is a Cloudflare Worker that shortens URLs. It is the pstack-kit's ref
 | `migrations/` | D1 migrations. Add new files; never edit applied ones |
 | `test/` | Vitest suites that run inside `workerd` via `@cloudflare/vitest-plugin` |
 | `wrangler.jsonc` | Bindings, crons, queues, Durable Objects, environments |
-| `.cursor/skills/verify-shortlinks/` | Verification skill: `control.mjs`, seed data, smoke journeys, feature map |
-| `.cursor/rules/` | `workers.mdc`, `autonomy.mdc`, `pstack-models.mdc` (managed by pstack-kit) |
+| `.cursor/skills/verify-shortlinks/` | Verification skill: how to start, check and drive the app, smoke journeys, feature map |
+| `.cursor/rules/` | Agent rules. `autonomy*.mdc` and `pstack-models.mdc` are managed by pstack-kit |
 | `docs/plans/` | Plans for multi-PR work, with their lifecycle |
-| `scripts/kit/` | Checks CI runs: diff limit, this file's rule table, plans |
+| `.pstack-kit/checks/` | The checks CI runs. Add yours to `local.json` |
+| `scripts/kit/` | Check runner and the kit's checks: diff limit, this file's rule table, plans |
 | `.pstack-kit/` | Kit config and lock. Run the kit's `apply` command to update managed files |
 
 ## Commands
 
-Run these before you say a change is done. CI runs the same ones.
+Run these before you say a change is done. CI runs the same checks through the same runner.
 
 ```bash
-npm ci
-npx wrangler types --check && npx tsc --noEmit                  # typecheck
-npx eslint . && node scripts/kit/check-agents-rules.mjs          # lint
-npx vitest run                                                   # tests in workerd
+node scripts/kit/checks.mjs setup                                # install what the checks need
+node scripts/kit/checks.mjs list                                 # every check, and where it is defined
+node scripts/kit/checks.mjs run --all                            # all of them; or name one: run <id>
 node .cursor/skills/verify-shortlinks/control.mjs smoke            # verification smoke, evidence in .verify/evidence/
-node scripts/kit/diff-limit.mjs                                  # PR size against origin/main
+```
+
+The workers adapter's checks (`.pstack-kit/checks/workers.json`) run these:
+
+```bash
+npm ci                                                           # setup
+npx wrangler types --check && npx tsc --noEmit                  # typecheck
+npx eslint . --max-warnings 0                                   # lint
+npx vitest run                                                   # tests in workerd
 ```
 
 To drive the Worker by hand, read `.cursor/skills/verify-shortlinks/SKILL.md` and its `features/README.md` first.
@@ -57,11 +65,11 @@ To drive the Worker by hand, read `.cursor/skills/verify-shortlinks/SKILL.md` an
 
 ## Autonomy
 
-Agents build, verify and open PRs on their own. A human merges every PR. Deploys, secrets, remote D1, KV or R2, and production DNS always stop for a human. The full table is in `.cursor/rules/autonomy.mdc`; `.cursor/hooks/pstack-kit-guard.mjs` blocks the shell forms.
+Agents build, verify and open PRs on their own. A human merges every PR. Deploys, secrets, remote data, infrastructure and production DNS always stop for a human. The policy is `.cursor/rules/autonomy.mdc`, with the Wrangler and Cloudflare forms in `.cursor/rules/autonomy-workers.mdc`; `.cursor/hooks/pstack-kit-guard.mjs` blocks the shell forms.
 
 ## Rules
 
-Each rule names what enforces it, strongest first. `scripts/kit/check-agents-rules.mjs` fails CI if an enforcer does not exist. When a human corrects an agent twice for the same thing, run `/correct`: fix it at the highest level that works (architecture, then types, then lint or CI, then a test, then docs) and add or update the row here.
+Each rule names what enforces it, strongest first. `scripts/kit/check-agents-rules.mjs` fails CI if an enforcer does not exist. Enforcers are a repo path, `ci:<check-id>`, `hook:<guard-rule>`, an adapter kind such as `lint:<rule>`, or `docs-only`. When a human corrects an agent twice for the same thing, run `/correct`: fix it at the highest level that works (architecture, then types, then lint or CI, then a test, then docs) and add or update the row here.
 
 | Rule | Enforced by |
 |---|---|
@@ -72,11 +80,12 @@ Each rule names what enforces it, strongest first. `scripts/kit/check-agents-rul
 | TypeScript strict, no unchecked index access | `tsconfig.kit.json`, `ci:typecheck` |
 | `worker-configuration.d.ts` matches `wrangler.jsonc` | `ci:typecheck` |
 | Behavior is tested inside `workerd`, through the Worker's handlers | `ci:test` |
-| Changed behavior is proven on the running Worker, with evidence in the PR | `ci:verify-smoke`, `.github/pull_request_template.md` |
-| New routes, crons, consumers and Durable Objects get a feature-map entry and a smoke journey | `docs-only` |
-| A human merges every PR | `hook:merge` |
-| Deploys, secrets, remote data and DNS pause for a human | `hook:deploy`, `hook:secrets`, `hook:remote-data`, `hook:dns` |
+| Wrangler deploys, secrets, remote data and DNS pause for a human | `hook:deploy-workers`, `hook:secrets-workers`, `hook:remote-data`, `hook:dns` |
 | Data commands pass `--local` explicitly | `hook:implicit-remote` |
+| Changed behavior is proven on the running app, with evidence in the PR | `ci:verify-smoke`, `.github/pull_request_template.md` |
+| New entry points (routes, commands, jobs, consumers) get a feature-map entry and a smoke journey | `docs-only` |
+| A human merges every PR | `hook:merge` |
+| Deploys, secrets and infrastructure pause for a human | `hook:deploy`, `hook:secrets`, `hook:infra` |
 | PRs stay under the diff limit or explain why | `ci:diff-limit` |
 | Plans follow the lifecycle and name the proof for each task | `scripts/kit/check-plans.mjs` |
 | Every rule in this table names a real enforcer | `scripts/kit/check-agents-rules.mjs` |

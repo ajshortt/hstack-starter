@@ -12,7 +12,7 @@ One bot per project. The bot's scope, permissions and history stay tied to one r
 | `/create-verification-skill` | Once, at adoption | The tailored skill, as a PR |
 | `pstack-kit status` | Weekly (optional) | A Linear issue when the project is behind the kit or has unresolved conflicts |
 
-The bot never edits product code during the maintenance routine. If the live pass shows the Worker no longer does what the feature map says and the code is wrong, that is a product bug: the bot files it in Linear with its evidence and leaves the map alone.
+The bot never edits product code during the maintenance routine. If the live pass shows the app no longer does what the feature map says and the code is wrong, that is a product bug: the bot files it in Linear with its evidence and leaves the map alone.
 
 ## Setting it up
 
@@ -42,8 +42,8 @@ pstack's author recommends this, and it suits teams that want a bot with its own
 | Allowed | Not allowed |
 |---|---|
 | Read the repository; push branches; open PRs and comment on them | Merge, approve its own PRs, or push to protected branches (branch protection enforces this) |
-| Run `wrangler dev --local` and the verification skill | `wrangler deploy`, `versions deploy`, secret commands, `--remote` data commands (the hook guard blocks these) |
-| Create and comment on Linear issues in the project's team; post in the project's Slack channel | Production or staging Cloudflare credentials of any kind. The bot does not need a Cloudflare API token at all, because everything runs locally |
+| Run the project locally, the checks (`node scripts/kit/checks.mjs`) and the verification skill | Deploys, secret commands, infrastructure changes and remote data commands (the hook guard and the adapter's rule pack block the shell forms) |
+| Create and comment on Linear issues in the project's team; post in the project's Slack channel | Production or staging cloud credentials of any kind. The bot does not need them, because the verification skill runs everything locally |
 
 ## The daily routine prompt
 
@@ -56,7 +56,7 @@ then triage. Only edit files inside .cursor/skills/verify-<project>/. Never edit
 
 Before you finish:
 - Run `node .cursor/skills/verify-<project>/control.mjs smoke` from a clean state. It must pass.
-- Confirm `control.mjs stop --all` left no wrangler or workerd process from this run.
+- Confirm `control.mjs stop --all` left no process from this run.
 
 Outcome:
 - clean: no branch, no PR. Reply with features covered and the smoke summary.

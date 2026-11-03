@@ -39,7 +39,7 @@ This replaces `vendor/pstack/` with `git archive` output for that commit, rewrit
 - [ ] **Scripts.** Read every changed script under `skills/**/scripts/` and `automations/`. Look for network calls, writes outside the project or `/tmp`, `curl | sh`, `eval`, and commands that would bypass the kit's always-pause list (merge, deploy, secrets, remote data, DNS, force-push).
 - [ ] **Dependencies.** Changed `package.json` or `bun.lock` files: are versions pinned and the lockfile frozen? Any new package, or any download without a checksum?
 - [ ] **Autonomy.** Does any skill change what agents do without asking: auto-merging, `autopilot-full` defaults, Bugbot or automation triggers, or anything that posts to Slack, Linear or GitHub? These must still stop where `autonomy.mdc` says they stop.
-- [ ] **Model defaults.** New or renamed role lines in `setup-pstack`. If the role list changed, update `template/files/.cursor/rules/pstack-models.mdc` and [model-policy.md](model-policy.md) in the same PR.
+- [ ] **Model defaults.** New or renamed role lines in `setup-pstack`. If the role list changed, update `core/files/.cursor/rules/pstack-models.mdc` and [model-policy.md](model-policy.md) in the same PR.
 - [ ] **Verification skills.** Changes to `create-verification-skill` or `maintain-verification-skill` that conflict with the kit's harness layout (`control.mjs`, `verify.config.json`, `smoke.json`, `features/`). Update the kit's skill template if needed.
 - [ ] **Plan files.** Changes to the Multi-phase plan playbook or `check-plan.mjs` that conflict with `docs/plans/` and its front matter.
 - [ ] **License.** Still MIT, still credited to Lauren Tan.

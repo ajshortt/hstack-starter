@@ -36,7 +36,7 @@ Cloud agents and engineer bots have no personal rule, so they always use the pro
 
 ## Changing the policy
 
-The policy is part of the kit. Change `template/files/.cursor/rules/pstack-models.mdc` and this page in one PR, re-apply to the example, and release a kit version. Projects pick it up on their next `apply`. A project that needs a different policy edits its copy; the kit then keeps the local version and flags each new kit version as a conflict to review, rather than overwriting it.
+The policy is part of the kit. Change `core/files/.cursor/rules/pstack-models.mdc` and this page in one PR, re-apply to the example, and release a kit version. Projects pick it up on their next `apply`. A project that needs a different policy edits its copy; the kit then keeps the local version and flags each new kit version as a conflict to review, rather than overwriting it.
 
 When pstack bumps add, rename or remove roles, the bump PR updates this rule (see the checklist in [pstack-upgrades.md](pstack-upgrades.md)).
 

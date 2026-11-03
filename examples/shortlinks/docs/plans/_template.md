@@ -31,7 +31,7 @@ updated: <yyyy-mm-dd>
 ## Risks and human gates
 
 - <Risk, and how a reviewer or the verification skill would notice it.>
-- Human steps: <deploys, secrets, remote D1 migrations, DNS, each with who runs it and when. Or "none".>
+- Human steps: <deploys, secrets, remote data migrations, infrastructure, DNS, each with who runs it and when. Or "none".>
 
 ## Outcome
 

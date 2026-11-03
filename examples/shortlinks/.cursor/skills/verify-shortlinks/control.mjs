@@ -1,89 +1,36 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Verification harness for a Cloudflare Worker running under `wrangler dev --local`.
-// Project-specific behavior lives in verify.config.json, seed/, smoke.json and features/ next to this file.
-import { spawn, execFile } from "node:child_process";
+// Managed by pstack-kit. Stack-neutral verification harness: isolated runs, doctor, drive steps, smoke journeys, evidence.
+// How the app runs is project config (verify.config.json "launch") or an adapter driver (verify.config.json "driver").
+import { execFile, spawn } from "node:child_process";
 import { createServer } from "node:net";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, rmSync, readdirSync, statSync, copyFileSync, openSync } from "node:fs";
+import { appendFileSync, copyFileSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const execFileP = promisify(execFile);
 const SKILL_DIR = dirname(fileURLToPath(import.meta.url));
-const CONFIG_PATH = join(SKILL_DIR, "verify.config.json");
-const config = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
-const PROJECT_ROOT = resolve(SKILL_DIR, config.projectRoot ?? "../../..");
-const VERIFY_DIR = join(PROJECT_ROOT, ".verify");
-const RUNS_DIR = join(VERIFY_DIR, "runs");
-const EVIDENCE_ROOT = join(VERIFY_DIR, "evidence");
-const CURRENT = join(VERIFY_DIR, "current");
-const WRANGLER = join(PROJECT_ROOT, "node_modules", ".bin", "wrangler");
-const CHILD_ENV = { ...process.env, WRANGLER_SEND_METRICS: "false", NO_COLOR: "1", FORCE_COLOR: "0", CI: "1" };
+const CHILD_ENV = { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0", CI: "1" };
 
-class UsageError extends Error {}
+export class UsageError extends Error {}
 
-export function parseJsonc(text) {
-  let out = "";
-  let inString = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-    if (inString) {
-      out += ch;
-      if (ch === "\\") out += text[++i] ?? "";
-      else if (ch === '"') inString = false;
-    } else if (ch === '"') {
-      inString = true;
-      out += ch;
-    } else if (ch === "/" && next === "/") {
-      while (i < text.length && text[i] !== "\n") i++;
-      out += "\n";
-    } else if (ch === "/" && next === "*") {
-      i += 2;
-      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) i++;
-      i++;
-    } else {
-      out += ch;
-    }
-  }
-  return JSON.parse(out.replace(/,(\s*[}\]])/g, "$1"));
+let config;
+let driver = {};
+let PROJECT_ROOT;
+let VERIFY_DIR;
+let RUNS_DIR;
+let EVIDENCE_ROOT;
+let CURRENT;
+
+async function init() {
+  config = JSON.parse(readFileSync(join(SKILL_DIR, "verify.config.json"), "utf8"));
+  PROJECT_ROOT = resolve(SKILL_DIR, config.projectRoot ?? "../../..");
+  VERIFY_DIR = join(PROJECT_ROOT, ".verify");
+  RUNS_DIR = join(VERIFY_DIR, "runs");
+  EVIDENCE_ROOT = join(VERIFY_DIR, "evidence");
+  CURRENT = join(VERIFY_DIR, "current");
+  if (config.driver) driver = (await import(pathToFileURL(join(SKILL_DIR, config.driver)).href)).default ?? {};
 }
 
-function wranglerConfig() {
-  const file = join(PROJECT_ROOT, config.wranglerConfig ?? "wrangler.jsonc");
-  const raw = parseJsonc(readFileSync(file, "utf8"));
-  return config.env ? { ...raw, ...raw.env?.[config.env] } : raw;
-}
-
-export function declaredBindings(wc) {
-  const names = [
-    ...(wc.d1_databases ?? []).map((b) => b.binding),
-    ...(wc.kv_namespaces ?? []).map((b) => b.binding),
-    ...(wc.r2_buckets ?? []).map((b) => b.binding),
-    ...(wc.queues?.producers ?? []).map((b) => b.binding),
-    ...(wc.durable_objects?.bindings ?? []).map((b) => b.name),
-    ...(wc.services ?? []).map((b) => b.binding),
-    ...Object.keys(wc.vars ?? {}),
-  ];
-  return [...new Set(names)].sort();
-}
-
-export function parseBindingTable(log) {
-  const rows = [];
-  for (const line of log.split("\n")) {
-    const match = line.match(/^env\.(\w+)\b.*?\s(local|remote|not connected)\s*$/);
-    if (match) rows.push({ name: match[1], mode: match[2] });
-  }
-  return rows;
-}
-
-function bucketFor(binding) {
-  const bucket = (wranglerConfig().r2_buckets ?? []).find((b) => b.binding === binding);
-  if (!bucket) throw new UsageError(`No R2 binding named ${binding} in the wrangler config.`);
-  return bucket.bucket_name;
-}
-
-function render(value, vars) {
+export function render(value, vars) {
   if (typeof value === "string") return value.replace(/\{\{(\w+)\}\}/g, (_, key) => (key in vars ? String(vars[key]) : `{{${key}}}`));
   if (Array.isArray(value)) return value.map((v) => render(v, vars));
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, render(v, vars)]));
@@ -106,8 +53,16 @@ export function subsetMismatch(expected, actual, path = "$") {
   return null;
 }
 
-const parseMaybeJson = (text) => {
-  if (text === null) return null;
+export function judge(expect = {}, result) {
+  for (const [key, expected] of Object.entries(expect)) {
+    const miss = subsetMismatch(expected, result?.[key === "json" ? "body" : key], key);
+    if (miss) return miss;
+  }
+  return null;
+}
+
+export const parseMaybeJson = (text) => {
+  if (text === null || text === undefined) return null;
   try {
     return JSON.parse(text);
   } catch {
@@ -138,13 +93,15 @@ const isAlive = (pid) => {
   }
 };
 
-const cmdlineOf = (pid) => {
+const startTimeOf = (pid) => {
   try {
-    return readFileSync(`/proc/${pid}/cmdline`, "utf8").split("\0").join(" ");
+    return readFileSync(`/proc/${pid}/stat`, "utf8").split(") ")[1].split(" ")[19];
   } catch {
     return null;
   }
 };
+
+const owned = (run) => Boolean(run.pid) && isAlive(run.pid) && (run.startTime == null || startTimeOf(run.pid) === run.startTime);
 
 function runIdOrCurrent(flags) {
   const id = flags.run ?? (existsSync(CURRENT) ? readFileSync(CURRENT, "utf8").trim() : null);
@@ -159,6 +116,8 @@ function loadRun(flags) {
   return JSON.parse(readFileSync(file, "utf8"));
 }
 
+const saveRun = (run) => writeFileSync(join(run.runDir, "run.json"), JSON.stringify(run, null, 2));
+
 function evidenceDir(runId) {
   const dir = join(EVIDENCE_ROOT, runId);
   mkdirSync(dir, { recursive: true });
@@ -169,118 +128,131 @@ function record(run, entry) {
   appendFileSync(join(evidenceDir(run.runId), "transcript.jsonl"), JSON.stringify({ at: new Date().toISOString(), ...entry }) + "\n");
 }
 
-async function wrangler(args, { json = false } = {}) {
-  const { stdout } = await execFileP(WRANGLER, args, { cwd: PROJECT_ROOT, env: CHILD_ENV, maxBuffer: 32 * 1024 * 1024 });
-  return json ? JSON.parse(stdout.slice(stdout.indexOf("["))) : stdout;
-}
-
-const localArgs = (run) => ["--local", "--persist-to", run.persistTo, ...(config.env ? ["--env", config.env] : [])];
-
-async function d1(run, binding, sql) {
-  const out = await wrangler(["d1", "execute", binding, ...localArgs(run), "--json", "--command", sql], { json: true });
-  return out.flatMap((r) => r.results ?? []);
-}
-
-async function kvGet(run, binding, key) {
-  const out = await wrangler(["kv", "key", "get", "--binding", binding, key, ...localArgs(run)]).catch(() => null);
-  if (out === null || out.trim() === "Value not found") return null;
-  return out.replace(/\n$/, "");
-}
-
-async function r2Get(run, binding, key) {
-  return (await wrangler(["r2", "object", "get", `${bucketFor(binding)}/${key}`, ...localArgs(run), "--pipe"]).catch(() => null)) ?? null;
-}
-
-async function seed(run) {
-  const seedConfig = config.seed ?? {};
-  for (const { binding, file } of seedConfig.d1 ?? []) {
-    await wrangler(["d1", "execute", binding, ...localArgs(run), "--file", join(SKILL_DIR, file)]);
-  }
-  for (const { binding, file } of seedConfig.kv ?? []) {
-    const entries = JSON.parse(readFileSync(join(SKILL_DIR, file), "utf8"));
-    for (const [key, value] of Object.entries(entries)) {
-      await wrangler(["kv", "key", "put", "--binding", binding, key, typeof value === "string" ? value : JSON.stringify(value), ...localArgs(run)]);
-    }
-  }
-  for (const { binding, dir } of seedConfig.r2 ?? []) {
-    const root = join(SKILL_DIR, dir);
-    const walk = (d) => readdirSync(d).flatMap((name) => (statSync(join(d, name)).isDirectory() ? walk(join(d, name)) : [join(d, name)]));
-    for (const file of existsSync(root) ? walk(root) : []) {
-      await wrangler(["r2", "object", "put", `${bucketFor(binding)}/${relative(root, file)}`, "--file", file, ...localArgs(run)]);
-    }
-  }
-}
-
-async function fetchJson(run, method, path, { json, headers = {} } = {}) {
+async function fetchJson(run, method, path, { json, headers = {}, body } = {}) {
+  if (!run.baseUrl) throw new UsageError("This run has no baseUrl. Set `baseUrl` (and `launch`) in verify.config.json, or use a driver that serves HTTP.");
   const started = Date.now();
   const response = await fetch(new URL(path, run.baseUrl), {
     method,
     redirect: "manual",
     headers: { ...(json === undefined ? {} : { "content-type": "application/json" }), ...headers },
-    body: json === undefined ? undefined : JSON.stringify(json),
+    body: json === undefined ? body : JSON.stringify(json),
     signal: AbortSignal.timeout(15000),
   });
-  const body = parseMaybeJson(await response.text());
-  return { status: response.status, headers: Object.fromEntries(response.headers), body, ms: Date.now() - started };
+  return { status: response.status, headers: Object.fromEntries(response.headers), body: parseMaybeJson(await response.text()), ms: Date.now() - started };
+}
+
+export function runCommand(command, { cwd, env = {}, timeoutMs = 120000, stdin } = {}) {
+  return new Promise((resolveRun) => {
+    const started = Date.now();
+    const child = execFile("sh", ["-c", command], { cwd, env: { ...CHILD_ENV, ...env }, timeout: timeoutMs, maxBuffer: 32 * 1024 * 1024 }, (error, stdout, stderr) => {
+      const exitCode = error ? (typeof error.code === "number" ? error.code : 1) : 0;
+      resolveRun({ exitCode, stdout: stdout.replace(/\n$/, ""), stderr: stderr.replace(/\n$/, ""), json: parseMaybeJson(stdout.trim() || null), ms: Date.now() - started });
+    });
+    if (stdin !== undefined) child.stdin.end(stdin);
+  });
+}
+
+function context(run) {
+  return {
+    config,
+    run,
+    projectRoot: PROJECT_ROOT,
+    skillDir: SKILL_DIR,
+    vars: runVars(run),
+    env: CHILD_ENV,
+    UsageError,
+    render,
+    parseMaybeJson,
+    subsetMismatch,
+    request: (method, path, opts) => fetchJson(run, method, path, opts),
+    runCommand: (command, opts) => runCommand(command, { cwd: PROJECT_ROOT, ...opts }),
+    record: (entry) => record(run, entry),
+  };
+}
+
+const CORE_STEPS = {
+  request: (ctx, { method = "GET", path, json, headers, body }) => ctx.request(method, path, { json, headers, body }),
+  run: (ctx, { command, cwd, env, timeoutMs, stdin }) => runCommand(command, { cwd: resolve(PROJECT_ROOT, cwd ?? "."), env, timeoutMs, stdin }),
+  log: (ctx, { pattern }) => {
+    if (!ctx.run.log || !existsSync(ctx.run.log)) throw new UsageError("This run has no log. Only launched runs capture output.");
+    return { matched: new RegExp(pattern).test(readFileSync(ctx.run.log, "utf8")) };
+  },
+  file: (ctx, { path }) => {
+    const file = resolve(PROJECT_ROOT, path);
+    return existsSync(file) ? { exists: true, value: parseMaybeJson(readFileSync(file, "utf8")) } : { exists: false, value: null };
+  },
+};
+
+const RESERVED = new Set(["expect", "save", "retry", "label", "name"]);
+const stepKind = (spec) => Object.keys(spec).find((k) => !RESERVED.has(k));
+
+async function step(run, spec, vars) {
+  const s = render(spec, vars);
+  const kind = stepKind(s);
+  const handler = driver.steps?.[kind] ?? CORE_STEPS[kind];
+  if (!handler) throw new UsageError(`Unknown step "${kind}". Core steps: ${Object.keys(CORE_STEPS).join(", ")}. Driver steps: ${Object.keys(driver.steps ?? {}).join(", ") || "none"}.`);
+  return handler(context(run), s[kind]);
+}
+
+function runVars(run) {
+  // runId is the slug-safe form (lowercase letters and digits), so journeys can put it in names, slugs and keys.
+  return { runId: run.runId.toLowerCase().replace(/[^a-z0-9]/g, "").slice(-10), port: run.port, baseUrl: run.baseUrl ?? "", runDir: run.runDir, projectRoot: PROJECT_ROOT };
 }
 
 async function waitReady(run, child, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
-  const { path, expectStatus = 200, expectJson } = config.ready;
-  let last = "no response yet";
+  let last = "no attempt yet";
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) throw new Error(`wrangler dev exited with ${child.exitCode}. See ${run.log}.`);
+    if (child && child.exitCode !== null) throw new Error(`The app exited with ${child.exitCode} before it was ready. See ${run.log}.`);
     try {
-      const res = await fetchJson(run, "GET", path);
-      const miss = res.status === expectStatus ? (expectJson ? subsetMismatch(expectJson, res.body) : null) : `status ${res.status}`;
-      if (!miss) return res;
+      const result = await step(run, config.ready, runVars(run));
+      const miss = judge(render(config.ready.expect, runVars(run)), result);
+      if (!miss) return result;
       last = miss;
     } catch (error) {
+      if (error instanceof UsageError) throw error;
       last = error.message;
     }
     await new Promise((r) => setTimeout(r, 300));
   }
-  throw new Error(`Not ready after ${timeoutMs}ms on ${path}: ${last}. See ${run.log}.`);
+  throw new Error(`Not ready after ${timeoutMs}ms: ${last}.${run.log ? ` See ${run.log}.` : ""}`);
+}
+
+function launchFromConfig(run) {
+  const launch = render(config.launch, runVars(run));
+  const logFd = openSync(run.log, "a");
+  return spawn("sh", ["-c", launch.command], { cwd: resolve(PROJECT_ROOT, launch.cwd ?? "."), env: { ...CHILD_ENV, ...launch.env }, detached: true, stdio: ["ignore", logFd, logFd] });
 }
 
 async function start(flags) {
-  if (config._template) throw new UsageError("verify.config.json is still the kit template. Tailor it (see SKILL.md, 'Tailor this skill') before launching.");
+  if (config._template) throw new UsageError("verify.config.json is still the kit template. Tailor it (see SKILL.md, 'Tailor this skill') before running.");
   const runId = flags["run-id"] ?? `${new Date().toISOString().replace(/[-:]/g, "").replace(/\..*/, "")}-${process.pid}`;
   const runDir = join(RUNS_DIR, runId);
   if (existsSync(join(runDir, "run.json"))) throw new UsageError(`Run ${runId} already exists. Stop it or pick another --run-id.`);
   mkdirSync(runDir, { recursive: true });
   const port = Number(flags.port ?? (await freePort()));
-  const inspectorPort = await freePort();
-  const run = {
-    runId,
-    port,
-    baseUrl: `http://127.0.0.1:${port}`,
-    persistTo: join(runDir, "state"),
-    log: join(runDir, "wrangler.log"),
-    evidence: evidenceDir(runId),
-    startedAt: new Date().toISOString(),
-  };
-  const vars = render(config.vars ?? {}, { port, runId });
-
-  for (const db of wranglerConfig().d1_databases ?? []) {
-    await wrangler(["d1", "migrations", "apply", db.binding, ...localArgs(run)]);
-  }
-  await seed(run);
-
-  const args = ["dev", "--local", "--ip", "127.0.0.1", "--port", String(port), "--inspector-port", String(inspectorPort), "--persist-to", run.persistTo, "--test-scheduled", "--show-interactive-dev-session=false", ...(config.env ? ["--env", config.env] : []), ...Object.entries(vars).flatMap(([k, v]) => ["--var", `${k}:${v}`])];
-  const logFd = openSync(run.log, "a");
-  const child = spawn(WRANGLER, args, { cwd: PROJECT_ROOT, env: CHILD_ENV, detached: true, stdio: ["ignore", logFd, logFd] });
-  run.pid = child.pid;
-  writeFileSync(join(runDir, "run.json"), JSON.stringify(run, null, 2));
+  const run = { runId, runDir, port, log: null, evidence: evidenceDir(runId), startedAt: new Date().toISOString() };
+  run.baseUrl = config.baseUrl ? render(config.baseUrl, runVars(run)) : `http://127.0.0.1:${port}`;
+  saveRun(run);
   writeFileSync(CURRENT, runId);
   try {
-    const ready = await waitReady(run, child, Number(flags.timeout ?? 90000));
+    const ctx = context(run);
+    if (driver.prepare) await driver.prepare(ctx);
+    let child = null;
+    if (driver.launch || config.launch) {
+      run.log = join(runDir, driver.logName ?? "app.log");
+      child = driver.launch ? await driver.launch(ctx) : launchFromConfig(run);
+      run.pid = child.pid;
+      run.startTime = startTimeOf(child.pid);
+    }
+    saveRun(run);
+    const ready = config.ready ? await waitReady(run, child, Number(flags.timeout ?? config.launch?.timeoutMs ?? 90000)) : null;
     record(run, { command: "start", ok: true, ready });
+    child?.unref();
   } catch (error) {
     await stop({ run: runId });
     throw error;
   }
-  child.unref();
   return { ok: true, ...run };
 }
 
@@ -288,41 +260,18 @@ async function doctor(flags) {
   const run = loadRun(flags);
   const checks = [];
   const check = (name, ok, detail) => checks.push({ name, ok: Boolean(ok), detail });
-
-  const cmdline = cmdlineOf(run.pid) ?? "";
-  check("process", isAlive(run.pid) && cmdline.includes(`--port ${run.port}`), isAlive(run.pid) ? `pid ${run.pid}: ${cmdline.slice(0, 160)}` : `pid ${run.pid} is not running`);
-
-  const ready = await fetchJson(run, "GET", config.ready.path).catch((error) => ({ status: 0, body: error.message }));
-  const readyMiss = ready.status === (config.ready.expectStatus ?? 200) ? (config.ready.expectJson ? subsetMismatch(config.ready.expectJson, ready.body) : null) : `status ${ready.status}`;
-  check("ready", !readyMiss, readyMiss ?? `${config.ready.path} returned the expected body`);
-
-  const log = existsSync(run.log) ? readFileSync(run.log, "utf8") : "";
-  const table = parseBindingTable(log);
-  const declared = declaredBindings(wranglerConfig());
-  const seen = new Set(table.map((r) => r.name));
-  const missing = declared.filter((name) => !seen.has(name));
-  const remote = table.filter((r) => r.mode !== "local");
-  check("bindings", missing.length === 0 && remote.length === 0, missing.length || remote.length ? { missing, notLocal: remote } : `${declared.length} bindings, all local`);
-
-  const wc = wranglerConfig();
-  for (const db of wc.d1_databases ?? []) {
-    const out = await wrangler(["d1", "migrations", "list", db.binding, ...localArgs(run)]).catch((e) => String(e.stdout ?? e.message));
-    check(`migrations:${db.binding}`, /No migrations to apply/i.test(out), out.trim().split("\n").slice(-3).join(" "));
+  if (run.pid) check("process", owned(run), owned(run) ? `pid ${run.pid} started by this run` : `pid ${run.pid} is not running or is not ours`);
+  if (config.ready) {
+    const result = await step(run, config.ready, runVars(run)).catch((error) => ({ error: error.message }));
+    const miss = result.error ?? judge(render(config.ready.expect, runVars(run)), result);
+    check("ready", !miss, miss ?? "ready check passes");
   }
-
-  for (const probe of config.doctor?.d1 ?? []) {
-    const rows = await d1(run, probe.binding, probe.sql).catch((e) => e.message);
-    const ok = Array.isArray(rows) && (probe.expect ? !subsetMismatch(probe.expect, rows) : rows.length > 0);
-    check(`seed:${probe.name ?? probe.sql}`, ok, rows);
+  for (const probe of config.doctor ?? []) {
+    const result = await step(run, probe, runVars(run)).catch((error) => ({ error: error.message }));
+    const miss = result.error ?? judge(render(probe.expect, runVars(run)), result);
+    check(probe.name ?? stepKind(probe), !miss, miss ?? result);
   }
-  for (const probe of config.doctor?.kv ?? []) {
-    const value = await kvGet(run, probe.binding, probe.key);
-    check(`seed:kv:${probe.key}`, value !== null, value);
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  check("compatibility_date", typeof wc.compatibility_date === "string" && wc.compatibility_date <= today, wc.compatibility_date);
-
+  if (driver.doctor) for (const c of await driver.doctor(context(run))) checks.push({ ...c, ok: Boolean(c.ok) });
   const result = { ok: checks.every((c) => c.ok), runId: run.runId, baseUrl: run.baseUrl, checks };
   writeFileSync(join(evidenceDir(run.runId), "doctor.json"), JSON.stringify(result, null, 2));
   return result;
@@ -336,7 +285,7 @@ async function stop(flags) {
     const file = join(runDir, "run.json");
     if (!existsSync(file)) continue;
     const run = JSON.parse(readFileSync(file, "utf8"));
-    if (run.pid && isAlive(run.pid) && (cmdlineOf(run.pid) ?? "").includes(`--port ${run.port}`)) {
+    if (owned(run)) {
       try {
         process.kill(-run.pid, "SIGTERM");
       } catch (error) {
@@ -345,40 +294,13 @@ async function stop(flags) {
       for (let i = 0; i < 50 && isAlive(run.pid); i++) await new Promise((r) => setTimeout(r, 100));
       if (isAlive(run.pid)) process.kill(-run.pid, "SIGKILL");
     }
-    if (existsSync(run.log)) copyFileSync(run.log, join(evidenceDir(id), "wrangler.log"));
+    if (driver.cleanup) await driver.cleanup(context(run));
+    if (run.log && existsSync(run.log)) copyFileSync(run.log, join(evidenceDir(id), driver.logName ?? "app.log"));
     rmSync(runDir, { recursive: true, force: true });
     if (existsSync(CURRENT) && readFileSync(CURRENT, "utf8").trim() === id) rmSync(CURRENT);
     stopped.push({ runId: id, evidence: relative(PROJECT_ROOT, evidenceDir(id)) });
   }
   return { ok: true, stopped };
-}
-
-async function step(run, spec, vars) {
-  const s = render(spec, vars);
-  if (s.request) {
-    const { method = "GET", path, json, headers } = s.request;
-    return fetchJson(run, method, path, { json, headers });
-  }
-  if (s.scheduled) return fetchJson(run, "GET", `/cdn-cgi/handler/scheduled?cron=${encodeURIComponent(s.scheduled.cron ?? "* * * * *")}`);
-  if (s.d1) return { rows: await d1(run, s.d1.binding, s.d1.sql) };
-  if (s.kv) return { value: parseMaybeJson(await kvGet(run, s.kv.binding, s.kv.key)) };
-  if (s.r2) return { value: parseMaybeJson(await r2Get(run, s.r2.binding, s.r2.key)) };
-  if (s.log) {
-    const log = readFileSync(run.log, "utf8");
-    return { matched: new RegExp(s.log.pattern).test(log) };
-  }
-  throw new UsageError(`Unknown step: ${JSON.stringify(spec)}`);
-}
-
-function judge(expect = {}, result) {
-  if (expect.status !== undefined && result.status !== expect.status) return `status: expected ${expect.status}, got ${result.status}`;
-  for (const [key, field] of [["json", "body"], ["headers", "headers"], ["rows", "rows"], ["value", "value"]]) {
-    if (expect[key] === undefined) continue;
-    const miss = subsetMismatch(expect[key], result[field], key);
-    if (miss) return miss;
-  }
-  if (expect.matched !== undefined && result.matched !== expect.matched) return `log pattern matched=${result.matched}`;
-  return null;
 }
 
 async function runJourney(run, journey, vars) {
@@ -389,13 +311,13 @@ async function runJourney(run, journey, vars) {
     let result;
     let miss;
     for (;;) {
-      result = await step(run, spec, vars);
-      miss = judge(render(expect, vars), result);
+      result = await step(run, spec, vars).catch((error) => ({ error: error.message }));
+      miss = result.error ?? judge(render(expect, vars), result);
       if (!miss || Date.now() >= deadline) break;
       await new Promise((r) => setTimeout(r, retry?.intervalMs ?? 500));
     }
     for (const [name, path] of Object.entries(save ?? {})) vars[name] = pick(result.body ?? result, path);
-    const entry = { journey: journey.feature, label: label ?? Object.keys(spec).find((k) => !["expect", "save", "retry", "label"].includes(k)), ok: !miss, miss, result };
+    const entry = { journey: journey.feature, label: label ?? stepKind(spec), ok: !miss, miss, result };
     record(run, { command: "smoke-step", ...entry });
     steps.push(entry);
     if (miss) break;
@@ -404,13 +326,20 @@ async function runJourney(run, journey, vars) {
 }
 
 function summaryMarkdown(run, doctorResult, journeys) {
-  const lines = [`# Verification evidence: ${config.app}`, "", `- Run: \`${run.runId}\``, `- Started: ${run.startedAt}`, `- Base URL: ${run.baseUrl}`, `- Doctor: ${doctorResult.ok ? "pass" : "FAIL"}`, "", "| Feature | Step | Result |", "|---|---|---|"];
+  const lines = [`# Verification evidence: ${config.app}`, "", `- Run: \`${run.runId}\``, `- Started: ${run.startedAt}`];
+  if (run.pid) lines.push(`- Base URL: ${run.baseUrl}`);
+  lines.push(`- Doctor: ${doctorResult.ok ? "pass" : "FAIL"}`, "", "| Feature | Step | Result |", "|---|---|---|");
+  if (!doctorResult.ok) for (const c of doctorResult.checks.filter((c) => !c.ok)) lines.push(`| doctor | ${c.name} | FAIL: ${JSON.stringify(c.detail).replace(/\|/g, "\\|").slice(0, 300)} |`);
   for (const j of journeys) for (const s of j.steps) lines.push(`| ${j.feature} | ${s.label} | ${s.ok ? "pass" : `FAIL: ${String(s.miss).replace(/\|/g, "\\|")}`} |`);
-  lines.push("", "Raw responses are in `transcript.jsonl`. Wrangler output is in `wrangler.log`.", "");
+  lines.push("", `Raw results are in \`transcript.jsonl\`.${run.log ? ` App output is in \`${driver.logName ?? "app.log"}\`.` : ""}`, "");
   return lines.join("\n");
 }
 
 async function smoke(flags) {
+  if (config._template && flags["if-tailored"]) {
+    console.error("warning: verify.config.json still has \"_template\": true, so there is nothing to prove yet. Tailor the verification skill (adoption phase 1).");
+    return { ok: true, skipped: true, reason: "verification skill not tailored" };
+  }
   const spec = JSON.parse(readFileSync(join(SKILL_DIR, config.smoke ?? "smoke.json"), "utf8"));
   const started = await start(flags);
   const run = loadRun({ run: started.runId });
@@ -420,16 +349,21 @@ async function smoke(flags) {
     doctorResult = await doctor({ run: run.runId });
     if (doctorResult.ok) {
       const only = flags.feature ? String(flags.feature).split(",") : null;
-      for (const journey of spec.journeys.filter((j) => !only || only.includes(j.feature))) {
-        journeys.push(await runJourney(run, journey, { runId: run.runId.toLowerCase().replace(/[^a-z0-9]/g, "").slice(-10), port: run.port, baseUrl: run.baseUrl }));
-      }
+      for (const journey of spec.journeys.filter((j) => !only || only.includes(j.feature))) journeys.push(await runJourney(run, journey, runVars(run)));
     }
   } finally {
     writeFileSync(join(run.evidence, "summary.md"), summaryMarkdown(run, doctorResult, journeys));
     if (!flags.keep) await stop({ run: run.runId });
   }
   const ok = doctorResult.ok && journeys.length > 0 && journeys.every((j) => j.ok);
-  return { ok, runId: run.runId, evidence: relative(PROJECT_ROOT, run.evidence), doctor: doctorResult.ok, journeys: journeys.map((j) => ({ feature: j.feature, ok: j.ok, failed: j.steps.find((s) => !s.ok)?.miss })) };
+  return {
+    ok,
+    runId: run.runId,
+    evidence: relative(PROJECT_ROOT, run.evidence),
+    doctor: doctorResult.ok,
+    ...(doctorResult.ok ? {} : { doctorFailures: doctorResult.checks.filter((c) => !c.ok) }),
+    journeys: journeys.map((j) => ({ feature: j.feature, ok: j.ok, failed: j.steps.find((s) => !s.ok)?.miss })),
+  };
 }
 
 async function drive(command, positional, flags) {
@@ -440,15 +374,11 @@ async function drive(command, positional, flags) {
     if (!method || !path) throw new UsageError("Usage: request <METHOD> <PATH> [--json '<body>'] [--header 'k: v']");
     const headers = Object.fromEntries([flags.header ?? []].flat().map((h) => h.split(/:\s*/, 2)));
     result = await fetchJson(run, method.toUpperCase(), path, { json: flags.json === undefined ? undefined : JSON.parse(flags.json), headers });
-  } else if (command === "scheduled") {
-    result = await step(run, { scheduled: { cron: flags.cron } }, {});
-  } else if (command === "d1") {
-    const [binding, sql] = positional;
-    result = { rows: await d1(run, binding, sql) };
-  } else if (command === "kv-get") {
-    result = await step(run, { kv: { binding: positional[0], key: positional[1] } }, {});
-  } else if (command === "r2-get") {
-    result = await step(run, { r2: { binding: positional[0], key: positional[1] } }, {});
+  } else if (command === "run") {
+    if (!positional[0]) throw new UsageError('Usage: run "<shell command>" [--label L]');
+    result = await CORE_STEPS.run(context(run), { command: positional[0] });
+  } else {
+    result = await driver.commands[command].run(context(run), positional, flags);
   }
   record(run, { command, args: positional, flags, label: flags.label, result });
   return result;
@@ -456,6 +386,7 @@ async function drive(command, positional, flags) {
 
 function logs(flags) {
   const run = loadRun(flags);
+  if (!run.log) throw new UsageError("This run has no log. Only launched runs capture output.");
   const lines = readFileSync(run.log, "utf8").split("\n");
   const filtered = flags.grep ? lines.filter((l) => new RegExp(flags.grep).test(l)) : lines;
   return { log: run.log, lines: filtered.slice(-Number(flags.tail ?? 50)) };
@@ -477,49 +408,36 @@ function parseArgs(argv) {
   return { positional, flags };
 }
 
-const HELP = `control.mjs: drive ${config.app} under wrangler dev --local. Every command prints JSON.
-  start [--port N] [--run-id ID]   migrate, seed and launch an isolated instance; waits for ${config.ready?.path}
-  doctor [--run ID]                read-only: process owned by us, ready, bindings local, migrations, seed
-  request METHOD PATH [--json B] [--header 'k: v'] [--label L]
-  scheduled [--cron "0 * * * *"]   fire the scheduled() handler
-  d1 BINDING "SQL"                 query local D1 (read-back)
-  kv-get BINDING KEY               read local KV
-  r2-get BINDING KEY               read local R2 object
-  logs [--grep RE] [--tail N]      wrangler output for this run
-  smoke [--feature a,b] [--keep]   start, doctor, run smoke.json journeys, write evidence, stop
-  stop [--run ID | --all]          kill only the process this harness started; keeps evidence
-Evidence: .verify/evidence/<run-id>/ (transcript.jsonl, doctor.json, summary.md, wrangler.log)`;
+function help() {
+  const driverLines = Object.entries(driver.commands ?? {}).map(([name, c]) => `  ${c.usage ?? name}`);
+  return [
+    `control.mjs: verify ${config.app}${driver.name ? ` (driver: ${driver.name})` : ""}. Every command prints JSON.`,
+    "  start [--port N] [--run-id ID]   isolated run: prepare, launch if configured, wait for ready",
+    "  doctor [--run ID]                read-only health of the run: process, ready, probes, driver checks",
+    "  request METHOD PATH [--json B] [--header 'k: v'] [--label L]",
+    '  run "<shell command>" [--label L]',
+    ...driverLines,
+    "  logs [--grep RE] [--tail N]      captured app output for this run",
+    "  smoke [--feature a,b] [--keep] [--if-tailored]   start, doctor, run smoke journeys, write evidence, stop",
+    "  stop [--run ID | --all]          stop only what this harness started; keeps evidence",
+    "Evidence: .verify/evidence/<run-id>/ (transcript.jsonl, doctor.json, summary.md, app log)",
+  ].join("\n");
+}
 
 async function main() {
+  await init();
   const [command, ...rest] = process.argv.slice(2);
   const { positional, flags } = parseArgs(rest);
   let result;
-  switch (command) {
-    case "start":
-      result = await start(flags);
-      break;
-    case "doctor":
-      result = await doctor(flags);
-      break;
-    case "stop":
-      result = await stop(flags);
-      break;
-    case "smoke":
-      result = await smoke(flags);
-      break;
-    case "logs":
-      result = logs(flags);
-      break;
-    case "request":
-    case "scheduled":
-    case "d1":
-    case "kv-get":
-    case "r2-get":
-      result = await drive(command, positional, flags);
-      break;
-    default:
-      console.log(HELP);
-      process.exit(command && command !== "help" && command !== "--help" ? 2 : 0);
+  if (command === "start") result = await start(flags);
+  else if (command === "doctor") result = await doctor(flags);
+  else if (command === "stop") result = await stop(flags);
+  else if (command === "smoke") result = await smoke(flags);
+  else if (command === "logs") result = logs(flags);
+  else if (command === "request" || command === "run" || driver.commands?.[command]) result = await drive(command, positional, flags);
+  else {
+    console.log(help());
+    process.exit(command && command !== "help" && command !== "--help" ? 2 : 0);
   }
   console.log(JSON.stringify(result, null, 2));
   if (result && result.ok === false) process.exitCode = 1;

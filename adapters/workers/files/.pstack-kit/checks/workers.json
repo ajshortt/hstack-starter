@@ -1,0 +1,13 @@
+{
+  "$comment": "Managed by pstack-kit (workers adapter). Add or replace checks in .pstack-kit/checks/local.json, not here.",
+  "setup": ["npm ci"],
+  "checks": [
+    { "id": "typecheck", "name": "strict tsc + wrangler types --check", "run": "npx wrangler types --check && npx tsc --noEmit" },
+    { "id": "lint", "name": "eslint with the Workers rules", "run": "npx eslint . --max-warnings 0", "requires": ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"] },
+    { "id": "test", "name": "vitest inside workerd", "run": "npx vitest run" }
+  ],
+  "diffExclude": ["**/worker-configuration.d.ts"],
+  "enforcers": {
+    "lint": { "list": "node scripts/kit/eslint-rules.mjs", "describe": "an ESLint rule at error level" }
+  }
+}

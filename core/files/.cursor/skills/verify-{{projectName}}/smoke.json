@@ -1,0 +1,14 @@
+{
+  "journeys": [
+    {
+      "feature": "health",
+      "steps": [
+        {
+          "label": "the cheapest end-to-end proof that {{projectName}} works",
+          "run": { "command": "echo 'Replace with a real command: a test entry point, a CLI invocation, or a request against the launched app.'" },
+          "expect": { "exitCode": 0 }
+        }
+      ]
+    }
+  ]
+}

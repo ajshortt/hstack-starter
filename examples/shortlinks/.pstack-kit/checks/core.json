@@ -1,0 +1,10 @@
+{
+  "$comment": "Managed by pstack-kit. Stack-neutral checks. Add or replace checks in .pstack-kit/checks/local.json, not here.",
+  "setup": [],
+  "checks": [
+    { "id": "agents-rules", "name": "AGENTS.md rules name real enforcers", "run": "node scripts/kit/check-agents-rules.mjs", "requires": "scripts/kit/check-agents-rules.mjs" },
+    { "id": "plans", "name": "plans follow the lifecycle", "run": "node scripts/kit/check-plans.mjs", "requires": "scripts/kit/check-plans.mjs" },
+    { "id": "verify-smoke", "name": "verification skill smoke journeys", "run": "node .cursor/skills/verify-shortlinks/control.mjs smoke --if-tailored", "requires": ".cursor/skills/verify-shortlinks/control.mjs", "artifacts": [".verify/evidence/"] },
+    { "id": "diff-limit", "name": "diff size against the review limit (warns only)", "run": "node scripts/kit/diff-limit.mjs", "events": ["pull_request"] }
+  ]
+}

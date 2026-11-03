@@ -1,0 +1,24 @@
+---
+description: Cloudflare Workers forms of the team autonomy policy. Extends autonomy.mdc; never loosens it.
+alwaysApply: true
+---
+
+# Autonomy policy: Cloudflare Workers (managed by pstack-kit, workers adapter)
+
+`autonomy.mdc` is the policy. This rule names the Wrangler and Cloudflare forms of it.
+
+## Agents do without asking
+
+- `wrangler dev --local`, `wrangler types`, and `wrangler d1|kv|r2 ... --local` (always with `--local`, and `--persist-to` when driving the verification skill's instance).
+
+## Always pause for a human
+
+| Action | Workers forms | Guard rule |
+|---|---|---|
+| Deploy or change traffic | `wrangler deploy`, `wrangler versions deploy`, `wrangler rollback`, `wrangler triggers deploy`, `wrangler pages deploy` | `deploy-workers` |
+| Secrets | `wrangler secret put/delete/bulk`, `wrangler versions secret`, `wrangler secrets-store`, editing Cloudflare secrets | `secrets-workers` |
+| Remote data | any `wrangler ... --remote`, `wrangler d1 create/delete/export/time-travel`, creating or deleting KV namespaces, R2 buckets or queues, D1/KV/R2 writes through the Cloudflare MCP or API | `remote-data`, `mcp-cloudflare-write` |
+| Data commands without `--local` | `wrangler d1 execute`, `wrangler kv key put`, `wrangler r2 object put` with no `--local` | `implicit-remote` |
+| Production DNS and routes | Cloudflare DNS API, `dns_records`, zone settings, `flarectl dns` | `dns` |
+
+The rule pack is `.cursor/hooks/pstack-kit-guard.rules/workers.mjs`.

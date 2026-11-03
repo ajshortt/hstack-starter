@@ -1,7 +1,10 @@
 {
-  "kit": "0.1.0",
+  "kit": "0.2.0",
   "pstack": "0.15.36",
   "phase": 2,
+  "adapters": [
+    "workers"
+  ],
   "files": {
     ".cursor/environment.json": {
       "mode": "seed"
@@ -12,22 +15,30 @@
     },
     ".cursor/hooks/pstack-kit-guard.mjs": {
       "mode": "managed",
-      "hash": "8f9e8a3b9a82704b45d89ac0ba3a6e657b782713c79008ae1fda4492e38d354f"
+      "hash": "58d7f5429a1d5b17f51b71d5190bb1fca780b226d61f4aea996a6c199011c0ff"
+    },
+    ".cursor/hooks/pstack-kit-guard.rules/workers.mjs": {
+      "mode": "managed",
+      "hash": "07fb9fc29015efa7be6465b9e3fe8af27776a46f06c17f6f4868786da10edcae"
     },
     ".github/CODEOWNERS": {
       "mode": "seed"
     },
     ".github/pull_request_template.md": {
       "mode": "managed",
-      "hash": "f5c6f2e2ddc632463a4444994bdd1ff5343136c10b7a6c2b4b51211aa1993af4"
+      "hash": "9b2f67495b6aad43f8cbc1db3c3795aef2873e028a6b69f2d9de33132c8ef975"
     },
-    ".github/workflows/worker-ci-shortlinks.yml": {
+    ".github/workflows/pstack-kit-shortlinks.yml": {
       "mode": "managed",
-      "hash": "4c5f44d1f6a55173aedd4b9f3b0c3a3907d6bb305ffa41432738b45716dbd1aa"
+      "hash": "3f07c9e9f5dfb2c5b0563ece9c945f7aa6734f0a459d00bc2bc0e0f591cde46c"
+    },
+    "examples/shortlinks/.cursor/rules/autonomy-workers.mdc": {
+      "mode": "managed",
+      "hash": "33bcc94ed4d361dcd19958e1a63577bec8ad448ac7f2f7943e5513c6ed604031"
     },
     "examples/shortlinks/.cursor/rules/autonomy.mdc": {
       "mode": "managed",
-      "hash": "8c9cc308999838ad734cbf4a62874800d31e53919cc9f6f934a2eabebd19a03d"
+      "hash": "2a44ef45b4300e861455a368dfabaa2e8423d827d23c786d3ab6693835f6ccf6"
     },
     "examples/shortlinks/.cursor/rules/pstack-models.mdc": {
       "mode": "managed",
@@ -39,17 +50,33 @@
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/control.mjs": {
       "mode": "managed",
-      "hash": "ecbdd0645a804c31444d1af97aff4cbaa456f1cceba606661e6f73c23df44037"
+      "hash": "fec3aa76ec1ed98c8780d5b133944526028c87569034aecebc0861dc9f5f532b"
+    },
+    "examples/shortlinks/.cursor/skills/verify-shortlinks/DRIVER.md": {
+      "mode": "managed",
+      "hash": "eeff2038a89a15e7094a2afeac532f40c8cc4d734cb5c7a2eadff16a2675a42b"
+    },
+    "examples/shortlinks/.cursor/skills/verify-shortlinks/driver.mjs": {
+      "mode": "managed",
+      "hash": "26380bf924857f6eb2dc814be4f48798303cea000d3faf3b72c02c4ac1d9cfd4"
     },
     "examples/shortlinks/.dev.vars.example": {
       "mode": "seed"
+    },
+    "examples/shortlinks/.pstack-kit/checks/core.json": {
+      "mode": "managed",
+      "hash": "6e6d39a60ccb0b3fc4132233aec1f3f6cef13650a55a614ff7de0e1c5e36483a"
+    },
+    "examples/shortlinks/.pstack-kit/checks/workers.json": {
+      "mode": "managed",
+      "hash": "d420878eb33d8248cfca8909fb68c775951d0fad4ddd05c704d9730f9831aec1"
     },
     "examples/shortlinks/AGENTS.md": {
       "mode": "seed"
     },
     "examples/shortlinks/docs/plans/_template.md": {
       "mode": "managed",
-      "hash": "e4d9ef811abe88f5a5a53ad48ba6d6fbac5017bc8d081936b4ee0ac92f471e95"
+      "hash": "7691c468e3be6f33c2dbb664adce69460aef0ec684e56b5da8d7b5f11b5b774a"
     },
     "examples/shortlinks/docs/plans/active/.gitkeep": {
       "mode": "seed"
@@ -67,15 +94,23 @@
     },
     "examples/shortlinks/scripts/kit/check-agents-rules.mjs": {
       "mode": "managed",
-      "hash": "f39fc2d8943806cbc5b010b9dbbc9f318ce983d9430199ff2870957e643574c9"
+      "hash": "5641da4ee82a857ea9215354542cb6829e424d62df69c3d6492abcb3ddea1203"
     },
     "examples/shortlinks/scripts/kit/check-plans.mjs": {
       "mode": "managed",
       "hash": "e9688f5205373d914e8ef93a4a967a078c16dffcf5eeaf229c3c59d6c104ebdb"
     },
+    "examples/shortlinks/scripts/kit/checks.mjs": {
+      "mode": "managed",
+      "hash": "465b3c030f5a57846f32138c310109f8621a08fcbcc64b3ac75e4d4b2b189562"
+    },
     "examples/shortlinks/scripts/kit/diff-limit.mjs": {
       "mode": "managed",
-      "hash": "50e39bf0e368e05dbf6b4e15702a6e9738031073b9f777164cb4e21dac32ca9a"
+      "hash": "6e275079f2db87eebac98a7d76f113919331c0af6382f39080800790568b79c6"
+    },
+    "examples/shortlinks/scripts/kit/eslint-rules.mjs": {
+      "mode": "managed",
+      "hash": "00cdc3a2342e090c6213d26eae1f1dcd5fa060111f4720587df409f1eae6d49b"
     },
     "examples/shortlinks/tsconfig.kit.json": {
       "mode": "managed",
