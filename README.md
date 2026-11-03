@@ -109,6 +109,10 @@ Guides: [new project](docs/adoption-new-project.md), [existing project](docs/ado
 | Evidence-first review; about 400 changed lines per PR | [docs/review.md](docs/review.md), `core/files/.github/pull_request_template.md`, `core/files/scripts/kit/diff-limit.mjs` |
 | Plans are committed in `docs/plans/` with a lifecycle | `core/files/docs/plans/README.md`, `core/files/scripts/kit/check-plans.mjs` |
 
+## Project bots
+
+Every adopting project gets the same engineer bot and PM bot from the templates in [`bots/`](bots/README.md). dr eggbot reads a template, asks the project's questions, fills the placeholders, and creates the bot. The templates are the source of truth: when they change, existing bots are re-briefed. The bots are aware of the setup. The guard hook, CI, and branch protection enforce it.
+
 ## Repository layout
 
 ```
@@ -140,6 +144,7 @@ examples/react-counter/       The react adapter's reference project: Vite, React
 .github/workflows/hstack-kit-shortlinks.yml  The kit's CI wrapper, applied to the shortlinks example
 .github/workflows/hstack-kit-react-counter.yml  The kit's CI wrapper, applied to the react-counter example
 docs/                         Adoption, CI, upgrades, models, engineer bot, review, GitHub settings
+bots/                         Grok bot templates: engineer and PM, filled per project by dr eggbot
 test/                         node:test suites: CLI, core and adapter scripts, core-only end to end on a Python repo
 ```
 
