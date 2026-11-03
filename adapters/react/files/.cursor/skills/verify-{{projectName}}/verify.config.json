@@ -1,0 +1,12 @@
+{
+  "_template": true,
+  "app": "{{projectName}}",
+  "driver": "driver.mjs",
+  "launch": {
+    "command": "if [ -f pnpm-lock.yaml ]; then pnpm dev -- --port {{!port}} --strictPort --host 127.0.0.1; elif [ -f yarn.lock ]; then yarn dev --port {{!port}} --strictPort --host 127.0.0.1; else npm run dev -- --port {{!port}} --strictPort --host 127.0.0.1; fi",
+    "timeoutMs": 60000
+  },
+  "ready": { "request": { "path": "/" }, "expect": { "status": 200 } },
+  "doctor": [{ "name": "home renders without console errors", "page": { "path": "/" }, "expect": { "status": 200, "consoleErrorCount": 0 } }],
+  "smoke": "smoke.json"
+}

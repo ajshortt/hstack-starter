@@ -1,0 +1,8 @@
+{
+  "journeys": [
+    {
+      "feature": "health",
+      "steps": [{ "label": "home route renders with a clean console", "page": { "path": "/" }, "expect": { "status": 200, "consoleErrorCount": 0 } }]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$comment": "React (Vite) front end: a Playwright-backed verification driver, Vitest/Testing Library checks, and the react.mdc rule. Reference example: examples/react-counter. Same entry format as core/manifest.json.",
+  "name": "react",
+  "description": "React front ends (Vite dev server, Vitest + Testing Library, Playwright route smoke)",
+  "requires": ["package.json"],
+  "agents": { "summary": "agents/summary.md", "map": "agents/map.md", "commands": "agents/commands.md", "rules": "agents/rules.md" },
+  "files": [
+    { "src": ".gitignore.react", "dest": ".gitignore", "mode": "lines", "phase": 0 },
+
+    { "src": ".cursor/skills/verify-{{projectName}}/driver.mjs", "mode": "managed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/DRIVER.md", "mode": "managed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/verify.config.json", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/smoke.json", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/features/README.md", "mode": "seed", "phase": 1 },
+    { "src": ".cursor/skills/verify-{{projectName}}/features/health.md", "mode": "seed", "phase": 1 },
+    { "src": ".hstack-kit/checks/react.json", "mode": "managed", "phase": 1 },
+    { "src": "tsconfig.react.json", "mode": "managed", "phase": 1 },
+
+    { "src": ".cursor/rules/react.mdc", "mode": "managed", "phase": 2 },
+    { "src": "eslint.react.js", "mode": "managed", "phase": 2 },
+    { "src": "scripts/kit/eslint-rules-react.mjs", "mode": "managed", "phase": 2 }
+  ]
+}
