@@ -73,12 +73,60 @@ test("--adapter workers adds the stack layer, overrides the skill seeds and merg
   assert.equal(pendingActions(plan(target)).length, 0, JSON.stringify(kinds(plan(target))));
 });
 
+test("--adapter react adds the Vite verification driver, Playwright smoke check and react.mdc, and is idempotent", () => {
+  const { target } = repo({ files: { "package.json": JSON.stringify({ name: "web", scripts: { dev: "vite", build: "vite build" } }) } });
+  const result = apply(target, { adapter: "react" });
+  assert.deepEqual(result.config.adapters, ["react"]);
+  for (const path of [
+    ".cursor/rules/react.mdc",
+    "eslint.react.js",
+    "tsconfig.react.json",
+    "scripts/kit/eslint-rules-react.mjs",
+    ".hstack-kit/checks/react.json",
+    ".cursor/skills/verify-web/driver.mjs",
+    ".cursor/skills/verify-web/DRIVER.md",
+  ]) {
+    assert.ok(existsSync(join(target, path)), path);
+  }
+  // No stack-specific guard pack: React's deploy and publish commands already match the core rules.
+  assert.ok(!existsSync(join(target, ".cursor/hooks/hstack-kit-guard.rules")));
+  const config = JSON.parse(read(target, ".cursor/skills/verify-web/verify.config.json"));
+  assert.equal(config.driver, "driver.mjs");
+  assert.match(config.launch.command, /npm run dev/);
+  assert.deepEqual(config.doctor[0].page, { path: "/" });
+  const checks = JSON.parse(read(target, ".hstack-kit/checks/react.json"));
+  assert.deepEqual(checks.checks.map((c) => c.id).sort(), ["build", "lint", "test", "typecheck", "verify-smoke"]);
+  assert.match(checks.checks.find((c) => c.id === "verify-smoke").run, /playwright install chromium/);
+  const gitignore = read(target, ".gitignore");
+  for (const line of [".verify/", ".hstack-kit/incoming/", "node_modules/", "dist/", ".vite/"]) assert.ok(gitignore.split("\n").includes(line), line);
+  const agents = read(target, "AGENTS.md");
+  assert.match(agents, /is a React front end built with Vite/);
+  assert.match(agents, /`lint-react:react-hooks\/exhaustive-deps`/);
+  assert.doesNotMatch(agents, /\{\{/);
+  assert.equal(pendingActions(plan(target)).length, 0, JSON.stringify(kinds(plan(target))));
+});
+
+test("react and workers apply independently to sibling nested projects in one repo", () => {
+  const { root, target: api } = repo({ nested: true, files: { "package.json": JSON.stringify({ name: "@acme/api" }) } });
+  const web = join(root, "services", "web");
+  mkdirSync(web, { recursive: true });
+  writeFileSync(join(web, "package.json"), JSON.stringify({ name: "web", scripts: { dev: "vite", build: "vite build" } }));
+  apply(api, { adapter: "workers", owners: "@acme/api" });
+  apply(web, { adapter: "react", owners: "@acme/web" });
+  assert.ok(existsSync(join(api, ".cursor/skills/verify-api/driver.mjs")));
+  assert.ok(existsSync(join(web, ".cursor/skills/verify-web/driver.mjs")));
+  assert.ok(existsSync(join(root, ".github/workflows/hstack-kit-api.yml")));
+  assert.ok(existsSync(join(root, ".github/workflows/hstack-kit-web.yml")));
+  assert.equal(pendingActions(plan(api)).length, 0);
+  assert.equal(pendingActions(plan(web)).length, 0);
+});
+
 test("adapters are remembered and never dropped silently", () => {
   const { target } = repo();
   apply(target, { adapter: "workers" });
   assert.deepEqual(plan(target).config.adapters, ["workers"]);
   assert.throws(() => plan(target, { adapter: "none" }), /already applied and the kit never removes one/);
-  assert.throws(() => plan(target, { adapter: "rails" }), /Unknown adapter "rails"\. Available: workers/);
+  assert.throws(() => plan(target, { adapter: "rails" }), /Unknown adapter "rails"\. Available: react, workers/);
   assert.throws(() => plan(target, { adapter: "none,workers" }), /cannot be combined/);
   const core = repo().target;
   apply(core);
@@ -248,6 +296,6 @@ test("the CLI is a dry run by default, status exits 1 when behind, and adapter w
   execFileSync("node", [bin, "status", "--target", target]);
   const withAdapter = execFileSync("node", [bin, "apply", "--target", target, "--adapter", "workers"], { encoding: "utf8" });
   assert.match(withAdapter, /warning: adapter workers expects package\.json/);
-  assert.equal(execFileSync("node", [bin, "adapters"], { encoding: "utf8" }).trim(), "workers");
+  assert.equal(execFileSync("node", [bin, "adapters"], { encoding: "utf8" }).trim(), "react\nworkers");
   assert.throws(() => execFileSync("node", [bin, "apply", "--target", target, "--adapter", "nope"], { stdio: "pipe" }), (e) => e.status === 2);
 });
