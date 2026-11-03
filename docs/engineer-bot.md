@@ -33,7 +33,7 @@ Nothing to host, it runs in a cloud agent with the repo's `.cursor/environment.j
 
 pstack's author recommends this, and it suits teams that want a bot with its own identity, memory and Slack presence. Dr Eggbot (`https://x.ai/bot/93gOz3op1UQdBdbekQFLK`) creates the bot from a description.
 
-1. Ask Dr Eggbot for an engineer bot for this repository whose job is the verification skill, with the routine below as a daily scheduled routine and `/create-verification-skill` as its first task.
+1. Ask dr eggbot to create the bot from the kit template [`bots/engineer.md`](../bots/engineer.md). dr eggbot asks that file's intake questions, fills the placeholders, and creates the bot. The routine below is the daily verification pass, and `/create-verification-skill` is the first task when the skill is still a draft. The PM bot is [`bots/pm.md`](../bots/pm.md).
 2. Give it the permissions below and nothing more.
 3. Connect it to the project's Slack channel and Linear team so it can report outcomes.
 
