@@ -1,6 +1,6 @@
 node_modules/
 .wrangler/
 .verify/
-.pstack-kit/incoming/
+.hstack-kit/incoming/
 .dev.vars
 *.log

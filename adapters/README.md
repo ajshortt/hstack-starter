@@ -1,6 +1,6 @@
-# Writing a pstack-kit adapter
+# Writing a hstack-kit adapter
 
-The core works in any repo without an adapter. Write one when several projects share a stack and would otherwise each hand-write the same launch config, checks and rules. An adapter is a directory here; projects opt in with `pstack-kit apply --adapter <name>`.
+The core works in any repo without an adapter. Write one when several projects share a stack and would otherwise each hand-write the same launch config, checks and rules. An adapter is a directory here; projects opt in with `hstack-kit apply --adapter <name>`.
 
 `workers/` is the reference adapter. Read it alongside this page.
 
@@ -9,10 +9,10 @@ The core works in any repo without an adapter. Write one when several projects s
 | Piece | Lands in the project as | Why |
 |---|---|---|
 | Stack rules | `.cursor/rules/<name>.mdc`, `.cursor/rules/autonomy-<name>.mdc` | What agents must know about the runtime, and the stack's forms of the always-pause actions |
-| Guard rule pack | `.cursor/hooks/pstack-kit-guard.rules/<name>.mjs` | Blocks the stack's deploy, secret and remote-data commands |
+| Guard rule pack | `.cursor/hooks/hstack-kit-guard.rules/<name>.mjs` | Blocks the stack's deploy, secret and remote-data commands |
 | Verification driver | `.cursor/skills/verify-<project>/driver.mjs` and `DRIVER.md` | How to prepare, launch, check and read back the app |
 | Skill seeds | `verify.config.json`, `smoke.json`, `features/*.md` in the same skill | A starting config that uses the driver |
-| Checks | `.pstack-kit/checks/<name>.json` | Install, typecheck, lint and test commands, run by `scripts/kit/checks.mjs` in any CI |
+| Checks | `.hstack-kit/checks/<name>.json` | Install, typecheck, lint and test commands, run by `scripts/kit/checks.mjs` in any CI |
 | AGENTS.md fragments | Rendered into the seeded `AGENTS.md` | The map rows, commands and rule-table rows for the stack |
 | Other files | Anywhere | Shared config such as a strict `tsconfig`, a lint preset or an `.env` example |
 
@@ -38,11 +38,11 @@ adapters/<name>/
   "agents": { "summary": "agents/summary.md", "map": "agents/map.md", "commands": "agents/commands.md", "rules": "agents/rules.md", "autonomy": "agents/autonomy.md" },
   "files": [
     { "src": ".cursor/rules/autonomy-rails.mdc", "mode": "managed", "phase": 0 },
-    { "src": ".cursor/hooks/pstack-kit-guard.rules/rails.mjs", "mode": "managed", "phase": 0, "root": "git" },
+    { "src": ".cursor/hooks/hstack-kit-guard.rules/rails.mjs", "mode": "managed", "phase": 0, "root": "git" },
     { "src": ".gitignore.rails", "dest": ".gitignore", "mode": "lines", "phase": 0 },
     { "src": ".cursor/skills/verify-{{projectName}}/driver.mjs", "mode": "managed", "phase": 1 },
     { "src": ".cursor/skills/verify-{{projectName}}/verify.config.json", "mode": "seed", "phase": 1 },
-    { "src": ".pstack-kit/checks/rails.json", "mode": "managed", "phase": 1 },
+    { "src": ".hstack-kit/checks/rails.json", "mode": "managed", "phase": 1 },
     { "src": ".cursor/rules/rails.mdc", "mode": "managed", "phase": 2 }
   ]
 }
@@ -53,7 +53,7 @@ adapters/<name>/
 - An entry with the **same destination as a core file replaces it**. That is how an adapter swaps in its own `verify.config.json`, `smoke.json` and feature map seeds. Entries in `lines` mode with the same destination are combined instead, so `.gitignore` gets both sets of lines.
 - Templates can use `{{projectName}}`, `{{verifySkill}}`, `{{owners}}`, `{{nodeVersion}}`, `{{diffLimit}}`, `{{pstackVersion}}`, `{{adapters}}`, `{{workingDirectory}}`, `{{workdirPrefix}}`, `{{pathsGlob}}` and `{{workflowFile}}`. Write `{{!name}}` to emit a literal `{{name}}`, for placeholders the harness fills in at run time such as `{{!port}}` and `{{!runId}}`. An unknown variable fails the apply, so typos surface immediately.
 
-## Checks: `.pstack-kit/checks/<name>.json`
+## Checks: `.hstack-kit/checks/<name>.json`
 
 ```json
 {
@@ -78,7 +78,7 @@ Use the plain commands the stack already has. A check is a shell command any CI 
 ## Guard rule pack
 
 ```js
-// .cursor/hooks/pstack-kit-guard.rules/rails.mjs
+// .cursor/hooks/hstack-kit-guard.rules/rails.mjs
 export const RULES = [
   { id: "deploy-rails", why: "Deploys are human-owned.", re: [/\bcap\s+production\s+deploy\b/, /\bkamal\s+deploy\b/] },
   { id: "remote-data", why: "Production data is real data.", re: [/\bRAILS_ENV=production\b[^\n]*\bdb:(migrate|seed|drop|reset)\b/] },

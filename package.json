@@ -1,5 +1,5 @@
 {
-  "name": "pstack-kit",
+  "name": "hstack-kit",
   "version": "0.2.0",
   "private": true,
   "description": "Team starter kit for adopting pstack (pinned at 0.15.36) in any repo: a stack-agnostic core plus optional stack adapters.",
@@ -9,7 +9,7 @@
     "node": ">=22"
   },
   "bin": {
-    "pstack-kit": "bin/pstack-kit.mjs"
+    "hstack-kit": "bin/hstack-kit.mjs"
   },
   "files": [
     "bin",
@@ -21,6 +21,6 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "vendor:check": "node scripts/vendor-pstack.mjs check",
-    "example:status": "node bin/pstack-kit.mjs status --target examples/shortlinks"
+    "example:status": "node bin/hstack-kit.mjs status --target examples/shortlinks"
   }
 }

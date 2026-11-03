@@ -1,4 +1,4 @@
-// Managed by pstack-kit (workers adapter). Verification driver for a Cloudflare Worker under `wrangler dev --local`.
+// Managed by hstack-kit (workers adapter). Verification driver for a Cloudflare Worker under `wrangler dev --local`.
 // control.mjs owns runs, doctor, journeys and evidence; this file owns how a Worker is prepared, launched and read back.
 // Project settings live under "workers" in verify.config.json.
 import { execFile, spawn } from "node:child_process";

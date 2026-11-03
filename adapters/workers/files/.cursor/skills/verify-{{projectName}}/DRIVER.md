@@ -1,6 +1,6 @@
 # Workers driver
 
-<!-- Managed by pstack-kit (workers adapter). -->
+<!-- Managed by hstack-kit (workers adapter). -->
 
 `driver.mjs` runs {{projectName}} under `wrangler dev --local`. Remote bindings are disabled, so nothing the harness does can touch production data. Settings live under `"workers"` in `verify.config.json`.
 

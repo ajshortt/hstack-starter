@@ -8,11 +8,11 @@ The hook guard stops agents from running merge, deploy and secret commands, but 
 
 - Require a pull request before merging.
 - Require **1 approval** from someone other than the last pusher. Dismiss stale approvals when new commits are pushed.
-- Require review from **Code Owners**. The kit's `CODEOWNERS` routes `AGENTS.md`, `.cursor/`, `.pstack-kit/`, `scripts/kit/` and `.github/` to the project owners.
-- Require status checks to pass, and require branches to be up to date. Required checks come from `.github/workflows/pstack-kit*.yml`, one job per check, named `check (<id>)`. `node scripts/kit/checks.mjs list --event pull_request` prints the ids. Every project has:
+- Require review from **Code Owners**. The kit's `CODEOWNERS` routes `AGENTS.md`, `.cursor/`, `.hstack-kit/`, `scripts/kit/` and `.github/` to the project owners.
+- Require status checks to pass, and require branches to be up to date. Required checks come from `.github/workflows/hstack-kit*.yml`, one job per check, named `check (<id>)`. `node scripts/kit/checks.mjs list --event pull_request` prints the ids. Every project has:
   - `check (agents-rules)`, `check (plans)` and `check (verify-smoke)`
   - `check (diff-limit)`. It only warns, but requiring it guarantees the size report exists.
-  - plus one per check in `.pstack-kit/checks/local.json` and in adapter files (the workers adapter adds `check (typecheck)`, `check (lint)` and `check (test)`).
+  - plus one per check in `.hstack-kit/checks/local.json` and in adapter files (the workers adapter adds `check (typecheck)`, `check (lint)` and `check (test)`).
 - When you add, rename or disable a check, update the required list in the same PR, or merges block on a check that never runs.
 - Block force pushes and deletions.
 - Do not let bot accounts or the engineer bot bypass the rules. Do not enable auto-merge for bots.

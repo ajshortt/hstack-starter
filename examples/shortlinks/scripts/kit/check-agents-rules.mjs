@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Fails when a row in AGENTS.md's rule table does not name a real enforcer.
-// Enforcer tokens (in backticks): a repo path, `ci:<check-id>` (from .pstack-kit/checks), `hook:<rule-id>` (the guard),
+// Managed by hstack-kit. Fails when a row in AGENTS.md's rule table does not name a real enforcer.
+// Enforcer tokens (in backticks): a repo path, `ci:<check-id>` (from .hstack-kit/checks), `hook:<rule-id>` (the guard),
 // `docs-only` (allowed, warned), or `<kind>:<name>` for a kind an adapter provides under "enforcers" (for example `lint:`).
 import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -38,9 +38,9 @@ export function checkRows(rows, { pathExists, ciChecks, hookRules, enforcers = {
       const kind = token.match(KIND);
       if (token === "docs-only") warnings.push(`AGENTS.md:${row.line} "${row.rule}" is docs-only. Nothing fails when an agent skips it; run /correct if it repeats.`);
       else if (kind?.[1] === "ci") {
-        if (!ciChecks.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a check in .pstack-kit/checks. Checks: ${[...ciChecks].join(", ") || "none"}.`);
+        if (!ciChecks.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a check in .hstack-kit/checks. Checks: ${[...ciChecks].join(", ") || "none"}.`);
       } else if (kind?.[1] === "hook") {
-        if (!hookRules.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a rule id in the guard (.cursor/hooks/pstack-kit-guard.mjs and its rules/ packs).`);
+        if (!hookRules.has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not a rule id in the guard (.cursor/hooks/hstack-kit-guard.mjs and its rules/ packs).`);
       } else if (kind && enforcers[kind[1]]) {
         if (!enforcers[kind[1]].has(kind[2])) errors.push(`AGENTS.md:${row.line} \`${token}\` is not ${enforcers[kind[1]].describe ?? `a known ${kind[1]} enforcer`}.`);
       } else if (kind && !pathExists(token.replace(/[#:].*$/, ""))) {
@@ -55,8 +55,8 @@ export function checkRows(rows, { pathExists, ciChecks, hookRules, enforcers = {
 
 function guardRuleIds(gitRoot) {
   const hooksDir = join(gitRoot, ".cursor", "hooks");
-  const packDir = join(hooksDir, "pstack-kit-guard.rules");
-  const files = [join(hooksDir, "pstack-kit-guard.mjs"), ...(existsSync(packDir) ? readdirSync(packDir).filter((f) => f.endsWith(".mjs")).map((f) => join(packDir, f)) : [])];
+  const packDir = join(hooksDir, "hstack-kit-guard.rules");
+  const files = [join(hooksDir, "hstack-kit-guard.mjs"), ...(existsSync(packDir) ? readdirSync(packDir).filter((f) => f.endsWith(".mjs")).map((f) => join(packDir, f)) : [])];
   return new Set(files.filter(existsSync).flatMap((f) => [...readFileSync(f, "utf8").matchAll(/\bid: "([^"]+)"/g)].map((m) => m[1])));
 }
 
@@ -82,7 +82,7 @@ function main() {
   }
   const rows = parseRuleTable(readFileSync(agentsPath, "utf8"));
   if (!rows) {
-    console.error("AGENTS.md has no rule table. Add a table with `| Rule | Enforced by |` columns (see the pstack-kit template).");
+    console.error("AGENTS.md has no rule table. Add a table with `| Rule | Enforced by |` columns (see the hstack-kit template).");
     process.exitCode = 1;
     return;
   }

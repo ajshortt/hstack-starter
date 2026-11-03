@@ -1,4 +1,4 @@
-// Managed by pstack-kit. Local edits are detected on update; put project rules in eslint.config.js.
+// Managed by hstack-kit. Local edits are detected on update; put project rules in eslint.config.js.
 // Each message names the fix, so an agent that trips a rule knows what to do instead.
 
 const SRC = ["src/**/*.ts"];

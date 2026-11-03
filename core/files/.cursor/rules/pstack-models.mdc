@@ -4,7 +4,7 @@ alwaysApply: true
 ---
 # pstack model configuration. One line per role. Delete a line to fall back to the skill default.
 # `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
-# Team policy (managed by pstack-kit): cheaper models by default. This project file is the team default and wins over a personal ~/.cursor/rules/pstack-models.mdc.
+# Team policy (managed by hstack-kit): cheaper models by default. This project file is the team default and wins over a personal ~/.cursor/rules/pstack-models.mdc.
 # Frontier escalation: only when the operator explicitly asks in this chat ("use frontier", "max rigor", or names a frontier model), switch the roles they name, or all roles if they name none, to the frontier lines at the bottom. Say which roles you escalated. Never escalate on your own.
 # budget: small (medium)
 feature, refactoring: composer-2.5

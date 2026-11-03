@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 import { KitError, availableAdapters, kitInfo, pendingActions, plan, write } from "../lib/kit.mjs";
 
-const HELP = `pstack-kit: apply and update the team's pstack starter kit in any repo.
+const HELP = `hstack-kit: apply and update the team's pstack starter kit in any repo.
 
 Usage:
-  pstack-kit apply  --target <dir> [--adapter <name>|none] [--name <project>] [--phase 0|1|2] [--owners "@org/team"] [--write]
-  pstack-kit status --target <dir>          exit 1 when the project is behind the kit or has conflicts
-  pstack-kit adapters                       list the stack adapters this kit version ships
-  pstack-kit version
+  hstack-kit apply  --target <dir> [--adapter <name>|none] [--name <project>] [--phase 0|1|2] [--owners "@org/team"] [--write]
+  hstack-kit status --target <dir>          exit 1 when the project is behind the kit or has conflicts
+  hstack-kit adapters                       list the stack adapters this kit version ships
+  hstack-kit version
 
 The core (agent rules, guard hook, verification skill, check runner, CI wrapper, PR template,
 plans) makes no assumption about your stack. --adapter adds one stack's rules, verification
 driver and checks; repeat it or pass a comma-separated list. The default is none. Adapters are
-remembered in .pstack-kit/config.json and are never removed by the kit.
+remembered in .hstack-kit/config.json and are never removed by the kit.
 
 apply is a dry run unless you pass --write. It is safe to re-run: it creates missing files,
 updates kit-managed files you have not edited, never touches seeded files you own, and stages
-the kit's version of files you edited under .pstack-kit/incoming/ for you to merge.
+the kit's version of files you edited under .hstack-kit/incoming/ for you to merge.
 
 Resolve a conflict with one of:
   --accept-local <path>   keep your version as the baseline for this kit version
@@ -56,7 +56,7 @@ function report(result, { json, wrote }) {
     return;
   }
   const kit = kitInfo();
-  console.log(`pstack-kit ${kit.version} (pstack ${kit.pstackVersion}) -> ${result.target}`);
+  console.log(`hstack-kit ${kit.version} (pstack ${kit.pstackVersion}) -> ${result.target}`);
   console.log(`project ${result.config.projectName}, phase ${result.config.phase}, adapters: ${result.config.adapters.join(", ") || "none (core only)"}${result.isNew ? " (new adoption)" : ""}\n`);
   for (const w of result.warnings) console.log(`  warning: ${w}`);
   if (result.warnings.length) console.log("");
@@ -89,6 +89,6 @@ try {
   main();
 } catch (error) {
   if (!(error instanceof KitError)) throw error;
-  console.error(`pstack-kit: ${error.message}`);
+  console.error(`hstack-kit: ${error.message}`);
   process.exitCode = 2;
 }

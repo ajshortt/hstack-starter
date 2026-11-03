@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Cursor beforeShellExecution / beforeMCPExecution hook enforcing .cursor/rules/autonomy.mdc.
+// Managed by hstack-kit. Cursor beforeShellExecution / beforeMCPExecution hook enforcing .cursor/rules/autonomy.mdc.
 // Denies instead of asking: cloud agents have no human to answer a prompt, and a human can run the command themselves.
-// Stack adapters add rule packs in ./pstack-kit-guard.rules/*.mjs, each exporting RULES and/or MCP_RULES in the shape below.
+// Stack adapters add rule packs in ./hstack-kit-guard.rules/*.mjs, each exporting RULES and/or MCP_RULES in the shape below.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -48,7 +48,7 @@ export const CORE_RULES = [
 
 export const CORE_MCP_RULES = [{ id: "mcp-merge", why: "A human merges every PR.", server: /.*/, tool: /merge|approve/i }];
 
-const PACK_DIR = join(dirname(fileURLToPath(import.meta.url)), "pstack-kit-guard.rules");
+const PACK_DIR = join(dirname(fileURLToPath(import.meta.url)), "hstack-kit-guard.rules");
 
 export async function loadRules(packDir = PACK_DIR) {
   const shell = [...CORE_RULES];
@@ -79,7 +79,7 @@ function respond(rule, subject) {
   if (!rule) return { permission: "allow" };
   return {
     permission: "deny",
-    user_message: `pstack-kit blocked this (${rule.id}): ${rule.why}`,
+    user_message: `hstack-kit blocked this (${rule.id}): ${rule.why}`,
     agent_message: `Blocked by the autonomy policy in .cursor/rules/autonomy.mdc (${rule.id}). ${rule.why} ${rule.fix ?? "Stop. Tell the human exactly what you need run and why, then wait."} Blocked: ${subject}`,
   };
 }

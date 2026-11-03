@@ -13,7 +13,7 @@ Cursor's public marketplace updates plugins automatically, so "pin" has to mean 
 3. `node scripts/vendor-pstack.mjs check` recomputes the git tree hash of `vendor/pstack/` and fails if it differs from the lock, if the plugin manifest version differs, or if `.cursor-plugin/marketplace.json` points elsewhere. `kit.yml` runs it on every push. On PRs that touch `vendor/` or the marketplace file, it adds `--require-approval`.
 4. This repo is a **Cursor team marketplace** (`.cursor-plugin/marketplace.json` serves `vendor/pstack`). A Cursor team admin adds this repository as a team marketplace once, in the team dashboard's plugin settings, and sets pstack to **Required**, so every team member and cloud agent gets the reviewed copy.
 5. Engineers uninstall any pstack they installed from the public marketplace, so only one copy is loaded.
-6. Each project's `.cursor/settings.json` (written by the kit) enables pstack for that repo. Its `AGENTS.md` names the pinned version, and the kit records it in `.pstack-kit/lock.json`.
+6. Each project's `.cursor/settings.json` (written by the kit) enables pstack for that repo. Its `AGENTS.md` names the pinned version, and the kit records it in `.hstack-kit/lock.json`.
 
 ## Bumping the version
 

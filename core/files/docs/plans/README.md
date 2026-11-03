@@ -1,6 +1,6 @@
 # Plans
 
-<!-- Managed by pstack-kit. -->
+<!-- Managed by hstack-kit. -->
 
 Plans for work that spans more than one PR live here, in the repo, next to the code they change. A plan is a checklist that names the proof for each step. It is not a design document: settle the design with a prototype first, then write the plan.
 

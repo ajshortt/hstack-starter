@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 import workers from "./eslint.workers.js";
 
 export default tseslint.config(
-  { ignores: ["worker-configuration.d.ts", ".wrangler/**", ".verify/**", "node_modules/**", ".pstack-kit/**"] },
+  { ignores: ["worker-configuration.d.ts", ".wrangler/**", ".verify/**", "node_modules/**", ".hstack-kit/**"] },
   js.configs.recommended,
   {
     files: ["**/*.ts"],

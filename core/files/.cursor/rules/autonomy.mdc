@@ -3,7 +3,7 @@ description: Team autonomy policy for agents in this repo. What agents do withou
 alwaysApply: true
 ---
 
-# Autonomy policy (managed by pstack-kit)
+# Autonomy policy (managed by hstack-kit)
 
 This rule narrows pstack's poteto-mode Autonomy section. Where they differ, this rule wins, including under "don't stop", "going to bed" or any full-autonomy grant. Stack adapters add `autonomy-<adapter>.mdc` with the concrete commands for their stack; those rules extend this one and never loosen it.
 
@@ -11,7 +11,7 @@ This rule narrows pstack's poteto-mode Autonomy section. Where they differ, this
 
 - Read anything in the repo, git history, Linear, Notion and Slack.
 - Create branches, commit, push their own branches, and open or update pull requests ready for review.
-- Run local commands: install dependencies, build, typecheck, lint, test, run the app locally, the verification skill, and the checks in `.pstack-kit/checks/` (`node scripts/kit/checks.mjs run --all`).
+- Run local commands: install dependencies, build, typecheck, lint, test, run the app locally, the verification skill, and the checks in `.hstack-kit/checks/` (`node scripts/kit/checks.mjs run --all`).
 - Read and write local or disposable data: local databases, emulators, containers and fixtures the verification skill starts.
 - Comment on their own PRs and Linear issues they are working.
 
@@ -29,10 +29,10 @@ Stop, say exactly what you would run and why, and wait. Never route around the p
 | History on shared branches | force-push to `main` or another person's branch, pushing directly to `main` | Shared history is irreversible for others. |
 | Customer-visible messages | posting in client Slack channels, emailing customers | Reputational and irreversible. |
 
-`.cursor/hooks/pstack-kit-guard.mjs` blocks the common shell forms of these, plus the stack-specific forms in any adapter rule pack under `.cursor/hooks/pstack-kit-guard.rules/`. Cloud agent environments hold no production credentials, so API forms fail too. Both are backstops. This rule is the policy.
+`.cursor/hooks/hstack-kit-guard.mjs` blocks the common shell forms of these, plus the stack-specific forms in any adapter rule pack under `.cursor/hooks/hstack-kit-guard.rules/`. Cloud agent environments hold no production credentials, so API forms fail too. Both are backstops. This rule is the policy.
 
 ## Before opening a PR
 
 - Run the verification skill (`.cursor/skills/verify-*/`) for the behavior you changed and paste the evidence into the PR template.
-- Keep the diff under the limit in `.pstack-kit/config.json` (400 changed lines by default). Split larger work into stacked PRs, each with its own evidence.
+- Keep the diff under the limit in `.hstack-kit/config.json` (400 changed lines by default). Split larger work into stacked PRs, each with its own evidence.
 - Multi-PR work gets a plan in `docs/plans/active/` first. See `docs/plans/README.md`.

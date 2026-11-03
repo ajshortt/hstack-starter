@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Stack-neutral check runner. Any CI system calls this; the GitHub Actions workflow is one thin wrapper.
+// Managed by hstack-kit. Stack-neutral check runner. Any CI system calls this; the GitHub Actions workflow is one thin wrapper.
 //   node scripts/kit/checks.mjs list [--event push|pull_request] [--json]
 //   node scripts/kit/checks.mjs setup
 //   node scripts/kit/checks.mjs run <id>... | --all [--event push|pull_request]
-// Checks live in .pstack-kit/checks/*.json. core.json and one file per adapter are managed by the kit.
+// Checks live in .hstack-kit/checks/*.json (.pstack-kit/checks/ is still read for projects applied before the rename).
+// core.json and one file per adapter are managed by the kit.
 // local.json is yours: it loads last, so a check there with an existing id replaces it, and "disabled": true removes it.
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -32,10 +33,13 @@ export function mergeChecks(sources) {
 }
 
 export function loadChecks(root = PROJECT_ROOT) {
-  const dir = join(root, ".pstack-kit", "checks");
-  const names = existsSync(dir) ? readdirSync(dir).filter((n) => n.endsWith(".json")) : [];
-  names.sort((a, b) => fileOrder(a) - fileOrder(b) || a.localeCompare(b));
-  return mergeChecks(names.map((name) => ({ name, spec: JSON.parse(readFileSync(join(dir, name), "utf8")) })));
+  // .pstack-kit/checks is the pre-rename location; a file of the same name in .hstack-kit/checks wins.
+  const files = new Map();
+  for (const dir of [".pstack-kit", ".hstack-kit"].map((d) => join(root, d, "checks")).filter((d) => existsSync(d))) {
+    for (const name of readdirSync(dir).filter((n) => n.endsWith(".json"))) files.set(name, join(dir, name));
+  }
+  const names = [...files.keys()].sort((a, b) => fileOrder(a) - fileOrder(b) || a.localeCompare(b));
+  return mergeChecks(names.map((name) => ({ name, spec: JSON.parse(readFileSync(files.get(name), "utf8")) })));
 }
 
 export function selectChecks(checks, { event, ids } = {}) {

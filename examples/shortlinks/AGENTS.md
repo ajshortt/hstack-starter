@@ -1,8 +1,8 @@
 # AGENTS.md: shortlinks
 
-<!-- Seeded by pstack-kit. This file is yours: edit it, and keep it near 100 lines. It is a map, not a manual. -->
+<!-- Seeded by hstack-kit. This file is yours: edit it, and keep it near 100 lines. It is a map, not a manual. -->
 
-shortlinks is a Cloudflare Worker that shortens URLs. It is the reference project for pstack-kit's workers adapter: every kit change must keep its checks and verification smoke green. Clients call `POST /api/links`; browsers follow `/r/<slug>`.
+shortlinks is a Cloudflare Worker that shortens URLs. It is the reference project for hstack-kit's workers adapter: every kit change must keep its checks and verification smoke green. Clients call `POST /api/links`; browsers follow `/r/<slug>`.
 
 ## Map
 
@@ -13,11 +13,11 @@ shortlinks is a Cloudflare Worker that shortens URLs. It is the reference projec
 | `test/` | Vitest suites that run inside `workerd` via `@cloudflare/vitest-plugin` |
 | `wrangler.jsonc` | Bindings, crons, queues, Durable Objects, environments |
 | `.cursor/skills/verify-shortlinks/` | Verification skill: how to start, check and drive the app, smoke journeys, feature map |
-| `.cursor/rules/` | Agent rules. `autonomy*.mdc` and `pstack-models.mdc` are managed by pstack-kit |
+| `.cursor/rules/` | Agent rules. `autonomy*.mdc` and `pstack-models.mdc` are managed by hstack-kit |
 | `docs/plans/` | Plans for multi-PR work, with their lifecycle |
-| `.pstack-kit/checks/` | The checks CI runs. Add yours to `local.json` |
+| `.hstack-kit/checks/` | The checks CI runs. Add yours to `local.json` |
 | `scripts/kit/` | Check runner and the kit's checks: diff limit, this file's rule table, plans |
-| `.pstack-kit/` | Kit config and lock. Run the kit's `apply` command to update managed files |
+| `.hstack-kit/` | Kit config and lock. Run the kit's `apply` command to update managed files |
 
 ## Commands
 
@@ -30,7 +30,7 @@ node scripts/kit/checks.mjs run --all                            # all of them; 
 node .cursor/skills/verify-shortlinks/control.mjs smoke            # verification smoke, evidence in .verify/evidence/
 ```
 
-The workers adapter's checks (`.pstack-kit/checks/workers.json`) run these:
+The workers adapter's checks (`.hstack-kit/checks/workers.json`) run these:
 
 ```bash
 npm ci                                                           # setup
@@ -65,7 +65,7 @@ To drive the Worker by hand, read `.cursor/skills/verify-shortlinks/SKILL.md` an
 
 ## Autonomy
 
-Agents build, verify and open PRs on their own. A human merges every PR. Deploys, secrets, remote data, infrastructure and production DNS always stop for a human. The policy is `.cursor/rules/autonomy.mdc`, with the Wrangler and Cloudflare forms in `.cursor/rules/autonomy-workers.mdc`; `.cursor/hooks/pstack-kit-guard.mjs` blocks the shell forms.
+Agents build, verify and open PRs on their own. A human merges every PR. Deploys, secrets, remote data, infrastructure and production DNS always stop for a human. The policy is `.cursor/rules/autonomy.mdc`, with the Wrangler and Cloudflare forms in `.cursor/rules/autonomy-workers.mdc`; `.cursor/hooks/hstack-kit-guard.mjs` blocks the shell forms.
 
 ## Rules
 

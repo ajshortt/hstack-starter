@@ -1,4 +1,4 @@
-<!-- Managed by pstack-kit. Reviewers read Evidence first, then Risk, then a sample of the diff. See the kit's docs/review.md. -->
+<!-- Managed by hstack-kit. Reviewers read Evidence first, then Risk, then a sample of the diff. See the kit's docs/review.md. -->
 
 ## Goal
 
@@ -25,7 +25,7 @@ Plan: <!-- docs/plans/active/<file>.md or "none" -->
 - [ ] Background work: queues, jobs, schedules, retries (at-least-once, idempotency)
 - [ ] Auth, input parsing, or anything handling untrusted data
 - [ ] Dependencies added, removed or upgraded
-- [ ] Agent policy (`AGENTS.md`, `.cursor/`, `.github/`, `.pstack-kit/`, `scripts/kit/`)
+- [ ] Agent policy (`AGENTS.md`, `.cursor/`, `.github/`, `.hstack-kit/`, `scripts/kit/`)
 
 Rollback: <!-- how to undo after deploy, e.g. "revert; no data migration" -->
 

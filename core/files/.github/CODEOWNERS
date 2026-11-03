@@ -1,9 +1,9 @@
-# Seeded by pstack-kit. Apply will not overwrite this file.
+# Seeded by hstack-kit. Apply will not overwrite this file.
 # PLACEHOLDER TEAM: {{owners}} is not a code owner until that team exists.
 # The kit ships @hugeinc/REPLACE-WITH-TEAM, which is not a real team.
 # Replace it before turning on required code owner review, or review requests go nowhere.
 /{{workdirPrefix}}AGENTS.md {{owners}}
 /{{workdirPrefix}}.cursor/ {{owners}}
-/{{workdirPrefix}}.pstack-kit/ {{owners}}
+/{{workdirPrefix}}.hstack-kit/ {{owners}}
 /{{workdirPrefix}}scripts/kit/ {{owners}}
 /.github/ {{owners}}

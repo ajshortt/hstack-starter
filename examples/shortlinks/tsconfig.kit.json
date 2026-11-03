@@ -1,5 +1,5 @@
 {
-  "$comment": "Managed by pstack-kit. Strictness baseline for Workers projects. Extend it from tsconfig.json; put project paths and types there.",
+  "$comment": "Managed by hstack-kit. Strictness baseline for Workers projects. Extend it from tsconfig.json; put project paths and types there.",
   "compilerOptions": {
     "target": "es2024",
     "lib": ["es2024"],

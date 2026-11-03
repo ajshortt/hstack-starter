@@ -10,7 +10,7 @@ One bot per project. The bot's scope, permissions and history stay tied to one r
 |---|---|---|
 | `/maintain-verification-skill` | Daily, before the team's working day | Either no PR (outcome `clean`), one PR of proven corrections to `.cursor/skills/verify-<project>/` (outcome `changed`), or a report of what blocked it (outcome `blocked`) |
 | `/create-verification-skill` | Once, at adoption | The tailored skill, as a PR |
-| `pstack-kit status` | Weekly (optional) | A Linear issue when the project is behind the kit or has unresolved conflicts |
+| `hstack-kit status` | Weekly (optional) | A Linear issue when the project is behind the kit or has unresolved conflicts |
 
 The bot never edits product code during the maintenance routine. If the live pass shows the app no longer does what the feature map says and the code is wrong, that is a product bug: the bot files it in Linear with its evidence and leaves the map alone.
 

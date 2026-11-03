@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Managed by pstack-kit (workers adapter). Prints the ESLint rules enabled at error level as a JSON array.
+// Managed by hstack-kit (workers adapter). Prints the ESLint rules enabled at error level as a JSON array.
 // check-agents-rules.mjs uses it to resolve `lint:<rule>` enforcers in AGENTS.md.
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";

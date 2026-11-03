@@ -11,65 +11,65 @@
     },
     ".cursor/hooks.json": {
       "mode": "managed",
-      "hash": "167013af5015d6e178159611bf80a8ad40ee9cc60c0a889971ec6a89d93d062c"
+      "hash": "00195a4732f89ce6875bbb53b95a1a296eedc40f7d80e502ad4603f233c4c69a"
     },
-    ".cursor/hooks/pstack-kit-guard.mjs": {
+    ".cursor/hooks/hstack-kit-guard.mjs": {
       "mode": "managed",
-      "hash": "58d7f5429a1d5b17f51b71d5190bb1fca780b226d61f4aea996a6c199011c0ff"
+      "hash": "a4a855bdac691a028b026fd9853c1ab6d30bc0b30e7e73c3ef9ed567008be40c"
     },
-    ".cursor/hooks/pstack-kit-guard.rules/workers.mjs": {
+    ".cursor/hooks/hstack-kit-guard.rules/workers.mjs": {
       "mode": "managed",
-      "hash": "07fb9fc29015efa7be6465b9e3fe8af27776a46f06c17f6f4868786da10edcae"
+      "hash": "d96402e2b30b702b4aab4a988da923e3c4355aaa25c9930e59799aeae4af0443"
     },
     ".github/CODEOWNERS": {
       "mode": "seed"
     },
     ".github/pull_request_template.md": {
       "mode": "managed",
-      "hash": "9b2f67495b6aad43f8cbc1db3c3795aef2873e028a6b69f2d9de33132c8ef975"
+      "hash": "1c4e42a69608b64c37fc41aca276d95b5eacdec5d9ec15e43c5c11e19336a95e"
     },
-    ".github/workflows/pstack-kit-shortlinks.yml": {
+    ".github/workflows/hstack-kit-shortlinks.yml": {
       "mode": "managed",
-      "hash": "3f07c9e9f5dfb2c5b0563ece9c945f7aa6734f0a459d00bc2bc0e0f591cde46c"
+      "hash": "9e2787db4fdf61a94c804d885317ad09444af66ff823ae08a17d14fc02260415"
     },
     "examples/shortlinks/.cursor/rules/autonomy-workers.mdc": {
       "mode": "managed",
-      "hash": "33bcc94ed4d361dcd19958e1a63577bec8ad448ac7f2f7943e5513c6ed604031"
+      "hash": "808560e5d5c16bdaf5d315a5ef83e1f0a8a52ae66f51f2e77cfa0f77820831e1"
     },
     "examples/shortlinks/.cursor/rules/autonomy.mdc": {
       "mode": "managed",
-      "hash": "2a44ef45b4300e861455a368dfabaa2e8423d827d23c786d3ab6693835f6ccf6"
+      "hash": "33c4b66236defe692610b720a264f6c57dc0aee822a82fb9c429cb338261fe0b"
     },
     "examples/shortlinks/.cursor/rules/pstack-models.mdc": {
       "mode": "managed",
-      "hash": "d0c3668fece0116c1edbf907e0fa1e02604065d24a03c2c89c20801a33f8c443"
+      "hash": "a66ae125e2403a7e49f0ca997ff5e37c46e673bded45fce5df5ca7c73136b920"
     },
     "examples/shortlinks/.cursor/rules/workers.mdc": {
       "mode": "managed",
-      "hash": "371e016bb4587562a1c86ef0f4845f5ea4b541ebdd81ed6ce73ad9c338fac08b"
+      "hash": "103e7be4f068927a2502eceae0a3b04413eac0ce50bf4f13bf5d5110e91eee3a"
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/control.mjs": {
       "mode": "managed",
-      "hash": "fec3aa76ec1ed98c8780d5b133944526028c87569034aecebc0861dc9f5f532b"
+      "hash": "9c8309a5ef149fb7d48b445db9fe2f89472bcb6226af36a27d33235371161f38"
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/DRIVER.md": {
       "mode": "managed",
-      "hash": "eeff2038a89a15e7094a2afeac532f40c8cc4d734cb5c7a2eadff16a2675a42b"
+      "hash": "b884351cc9b7be58e124ed506652bf46843c5c9cdda6bca4be0226a2b336e8ee"
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/driver.mjs": {
       "mode": "managed",
-      "hash": "26380bf924857f6eb2dc814be4f48798303cea000d3faf3b72c02c4ac1d9cfd4"
+      "hash": "ed122c8dd326a93d824ab48acc4afd295e48b88b6b6d0d2a006d114716098f68"
     },
     "examples/shortlinks/.dev.vars.example": {
       "mode": "seed"
     },
-    "examples/shortlinks/.pstack-kit/checks/core.json": {
+    "examples/shortlinks/.hstack-kit/checks/core.json": {
       "mode": "managed",
-      "hash": "6e6d39a60ccb0b3fc4132233aec1f3f6cef13650a55a614ff7de0e1c5e36483a"
+      "hash": "55f933094745c94fc250f798b6fbc4743535a98675c515ae96e2c823fdf091f6"
     },
-    "examples/shortlinks/.pstack-kit/checks/workers.json": {
+    "examples/shortlinks/.hstack-kit/checks/workers.json": {
       "mode": "managed",
-      "hash": "d420878eb33d8248cfca8909fb68c775951d0fad4ddd05c704d9730f9831aec1"
+      "hash": "a7cd8917912415b38cdaab66e02a0130c0771c4d85104796b800dd4f479942c7"
     },
     "examples/shortlinks/AGENTS.md": {
       "mode": "seed"
@@ -86,36 +86,36 @@
     },
     "examples/shortlinks/docs/plans/README.md": {
       "mode": "managed",
-      "hash": "3931dd17c6611d29d4b8e67e05badc66ca261c07bf61218118b446fe564d009a"
+      "hash": "a80bc84eb8bd3c2e2d7c1aab7e6c360b38b333b5bcc831ce23c4b40aab3de2e9"
     },
     "examples/shortlinks/eslint.workers.js": {
       "mode": "managed",
-      "hash": "fadfa624a604c5ef07e0c02b5efb4290bd39d050da3358aae55f39e7a60807db"
+      "hash": "33645b750791589f31d63963c1afc6ee0ed1960376b07064a93bc181860194ed"
     },
     "examples/shortlinks/scripts/kit/check-agents-rules.mjs": {
       "mode": "managed",
-      "hash": "5641da4ee82a857ea9215354542cb6829e424d62df69c3d6492abcb3ddea1203"
+      "hash": "d236ee6dec819ca14d65bfc1220879e24ad7e9fc08a0c065bf49dfae2759eb4f"
     },
     "examples/shortlinks/scripts/kit/check-plans.mjs": {
       "mode": "managed",
-      "hash": "e9688f5205373d914e8ef93a4a967a078c16dffcf5eeaf229c3c59d6c104ebdb"
+      "hash": "3792421da6f00c37c95a60ca6f4d10f2aa0d3e358911b91ee8798b5ac4858775"
     },
     "examples/shortlinks/scripts/kit/checks.mjs": {
       "mode": "managed",
-      "hash": "465b3c030f5a57846f32138c310109f8621a08fcbcc64b3ac75e4d4b2b189562"
+      "hash": "918b352391646eaee51d942c4681c92ba2b0d91597633d987864d588252448f0"
     },
     "examples/shortlinks/scripts/kit/diff-limit.mjs": {
       "mode": "managed",
-      "hash": "6e275079f2db87eebac98a7d76f113919331c0af6382f39080800790568b79c6"
+      "hash": "010d9375ed6459c487be09a4be1f9f55ab5f080362f6fd7afb1c1d703d252731"
     },
     "examples/shortlinks/scripts/kit/eslint-rules.mjs": {
       "mode": "managed",
-      "hash": "00cdc3a2342e090c6213d26eae1f1dcd5fa060111f4720587df409f1eae6d49b"
+      "hash": "98b590f23afd9af1fa43b72a30bda006695bfddabe1b540ae82efe5f8da32d57"
     },
     "examples/shortlinks/tsconfig.kit.json": {
       "mode": "managed",
-      "hash": "f91eb60dd99be3b318d6fe8bb6711114cc6772af551df8896181d84f9ba7fc91"
+      "hash": "86f38083a1e5e20040f0c0b4b786070a990c14e48fea86622087a9273327a0ff"
     }
   },
-  "appliedAt": "2026-11-02"
+  "appliedAt": "2026-11-03"
 }

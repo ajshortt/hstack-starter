@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-const BIN = new URL("../bin/pstack-kit.mjs", import.meta.url).pathname;
+const BIN = new URL("../bin/hstack-kit.mjs", import.meta.url).pathname;
 const hasPython = spawnSync("python3", ["--version"]).status === 0;
 
 function pythonRepo() {
@@ -50,7 +50,7 @@ test("core-only apply on a Python repo works, is idempotent, and its checks and 
   assert.ok(!existsSync(join(root, "node_modules")));
   assert.match(kit("status", "--target", root), /Up to date\./);
   execFileSync("git", ["add", "."], { cwd: root });
-  execFileSync("git", ["commit", "-q", "-m", "adopt pstack-kit"], { cwd: root });
+  execFileSync("git", ["commit", "-q", "-m", "adopt hstack-kit"], { cwd: root });
   assert.match(kit("apply", "--target", root, "--write"), /0 files already match|files already match/);
   assert.equal(execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }), "", "a second apply changes nothing");
 
@@ -62,7 +62,7 @@ test("core-only apply on a Python repo works, is idempotent, and its checks and 
   assert.match(untailored.stderr, /still has "_template": true/);
   assert.deepEqual(JSON.parse(run(root, "node", ["scripts/kit/checks.mjs", "list", "--json", "--event", "push"]).stdout), ["agents-rules", "plans", "verify-smoke"]);
 
-  writeFileSync(join(root, ".pstack-kit/checks/local.json"), JSON.stringify({ setup: ["python3 --version"], checks: [{ id: "test", name: "unittest", run: "python3 -m unittest -q" }] }));
+  writeFileSync(join(root, ".hstack-kit/checks/local.json"), JSON.stringify({ setup: ["python3 --version"], checks: [{ id: "test", name: "unittest", run: "python3 -m unittest -q" }] }));
   const skill = join(root, ".cursor/skills/verify-greeter");
   writeFileSync(
     join(skill, "verify.config.json"),

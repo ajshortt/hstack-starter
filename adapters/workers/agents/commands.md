@@ -1,4 +1,4 @@
-The workers adapter's checks (`.pstack-kit/checks/workers.json`) run these:
+The workers adapter's checks (`.hstack-kit/checks/workers.json`) run these:
 
 ```bash
 npm ci                                                           # setup

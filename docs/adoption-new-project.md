@@ -18,7 +18,7 @@ Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists t
 
 ## 2. Tell the checks how to build and test
 
-The core ships the checks every project has: the AGENTS.md rule table, plans, the verification smoke and the diff limit. Add your stack's commands in `.pstack-kit/checks/local.json`. That file is yours; the kit never touches it.
+The core ships the checks every project has: the AGENTS.md rule table, plans, the verification smoke and the diff limit. Add your stack's commands in `.hstack-kit/checks/local.json`. That file is yours; the kit never touches it.
 
 ```json
 {
@@ -39,7 +39,7 @@ node scripts/kit/checks.mjs list
 node scripts/kit/checks.mjs run --all
 ```
 
-`setup` is also the cloud agent's install command (`.cursor/environment.json`). If a toolchain is not on the runner image (a specific Python, Go or Ruby), install it in `setup` or in your CI's runner configuration. The check format and override rules are in [adapters/README.md](../adapters/README.md#checks-pstack-kitchecksnamejson).
+`setup` is also the cloud agent's install command (`.cursor/environment.json`). If a toolchain is not on the runner image (a specific Python, Go or Ruby), install it in `setup` or in your CI's runner configuration. The check format and override rules are in [adapters/README.md](../adapters/README.md#checks-hstack-kitchecksnamejson).
 
 ## 3. Tell the verification skill how to run the app
 
@@ -69,7 +69,7 @@ Replace the placeholder sentences: what the project is, its map, the Linear team
 
 ## 6. Configure the forge and Cursor
 
-- Push, connect CI ([ci.md](ci.md) for Origin-hosted repos), then turn on branch protection as described in [github-settings.md](github-settings.md). The required checks are the `check (<id>)` jobs of `.github/workflows/pstack-kit.yml`, one per check in `node scripts/kit/checks.mjs list`.
+- Push, connect CI ([ci.md](ci.md) for Origin-hosted repos), then turn on branch protection as described in [github-settings.md](github-settings.md). The required checks are the `check (<id>)` jobs of `.github/workflows/hstack-kit.yml`, one per check in `node scripts/kit/checks.mjs list`.
 - Make sure the team marketplace with pstack set to **Required** is in place ([pstack-upgrades.md](pstack-upgrades.md#how-the-pin-is-enforced)). The kit's `.cursor/settings.json` already enables pstack for the repo.
 - Open the repo in a Cursor cloud agent once. The kit's `.cursor/environment.json` runs `node scripts/kit/checks.mjs setup`. Ask the agent to run `node scripts/kit/checks.mjs run --all`, and snapshot the environment once it passes.
 
