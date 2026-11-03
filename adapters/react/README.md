@@ -3,7 +3,7 @@
 React front ends on top of the hstack-kit core: a Vite dev server, Vitest + Testing Library component tests, and a Playwright-backed verification driver that proves routes render with a clean console. [`examples/react-counter`](../../examples/react-counter) is its reference project. Every kit change must keep that example's checks and its verification smoke green.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.0 apply --target . --adapter react --owners "@hugeinc/<team>" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --adapter react --owners "@hugeinc/<team>" --write
 ```
 
 ## Package manager and framework

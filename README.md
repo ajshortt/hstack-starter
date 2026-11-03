@@ -56,7 +56,7 @@ That covers HTTPS (`https://github.com/ajshortt/hstack-starter.git`). To use SSH
 From the project root, or from the project's directory in a monorepo:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.0
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.1
 npx --yes $KIT apply --target .                          # core only, dry run
 npx --yes $KIT apply --target . --write                  # writes files, .hstack-kit/config.json and lock.json
 npx --yes $KIT apply --target . --adapter workers --write  # core plus the workers adapter
@@ -65,7 +65,7 @@ npx --yes $KIT status --target .                         # exit 1 when the proje
 npx --yes $KIT adapters                                  # adapters this kit version ships
 ```
 
-`#v0.2.0` is the release tag for the core-plus-adapters layout. It is cut after this layout merges; until then, pin a commit SHA from `main`. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
+`#v0.2.1` is the current release: the stack-agnostic core, the workers and react adapters, and the monorepo install and CI fixes. `v0.2.0` is the previous core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
 
 `--owners` sets the CODEOWNERS team. `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 
