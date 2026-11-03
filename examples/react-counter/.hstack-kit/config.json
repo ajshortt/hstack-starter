@@ -1,0 +1,13 @@
+{
+  "projectName": "react-counter",
+  "phase": 2,
+  "adapters": [
+    "react"
+  ],
+  "owners": "@hugeinc/REPLACE-WITH-TEAM",
+  "nodeVersion": "22",
+  "diffLimit": {
+    "lines": 400,
+    "exclude": []
+  }
+}

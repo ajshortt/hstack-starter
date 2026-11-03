@@ -1,0 +1,38 @@
+---
+description: Team autonomy policy for agents in this repo. What agents do without asking, and what always pauses for a human.
+alwaysApply: true
+---
+
+# Autonomy policy (managed by hstack-kit)
+
+This rule narrows pstack's poteto-mode Autonomy section. Where they differ, this rule wins, including under "don't stop", "going to bed" or any full-autonomy grant. Stack adapters add `autonomy-<adapter>.mdc` with the concrete commands for their stack; those rules extend this one and never loosen it.
+
+## Agents do without asking
+
+- Read anything in the repo, git history, Linear, Notion and Slack.
+- Create branches, commit, push their own branches, and open or update pull requests ready for review.
+- Run local commands: install dependencies, build, typecheck, lint, test, run the app locally, the verification skill, and the checks in `.hstack-kit/checks/` (`node scripts/kit/checks.mjs run --all`).
+- Read and write local or disposable data: local databases, emulators, containers and fixtures the verification skill starts.
+- Comment on their own PRs and Linear issues they are working.
+
+## Always pause for a human
+
+Stop, say exactly what you would run and why, and wait. Never route around the pause with a different command, an MCP tool, a cloud API, or a script.
+
+| Action | Examples | Why |
+|---|---|---|
+| Merge any PR | `gh pr merge`, `--auto`, `origin pr merge`, approving a PR | A human merges every PR. |
+| Deploy or change traffic | `npm run deploy`, `make deploy`, `fly deploy`, `vercel --prod`, `gcloud ... deploy`, rollbacks, feature-flag flips in production | Production changes are human-owned. |
+| Secrets | `gh secret set`, `vault kv put`, `aws secretsmanager put-secret-value`, `kubectl create secret`, editing CI or cloud secrets | Agents never hold or change secrets. |
+| Remote or shared data | writes, migrations, exports or deletes against staging or production databases, buckets and queues, through a CLI, MCP tool or API | Remote data is real data. |
+| Infrastructure and DNS | `terraform apply`, `pulumi up`, `kubectl apply`, `helm upgrade`, DNS records, load balancers, zone settings | Infrastructure and DNS mistakes are outages. |
+| History on shared branches | force-push to `main` or another person's branch, pushing directly to `main` | Shared history is irreversible for others. |
+| Customer-visible messages | posting in client Slack channels, emailing customers | Reputational and irreversible. |
+
+`.cursor/hooks/hstack-kit-guard.mjs` blocks the common shell forms of these, plus the stack-specific forms in any adapter rule pack under `.cursor/hooks/hstack-kit-guard.rules/`. Cloud agent environments hold no production credentials, so API forms fail too. Both are backstops. This rule is the policy.
+
+## Before opening a PR
+
+- Run the verification skill (`.cursor/skills/verify-*/`) for the behavior you changed and paste the evidence into the PR template.
+- Keep the diff under the limit in `.hstack-kit/config.json` (400 changed lines by default). Split larger work into stacked PRs, each with its own evidence.
+- Multi-PR work gets a plan in `docs/plans/active/` first. See `docs/plans/README.md`.
