@@ -1,0 +1,15 @@
+{
+  "$comment": "Managed by hstack-kit (react adapter). Add or replace checks in .hstack-kit/checks/local.json, not here. setup and the ready command below detect pnpm or yarn from their lockfile; npm is the default.",
+  "setup": ["if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install --frozen-lockfile; elif [ -f yarn.lock ]; then corepack enable && yarn install --immutable; else npm ci; fi"],
+  "checks": [
+    { "id": "typecheck", "name": "tsc --noEmit", "run": "npx tsc --noEmit" },
+    { "id": "lint", "name": "eslint with the React rules", "run": "npx eslint . --max-warnings 0", "requires": ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"] },
+    { "id": "test", "name": "vitest (jsdom/happy-dom + Testing Library)", "run": "npx vitest run" },
+    { "id": "build", "name": "vite build", "run": "npx vite build" },
+    { "id": "verify-smoke", "name": "verification smoke (Playwright)", "run": "npx playwright install chromium && node .cursor/skills/{{verifySkill}}/control.mjs smoke --if-tailored", "requires": ".cursor/skills/{{verifySkill}}/control.mjs", "artifacts": [".verify/evidence/"] }
+  ],
+  "diffExclude": ["**/dist/**"],
+  "enforcers": {
+    "lint-react": { "list": "node scripts/kit/eslint-rules-react.mjs", "describe": "an ESLint rule at error level" }
+  }
+}

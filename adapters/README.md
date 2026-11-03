@@ -2,7 +2,7 @@
 
 The core works in any repo without an adapter. Write one when several projects share a stack and would otherwise each hand-write the same launch config, checks and rules. An adapter is a directory here; projects opt in with `hstack-kit apply --adapter <name>`.
 
-`workers/` is the reference adapter. Read it alongside this page.
+`workers/` and `react/` are the reference adapters. Read one alongside this page.
 
 ## What an adapter contributes
 

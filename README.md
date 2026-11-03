@@ -25,8 +25,9 @@ An adapter adds one stack's rules, a verification driver, guard rules and CI che
 | Adapter | Adds | Reference example |
 |---|---|---|
 | [`workers`](adapters/workers/README.md) | Cloudflare Workers: `workers.mdc`, Wrangler guard rules, a `wrangler dev --local` driver with D1/KV/R2 seeding and read-back, and `npm ci` / `tsc` / ESLint / Vitest-in-`workerd` checks | [`examples/shortlinks`](examples/shortlinks) |
+| [`react`](adapters/react/README.md) | React (Vite): `react.mdc`, a Playwright-backed driver that renders routes and asserts a clean console, and `tsc` / ESLint / Vitest (jsdom/happy-dom + Testing Library) / `vite build` checks | [`examples/react-counter`](examples/react-counter) |
 
-Writing a new adapter is described in [adapters/README.md](adapters/README.md). Without one, add your stack's commands to `.hstack-kit/checks/local.json` and your launch command to the skill's `verify.config.json`; that is often all a project needs.
+Writing a new adapter is described in [adapters/README.md](adapters/README.md). Without one, add your stack's commands to `.hstack-kit/checks/local.json` and your launch command to the skill's `verify.config.json`; that is often all a project needs. A repo with more than one stack (say, a Worker API and a React web app) applies the matching adapter to each target directory separately, rather than combining adapters on one target: see [combining adapters](adapters/react/README.md#combining-with-another-adapter).
 
 ## How a project pulls the kit in
 
@@ -59,6 +60,7 @@ KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.0
 npx --yes $KIT apply --target .                          # core only, dry run
 npx --yes $KIT apply --target . --write                  # writes files, .hstack-kit/config.json and lock.json
 npx --yes $KIT apply --target . --adapter workers --write  # core plus the workers adapter
+npx --yes $KIT apply --target . --adapter react --write     # core plus the react adapter
 npx --yes $KIT status --target .                         # exit 1 when the project is behind the kit
 npx --yes $KIT adapters                                  # adapters this kit version ships
 ```
@@ -88,13 +90,13 @@ The kit detects the git root. In a monorepo, the hooks, `.github/` files and clo
 
 ### Phases
 
-| Phase | Core installs | The workers adapter adds | Use it when |
-|---|---|---|---|
-| 0 | `autonomy.mdc`, `pstack-models.mdc`, hook guard, `.cursor/settings.json` enabling pstack, `.gitignore` lines | `autonomy-workers.mdc`, the Wrangler guard rules | Piloting pstack in any repo. Changes nothing about the build. |
-| 1 | The verification skill, cloud-agent environment, check runner and core checks, CI wrapper, PR template, CODEOWNERS, diff-limit | The `wrangler dev` driver and its skill seeds, Workers checks, `.dev.vars.example`, `tsconfig.kit.json` | You are ready to prove changes on the running app. |
-| 2 (default) | `AGENTS.md`, the rule-table and plan checks, `docs/plans/` | `workers.mdc`, `eslint.workers.js`, the ESLint rule lister for the rule table | The full kit. New projects start here. |
+| Phase | Core installs | The workers adapter adds | The react adapter adds | Use it when |
+|---|---|---|---|---|
+| 0 | `autonomy.mdc`, `pstack-models.mdc`, hook guard, `.cursor/settings.json` enabling pstack, `.gitignore` lines | `autonomy-workers.mdc`, the Wrangler guard rules | `.gitignore` lines for `dist/`, `.vite/` | Piloting pstack in any repo. Changes nothing about the build. |
+| 1 | The verification skill, cloud-agent environment, check runner and core checks, CI wrapper, PR template, CODEOWNERS, diff-limit | The `wrangler dev` driver and its skill seeds, Workers checks, `.dev.vars.example`, `tsconfig.kit.json` | The Playwright-backed driver and its skill seeds, React checks, `tsconfig.react.json` | You are ready to prove changes on the running app. |
+| 2 (default) | `AGENTS.md`, the rule-table and plan checks, `docs/plans/` | `workers.mdc`, `eslint.workers.js`, the ESLint rule lister for the rule table | `react.mdc`, `eslint.react.js`, the ESLint rule lister for the rule table | The full kit. New projects start here. |
 
-Guides: [new project](docs/adoption-new-project.md), [existing project](docs/adoption-existing-project.md), [workers adapter](adapters/workers/README.md).
+Guides: [new project](docs/adoption-new-project.md), [existing project](docs/adoption-existing-project.md), [workers adapter](adapters/workers/README.md), [react adapter](adapters/react/README.md).
 
 ## Policies the kit encodes
 
@@ -127,13 +129,16 @@ core/files/                   Files every project receives ({{variables}} are re
   docs/plans/                 README (lifecycle) and _template.md
 adapters/README.md            How to write an adapter
 adapters/workers/             Cloudflare Workers adapter: adapter.json, agents/ fragments, files/
+adapters/react/               React (Vite) adapter: adapter.json, agents/ fragments, files/
 vendor/pstack/                pstack 0.15.36, byte-for-byte from cursor/plugins
 vendor/pstack.lock.json       Upstream commit, tree hash, reviewer
 .cursor-plugin/marketplace.json  Team marketplace entry serving vendor/pstack
 scripts/vendor-pstack.mjs     check (tree hash and approval) and bump
 examples/shortlinks/          The workers adapter's reference project: D1, KV, R2, Queue, Durable Object, cron
+examples/react-counter/       The react adapter's reference project: Vite, React Router, Vitest, Playwright smoke
 .github/workflows/kit.yml     CI for this repo: kit tests, vendor check, example in sync
-.github/workflows/hstack-kit-shortlinks.yml  The kit's CI wrapper, applied to the example
+.github/workflows/hstack-kit-shortlinks.yml  The kit's CI wrapper, applied to the shortlinks example
+.github/workflows/hstack-kit-react-counter.yml  The kit's CI wrapper, applied to the react-counter example
 docs/                         Adoption, CI, upgrades, models, engineer bot, review, GitHub settings
 test/                         node:test suites: CLI, core and adapter scripts, core-only end to end on a Python repo
 ```
@@ -143,14 +148,16 @@ test/                         node:test suites: CLI, core and adapter scripts, c
 ```bash
 npm test                                   # CLI, script and core-only end-to-end tests (Node 22+, python3 for the end-to-end test)
 npm run vendor:check                       # vendored pstack matches the lock
-npm run example:status                     # example is in sync with core + workers
+npm run example:status                     # shortlinks example is in sync with core + workers
+npm run example:react:status               # react-counter example is in sync with core + react
 node bin/hstack-kit.mjs apply --target examples/shortlinks --write   # after editing core/ or adapters/workers/
+node bin/hstack-kit.mjs apply --target examples/react-counter --write # after editing core/ or adapters/react/
 cd examples/shortlinks && node scripts/kit/checks.mjs setup && node scripts/kit/checks.mjs run --all
 ```
 
-A kit change ships as: edit `core/` or `adapters/`, re-apply to the example, run the example's checks (which include the 19-step verification smoke), bump `version` in `package.json`, tag `vX.Y.Z` and push the tag. Projects pick it up by changing the tag in their `apply` command. Core changes must keep `test/core-only.test.mjs` green: that test is the proof the core still works with no adapter and no Node project.
+A kit change ships as: edit `core/` or `adapters/`, re-apply to the matching example (or both, for a core change), run the example's checks (which include a verification smoke), bump `version` in `package.json`, tag `vX.Y.Z` and push the tag. Projects pick it up by changing the tag in their `apply` command. Core changes must keep `test/core-only.test.mjs` green: that test is the proof the core still works with no adapter and no Node project.
 
-The workflows in `.github/workflows/` run on GitHub Actions: `kit.yml` on every pull request and push to `main`, and `hstack-kit-shortlinks.yml` when the example changes. Running the same checks on another CI system is described in [docs/ci.md](docs/ci.md).
+The workflows in `.github/workflows/` run on GitHub Actions: `kit.yml` on every pull request and push to `main`, and `hstack-kit-shortlinks.yml` / `hstack-kit-react-counter.yml` when the matching example changes. Running the same checks on another CI system is described in [docs/ci.md](docs/ci.md).
 
 ## Future phase: Slack → Linear → draft PR
 

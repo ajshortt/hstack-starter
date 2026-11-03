@@ -1,0 +1,7 @@
+node_modules/
+.verify/
+.hstack-kit/incoming/
+dist/
+
+# Added by hstack-kit
+.vite/

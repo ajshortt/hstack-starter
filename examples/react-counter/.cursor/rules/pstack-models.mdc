@@ -1,0 +1,30 @@
+---
+description: pstack per-role model choices for this repo (team policy; overrides skill defaults)
+alwaysApply: true
+---
+# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
+# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
+# Team policy (managed by hstack-kit): cheaper models by default. This project file is the team default and wins over a personal ~/.cursor/rules/pstack-models.mdc.
+# Frontier escalation: only when the operator explicitly asks in this chat ("use frontier", "max rigor", or names a frontier model), switch the roles they name, or all roles if they name none, to the frontier lines at the bottom. Say which roles you escalated. Never escalate on your own.
+# budget: small (medium)
+feature, refactoring: composer-2.5
+bug-fix: composer-2.5
+perf-issue: composer-2.5
+hillclimb: composer-2.5
+judgment and prose: claude-sonnet-5-5-medium
+hardest tasks: claude-sonnet-5-5-high
+how explorer: composer-2.5
+how explainer: claude-sonnet-5-5-medium
+why investigators: composer-2.5
+why synthesizer: claude-sonnet-5-5-medium
+reflect tooling: composer-2.5
+reflect judgment, divergent, synthesizer: claude-sonnet-5-5-medium
+arena runners: claude-sonnet-5-5-medium, composer-2.5
+arena cross-judge pool: claude-sonnet-5-5-medium, gpt-5.6-sol-medium
+swarm workers: composer-2.5
+architect runners: claude-sonnet-5-5-medium, composer-2.5
+interrogate reviewers: claude-sonnet-5-5-medium, gpt-5.6-sol-medium
+# Frontier lines (on request only). These are pstack 0.15.36's own defaults.
+# frontier code roles: grok-4.7-xhigh-fast
+# frontier judgment, prose, hardest tasks, explainers, synthesizers: claude-opus-5-5-xhigh
+# frontier panels (arena, architect, interrogate, cross-judge): claude-opus-5-5-xhigh, grok-4.7-xhigh-fast

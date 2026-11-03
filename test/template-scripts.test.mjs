@@ -11,6 +11,7 @@ import { loadChecks, mergeChecks, selectChecks } from "../core/files/scripts/kit
 import { judge, render, subsetMismatch } from "../core/files/.cursor/skills/verify-{{projectName}}/control.mjs";
 import { declaredBindings, parseBindingTable, parseJsonc } from "../adapters/workers/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
 import * as workersPack from "../adapters/workers/files/.cursor/hooks/hstack-kit-guard.rules/workers.mjs";
+import { slugFor } from "../adapters/react/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
 
 const WORKERS_SHELL = [...CORE_RULES, ...workersPack.RULES];
 const WORKERS_MCP = [...CORE_MCP_RULES, ...workersPack.MCP_RULES];
@@ -195,8 +196,14 @@ test("checks still load from .pstack-kit/checks, and .hstack-kit/checks wins on 
 });
 
 test("shipped check files are valid", () => {
-  for (const file of ["../core/files/.hstack-kit/checks/core.json", "../adapters/workers/files/.hstack-kit/checks/workers.json"]) {
+  for (const file of ["../core/files/.hstack-kit/checks/core.json", "../adapters/workers/files/.hstack-kit/checks/workers.json", "../adapters/react/files/.hstack-kit/checks/react.json"]) {
     const spec = JSON.parse(readFileSync(new URL(file, import.meta.url), "utf8"));
     assert.ok(mergeChecks([{ name: file, spec }]).checks.length >= 3, file);
   }
+});
+
+test("react driver's screenshot slug is filesystem-safe and stable for the root route", () => {
+  assert.equal(slugFor("/"), "root");
+  assert.equal(slugFor("/about"), "about");
+  assert.equal(slugFor("/users/42?tab=posts"), "users-42-tab-posts");
 });

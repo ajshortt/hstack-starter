@@ -1,0 +1,119 @@
+{
+  "kit": "0.2.0",
+  "pstack": "0.15.36",
+  "phase": 2,
+  "adapters": [
+    "react"
+  ],
+  "files": {
+    ".cursor/hooks.json": {
+      "mode": "managed",
+      "hash": "00195a4732f89ce6875bbb53b95a1a296eedc40f7d80e502ad4603f233c4c69a"
+    },
+    ".cursor/hooks/hstack-kit-guard.mjs": {
+      "mode": "managed",
+      "hash": "a4a855bdac691a028b026fd9853c1ab6d30bc0b30e7e73c3ef9ed567008be40c"
+    },
+    ".github/pull_request_template.md": {
+      "mode": "managed",
+      "hash": "1c4e42a69608b64c37fc41aca276d95b5eacdec5d9ec15e43c5c11e19336a95e"
+    },
+    ".github/workflows/hstack-kit-react-counter.yml": {
+      "mode": "managed",
+      "hash": "2b427d81e2bd000964b346018cd7d469d2abeee875c579cf00ada6eaea0a5886"
+    },
+    "examples/react-counter/.cursor/rules/autonomy.mdc": {
+      "mode": "managed",
+      "hash": "33c4b66236defe692610b720a264f6c57dc0aee822a82fb9c429cb338261fe0b"
+    },
+    "examples/react-counter/.cursor/rules/pstack-models.mdc": {
+      "mode": "managed",
+      "hash": "a66ae125e2403a7e49f0ca997ff5e37c46e673bded45fce5df5ca7c73136b920"
+    },
+    "examples/react-counter/.cursor/rules/react.mdc": {
+      "mode": "managed",
+      "hash": "afd7f2d74c6a4a59bd00670c617d0d6a26a4af3c9221727e5ba27129f8306b2c"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/control.mjs": {
+      "mode": "managed",
+      "hash": "9c8309a5ef149fb7d48b445db9fe2f89472bcb6226af36a27d33235371161f38"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/DRIVER.md": {
+      "mode": "managed",
+      "hash": "a7fec65b9f2c4b327dcd95deaa9e71d30604cafbbcf1987aedab32021d0b9cef"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/driver.mjs": {
+      "mode": "managed",
+      "hash": "fc4ee2533bd04df6dc7478e1a705762369e7a70535f9d40767047070f6b331c0"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/features/health.md": {
+      "mode": "seed"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/features/README.md": {
+      "mode": "seed"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/SKILL.md": {
+      "mode": "seed"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/smoke.json": {
+      "mode": "seed"
+    },
+    "examples/react-counter/.cursor/skills/verify-react-counter/verify.config.json": {
+      "mode": "seed"
+    },
+    "examples/react-counter/.hstack-kit/checks/core.json": {
+      "mode": "managed",
+      "hash": "9ba1a2d6f6fba90305bff9dd0fed0c21ad8ac1bb53e3c39999387c4c3687e7fb"
+    },
+    "examples/react-counter/.hstack-kit/checks/react.json": {
+      "mode": "managed",
+      "hash": "184b299ea797c48e04faf535ec7df6ab332b29d4a7789c6450e2913a8990f0d5"
+    },
+    "examples/react-counter/AGENTS.md": {
+      "mode": "seed"
+    },
+    "examples/react-counter/docs/plans/_template.md": {
+      "mode": "managed",
+      "hash": "7691c468e3be6f33c2dbb664adce69460aef0ec684e56b5da8d7b5f11b5b774a"
+    },
+    "examples/react-counter/docs/plans/active/.gitkeep": {
+      "mode": "seed"
+    },
+    "examples/react-counter/docs/plans/done/.gitkeep": {
+      "mode": "seed"
+    },
+    "examples/react-counter/docs/plans/README.md": {
+      "mode": "managed",
+      "hash": "a80bc84eb8bd3c2e2d7c1aab7e6c360b38b333b5bcc831ce23c4b40aab3de2e9"
+    },
+    "examples/react-counter/eslint.react.js": {
+      "mode": "managed",
+      "hash": "15106935a51cf59c7ac1f664bc592a6ea10680572b9eaa20ab2dd015bd0350f0"
+    },
+    "examples/react-counter/scripts/kit/check-agents-rules.mjs": {
+      "mode": "managed",
+      "hash": "d236ee6dec819ca14d65bfc1220879e24ad7e9fc08a0c065bf49dfae2759eb4f"
+    },
+    "examples/react-counter/scripts/kit/check-plans.mjs": {
+      "mode": "managed",
+      "hash": "3792421da6f00c37c95a60ca6f4d10f2aa0d3e358911b91ee8798b5ac4858775"
+    },
+    "examples/react-counter/scripts/kit/checks.mjs": {
+      "mode": "managed",
+      "hash": "918b352391646eaee51d942c4681c92ba2b0d91597633d987864d588252448f0"
+    },
+    "examples/react-counter/scripts/kit/diff-limit.mjs": {
+      "mode": "managed",
+      "hash": "010d9375ed6459c487be09a4be1f9f55ab5f080362f6fd7afb1c1d703d252731"
+    },
+    "examples/react-counter/scripts/kit/eslint-rules-react.mjs": {
+      "mode": "managed",
+      "hash": "d76cd7a1d6b2a27bf16f2feee0fc5a30f0172eba3c26fdaaab15790f493f7342"
+    },
+    "examples/react-counter/tsconfig.react.json": {
+      "mode": "managed",
+      "hash": "4542fd66d3749497adda83a188926079cede079c77bd54b99111ade111e94df2"
+    }
+  },
+  "appliedAt": "2026-11-03"
+}

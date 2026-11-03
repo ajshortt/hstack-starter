@@ -1,0 +1,31 @@
+---
+description: How to write React code in this repo. Components, hooks, state, data boundaries, accessibility and tests.
+globs: src/**/*.tsx,src/**/*.ts,test/**/*.tsx,test/**/*.ts,vite.config.ts
+alwaysApply: false
+---
+
+# React (managed by hstack-kit)
+
+Most of these rules are enforced by `eslint.react.js`, `tsconfig.react.json` or CI. This file explains the judgment calls the tools cannot make.
+
+## Components and state
+
+- Function components with hooks. No class components, and no logic in `main.tsx` beyond mounting the app.
+- Co-locate state with the component that owns it; lift it only as far as the nearest shared ancestor needs. Server state (API data) lives in a fetch/cache layer, not copied into component state.
+- Effects declare every dependency (`lint-react:react-hooks/exhaustive-deps`). An effect that only needs to run once is usually a sign the logic belongs in an event handler, not `useEffect`.
+
+## Data and boundaries
+
+- Parse untrusted data (API responses, URL and query params, `localStorage`) at the boundary before it enters component state. Do not trust `any`.
+- Keys in lists are a stable id from the data, never the array index, once items can reorder or be removed.
+
+## Accessibility and routing
+
+- Interactive elements are real `<button>`/`<a>`, not `<div onClick>`. Images get `alt`; form inputs get a label.
+- Every route a user can navigate to gets a feature-map entry and a smoke journey that renders it and checks `consoleErrorCount: 0`.
+
+## Tests and proof
+
+- Component tests (Vitest + Testing Library, jsdom or happy-dom) query by role and text, the way a user finds things, not by class names or internal state.
+- A clean browser console is part of correctness: an uncaught error or a React warning fails the verification smoke, not just the eye test.
+- "Tests pass" is not done. Done is the verification skill's evidence, a screenshot and `consoleErrorCount: 0`, for the changed route.
