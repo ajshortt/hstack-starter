@@ -1,13 +1,13 @@
-# Managed by pstack-kit. A thin wrapper: every check is defined in .pstack-kit/checks/*.json and run by
+# Managed by hstack-kit. A thin wrapper: every check is defined in .hstack-kit/checks/*.json and run by
 # scripts/kit/checks.mjs, which any CI system can call the same way. Add or change checks there, not here.
-name: pstack-kit (shortlinks)
+name: hstack-kit ({{projectName}})
 
 on:
   pull_request:
-    paths: ["examples/shortlinks/**", ".github/workflows/pstack-kit-shortlinks.yml"]
+    paths: ["{{pathsGlob}}", ".github/workflows/{{workflowFile}}"]
   push:
     branches: [main]
-    paths: ["examples/shortlinks/**", ".github/workflows/pstack-kit-shortlinks.yml"]
+    paths: ["{{pathsGlob}}", ".github/workflows/{{workflowFile}}"]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ concurrency:
 
 defaults:
   run:
-    working-directory: examples/shortlinks
+    working-directory: {{workingDirectory}}
 
 jobs:
   plan:
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: "22"
+          node-version: "{{nodeVersion}}"
       - id: list
         run: echo "checks=$(node scripts/kit/checks.mjs list --json --event ${{ github.event_name }})" >> "$GITHUB_OUTPUT"
 
@@ -50,7 +50,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
-          node-version: "22"
+          node-version: "{{nodeVersion}}"
       - name: setup
         run: node scripts/kit/checks.mjs setup
       - name: ${{ matrix.check }}
@@ -62,7 +62,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: evidence-shortlinks-${{ matrix.check }}
-          path: examples/shortlinks/.verify/evidence/
+          name: evidence-{{projectName}}-${{ matrix.check }}
+          path: {{workdirPrefix}}.verify/evidence/
           if-no-files-found: ignore
           retention-days: 14

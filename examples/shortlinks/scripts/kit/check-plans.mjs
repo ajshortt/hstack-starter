@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Validates plan files in docs/plans/ against the lifecycle in docs/plans/README.md.
+// Managed by hstack-kit. Validates plan files in docs/plans/ against the lifecycle in docs/plans/README.md.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

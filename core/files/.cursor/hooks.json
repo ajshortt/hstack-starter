@@ -1,7 +1,7 @@
 {
   "version": 1,
   "hooks": {
-    "beforeShellExecution": [{ "command": "node .cursor/hooks/pstack-kit-guard.mjs shell", "failClosed": true }],
-    "beforeMCPExecution": [{ "command": "node .cursor/hooks/pstack-kit-guard.mjs mcp", "failClosed": true }]
+    "beforeShellExecution": [{ "command": "node .cursor/hooks/hstack-kit-guard.mjs shell", "failClosed": true }],
+    "beforeMCPExecution": [{ "command": "node .cursor/hooks/hstack-kit-guard.mjs mcp", "failClosed": true }]
   }
 }

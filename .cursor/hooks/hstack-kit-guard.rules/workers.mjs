@@ -1,4 +1,4 @@
-// Managed by pstack-kit (workers adapter). Rule pack loaded by ../pstack-kit-guard.mjs; see .cursor/rules/autonomy-workers.mdc.
+// Managed by hstack-kit (workers adapter). Rule pack loaded by ../hstack-kit-guard.mjs; see .cursor/rules/autonomy-workers.mdc.
 export const RULES = [
   {
     id: "deploy-workers",

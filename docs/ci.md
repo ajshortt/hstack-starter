@@ -1,6 +1,6 @@
 # CI on Origin
 
-The workflows in `.github/workflows/` are GitHub Actions files. **Origin does not run them.** This repo is hosted on Origin (`mirrorStatus: no-mirror`, no GitHub repository behind it), so a push to `main` does not start `kit.yml` or `pstack-kit-shortlinks.yml`. No Origin ruleset requires a check. This session could not list check suites: the public checks API rejects the agent token. There are no pull requests for a check to appear on.
+The workflows in `.github/workflows/` are GitHub Actions files. **Origin does not run them.** This repo is hosted on Origin (`mirrorStatus: no-mirror`, no GitHub repository behind it), so a push to `main` does not start `kit.yml` or `hstack-kit-shortlinks.yml`. No Origin ruleset requires a check. This session could not list check suites: the public checks API rejects the agent token. There are no pull requests for a check to appear on.
 
 Checked on 2026-11-02 against [hugeinc/pstack-kit](https://cursor.com/codebase/hugeinc/pstack-kit):
 
@@ -15,7 +15,7 @@ Until one of the setups below is in place, the same commands run locally: `npm t
 
 ## CI for projects: one runner, any CI
 
-A project's checks are defined in `.pstack-kit/checks/*.json` and run by `scripts/kit/checks.mjs`, which needs only Node.js 22+ and `sh`. Any CI system runs them the same way:
+A project's checks are defined in `.hstack-kit/checks/*.json` and run by `scripts/kit/checks.mjs`, which needs only Node.js 22+ and `sh`. Any CI system runs them the same way:
 
 ```bash
 node scripts/kit/checks.mjs setup                     # once per job: install what the checks need
@@ -25,7 +25,7 @@ node scripts/kit/checks.mjs run <id>                  # one check per job, or ru
 
 `run` exits 1 when a check fails and prints `::group::` markers under GitHub Actions. The verification smoke writes `.verify/evidence/<run-id>/summary.md`; collect `.verify/evidence/` as an artifact. The diff-limit check needs the base branch fetched (`fetch-depth: 0` or `git fetch origin main`), and skips with a message when the base ref is missing.
 
-`.github/workflows/pstack-kit.yml` is the kit's GitHub Actions wrapper: a `plan` job lists the checks for the event, and a matrix job runs each as `check (<id>)`. For GitLab CI, Buildkite, CircleCI or Jenkins, write the same three commands in that system's format. The kit ships only the GitHub Actions wrapper.
+`.github/workflows/hstack-kit.yml` is the kit's GitHub Actions wrapper: a `plan` job lists the checks for the event, and a matrix job runs each as `check (<id>)`. For GitLab CI, Buildkite, CircleCI or Jenkins, write the same three commands in that system's format. The kit ships only the GitHub Actions wrapper.
 
 ## What runs the workflows
 
@@ -53,4 +53,4 @@ Depot receives push and pull request events from Origin directly. It does not ex
 
 Add an Origin ruleset (`origin ruleset`) on `main` that requires those checks and one human approval. The kit's GitHub branch-protection notes in [github-settings.md](github-settings.md) are for a project repo that lives on GitHub. This repo does not.
 
-A project that adopts the kit and is itself Origin-hosted has the same gap: `pstack-kit.yml` sits in the repo and runs only after that project connects Depot or Buildkite. A project mirrored from GitHub keeps GitHub as the source of truth, and GitHub Actions runs `.github/workflows/` there without Depot.
+A project that adopts the kit and is itself Origin-hosted has the same gap: `hstack-kit.yml` sits in the repo and runs only after that project connects Depot or Buildkite. A project mirrored from GitHub keeps GitHub as the source of truth, and GitHub Actions runs `.github/workflows/` there without Depot.

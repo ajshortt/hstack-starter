@@ -4,7 +4,7 @@ globs: src/**/*.ts,test/**/*.ts,wrangler.jsonc,wrangler.json,wrangler.toml,migra
 alwaysApply: false
 ---
 
-# Cloudflare Workers (managed by pstack-kit)
+# Cloudflare Workers (managed by hstack-kit)
 
 Most of these rules are enforced by `eslint.workers.js`, `tsconfig.kit.json` or CI. This file explains the judgment calls the tools cannot make.
 

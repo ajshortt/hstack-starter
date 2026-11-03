@@ -1,6 +1,6 @@
 # The workers adapter
 
-Cloudflare Workers on top of the pstack-kit core: Wrangler, D1, KV, R2, Queues, Durable Objects and crons. It is the kit's reference adapter, and [`examples/shortlinks`](../../examples/shortlinks) is its reference project. Every kit change must keep that example's checks and its 19-step verification smoke green.
+Cloudflare Workers on top of the hstack-kit core: Wrangler, D1, KV, R2, Queues, Durable Objects and crons. It is the kit's reference adapter, and [`examples/shortlinks`](../../examples/shortlinks) is its reference project. Every kit change must keep that example's checks and its 19-step verification smoke green.
 
 ```bash
 npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.0 apply --target . --adapter workers --owners "@hugeinc/<team>" --write
@@ -10,8 +10,8 @@ npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.0 apply --ta
 
 | Phase | Files | Purpose |
 |---|---|---|
-| 0 | `.cursor/rules/autonomy-workers.mdc`, `.cursor/hooks/pstack-kit-guard.rules/workers.mjs`, `.gitignore` lines (`node_modules/`, `.wrangler/`, `.dev.vars`) | Wrangler forms of the always-pause list. Guard rules `deploy-workers`, `secrets-workers`, `remote-data`, `implicit-remote` (data commands without `--local`), `dns`, and the MCP rule `mcp-cloudflare-write` |
-| 1 | `driver.mjs` and `DRIVER.md` in the verification skill, Workers skill seeds, `.pstack-kit/checks/workers.json`, `.dev.vars.example`, `tsconfig.kit.json` | `wrangler dev --local` verification with migrations, seeding and D1/KV/R2 read-back; CI checks |
+| 0 | `.cursor/rules/autonomy-workers.mdc`, `.cursor/hooks/hstack-kit-guard.rules/workers.mjs`, `.gitignore` lines (`node_modules/`, `.wrangler/`, `.dev.vars`) | Wrangler forms of the always-pause list. Guard rules `deploy-workers`, `secrets-workers`, `remote-data`, `implicit-remote` (data commands without `--local`), `dns`, and the MCP rule `mcp-cloudflare-write` |
+| 1 | `driver.mjs` and `DRIVER.md` in the verification skill, Workers skill seeds, `.hstack-kit/checks/workers.json`, `.dev.vars.example`, `tsconfig.kit.json` | `wrangler dev --local` verification with migrations, seeding and D1/KV/R2 read-back; CI checks |
 | 2 | `.cursor/rules/workers.mdc`, `eslint.workers.js`, `scripts/kit/eslint-rules.mjs` | Runtime rules, the ESLint preset, and `lint:<rule>` enforcers for the AGENTS.md rule table |
 
 Checks it defines, run by `node scripts/kit/checks.mjs` locally and in CI:
@@ -98,7 +98,7 @@ npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.0 apply --ta
 
 Then, by hand:
 
-1. Delete `.github/workflows/worker-ci.yml` (or `worker-ci-<name>.yml`), which apply reports as an orphan. The new `pstack-kit.yml` wrapper runs the same checks. Update required status checks to the new `check (<id>)` names ([github-settings.md](../../docs/github-settings.md)).
+1. Delete `.github/workflows/worker-ci.yml` (or `worker-ci-<name>.yml`), which apply reports as an orphan. The new `hstack-kit.yml` wrapper runs the same checks. Update required status checks to the new `check (<id>)` names ([github-settings.md](../../docs/github-settings.md)).
 2. Move `verify.config.json` to the driver shape. Compare with `examples/shortlinks/.cursor/skills/verify-shortlinks/verify.config.json`: add `"driver": "driver.mjs"`, turn `ready` into a step (`{ "request": { "path": "/health" }, "expect": { "status": 200, "json": {...} } }`), turn `doctor.d1`/`doctor.kv` into a list of `d1`/`kv` steps with `expect`, and move `wranglerConfig`, `vars` and `seed` under `"workers"`. `smoke.json` journeys keep working unchanged.
 3. Update `AGENTS.md`: the commands are now `node scripts/kit/checks.mjs ...`, and the guard rule ids for Wrangler are `hook:deploy-workers` and `hook:secrets-workers` (core keeps `hook:deploy`, `hook:secrets` and adds `hook:infra`). `node scripts/kit/check-agents-rules.mjs` points at every row that needs a change.
 4. Set the cloud-agent install command in `.cursor/environment.json` to `node scripts/kit/checks.mjs setup`.

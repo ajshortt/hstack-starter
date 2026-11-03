@@ -48,4 +48,4 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - run: node bin/pstack-kit.mjs status --target examples/shortlinks
+      - run: node bin/hstack-kit.mjs status --target examples/shortlinks

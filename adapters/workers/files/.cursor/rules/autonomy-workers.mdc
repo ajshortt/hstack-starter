@@ -3,7 +3,7 @@ description: Cloudflare Workers forms of the team autonomy policy. Extends auton
 alwaysApply: true
 ---
 
-# Autonomy policy: Cloudflare Workers (managed by pstack-kit, workers adapter)
+# Autonomy policy: Cloudflare Workers (managed by hstack-kit, workers adapter)
 
 `autonomy.mdc` is the policy. This rule names the Wrangler and Cloudflare forms of it.
 
@@ -21,4 +21,4 @@ alwaysApply: true
 | Data commands without `--local` | `wrangler d1 execute`, `wrangler kv key put`, `wrangler r2 object put` with no `--local` | `implicit-remote` |
 | Production DNS and routes | Cloudflare DNS API, `dns_records`, zone settings, `flarectl dns` | `dns` |
 
-The rule pack is `.cursor/hooks/pstack-kit-guard.rules/workers.mjs`.
+The rule pack is `.cursor/hooks/hstack-kit-guard.rules/workers.mjs`.

@@ -1,5 +1,5 @@
 {
-  "$comment": "Managed by pstack-kit (workers adapter). Add or replace checks in .pstack-kit/checks/local.json, not here.",
+  "$comment": "Managed by hstack-kit (workers adapter). Add or replace checks in .hstack-kit/checks/local.json, not here.",
   "setup": ["npm ci"],
   "checks": [
     { "id": "typecheck", "name": "strict tsc + wrangler types --check", "run": "npx wrangler types --check && npx tsc --noEmit" },

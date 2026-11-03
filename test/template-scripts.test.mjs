@@ -1,16 +1,16 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { CORE_MCP_RULES, CORE_RULES, decideMcp, decideShell, loadRules } from "../core/files/.cursor/hooks/pstack-kit-guard.mjs";
+import { CORE_MCP_RULES, CORE_RULES, decideMcp, decideShell, loadRules } from "../core/files/.cursor/hooks/hstack-kit-guard.mjs";
 import { countDiff, DEFAULT_EXCLUDE, globToRegExp } from "../core/files/scripts/kit/diff-limit.mjs";
 import { checkRows, parseRuleTable } from "../core/files/scripts/kit/check-agents-rules.mjs";
 import { checkPlan } from "../core/files/scripts/kit/check-plans.mjs";
-import { mergeChecks, selectChecks } from "../core/files/scripts/kit/checks.mjs";
+import { loadChecks, mergeChecks, selectChecks } from "../core/files/scripts/kit/checks.mjs";
 import { judge, render, subsetMismatch } from "../core/files/.cursor/skills/verify-{{projectName}}/control.mjs";
 import { declaredBindings, parseBindingTable, parseJsonc } from "../adapters/workers/files/.cursor/skills/verify-{{projectName}}/driver.mjs";
-import * as workersPack from "../adapters/workers/files/.cursor/hooks/pstack-kit-guard.rules/workers.mjs";
+import * as workersPack from "../adapters/workers/files/.cursor/hooks/hstack-kit-guard.rules/workers.mjs";
 
 const WORKERS_SHELL = [...CORE_RULES, ...workersPack.RULES];
 const WORKERS_MCP = [...CORE_MCP_RULES, ...workersPack.MCP_RULES];
@@ -184,8 +184,18 @@ test("workers driver parses wrangler config and output", () => {
   assert.deepEqual(table, [{ name: "DB", mode: "local" }, { name: "C", mode: "remote" }]);
 });
 
+test("checks still load from .pstack-kit/checks, and .hstack-kit/checks wins on the same file name", () => {
+  const root = mkdtempSync(join(tmpdir(), "checks-"));
+  mkdirSync(join(root, ".pstack-kit/checks"), { recursive: true });
+  mkdirSync(join(root, ".hstack-kit/checks"), { recursive: true });
+  writeFileSync(join(root, ".pstack-kit/checks/core.json"), JSON.stringify({ checks: [{ id: "old-core", run: "x" }] }));
+  writeFileSync(join(root, ".pstack-kit/checks/local.json"), JSON.stringify({ checks: [{ id: "test", run: "y" }] }));
+  writeFileSync(join(root, ".hstack-kit/checks/core.json"), JSON.stringify({ checks: [{ id: "plans", run: "z" }] }));
+  assert.deepEqual(loadChecks(root).checks.map((c) => c.id), ["plans", "test"]);
+});
+
 test("shipped check files are valid", () => {
-  for (const file of ["../core/files/.pstack-kit/checks/core.json", "../adapters/workers/files/.pstack-kit/checks/workers.json"]) {
+  for (const file of ["../core/files/.hstack-kit/checks/core.json", "../adapters/workers/files/.hstack-kit/checks/workers.json"]) {
     const spec = JSON.parse(readFileSync(new URL(file, import.meta.url), "utf8"));
     assert.ok(mergeChecks([{ name: file, spec }]).checks.length >= 3, file);
   }

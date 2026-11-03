@@ -53,7 +53,7 @@ Every drive command appends to `.verify/evidence/<run-id>/transcript.jsonl`. `do
 
 ## Helpers
 
-- `control.mjs` (the stack-neutral harness) and `driver.mjs` (the workers adapter's `wrangler dev --local` driver) are managed by pstack-kit. `DRIVER.md` documents the driver. Fix gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
+- `control.mjs` (the stack-neutral harness) and `driver.mjs` (the workers adapter's `wrangler dev --local` driver) are managed by hstack-kit. `DRIVER.md` documents the driver. Fix gaps here and the kit's next update will stage its version for you to merge instead of overwriting yours.
 - `verify.config.json` holds the ready step, doctor probes, and under `workers` the wrangler config, `--var` overrides and seed files.
 - `smoke.json` holds journeys. A step is one of `request`, `run`, `log`, `file` (core) or `scheduled`, `d1`, `kv`, `r2` (driver), with `expect` (`status`, `json`, `headers`, `rows`, `value`, `matched`, `exitCode`, `stdout`), optional `save` and `retry`. In `expect`, `"$present"` matches any non-null value and `"$match:<regex>"` matches a string. `{{runId}}`, `{{port}}` and `{{baseUrl}}` are substituted.
 - `features/` is the feature map. Read `features/README.md` before driving.

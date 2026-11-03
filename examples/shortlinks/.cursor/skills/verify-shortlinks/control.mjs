@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Managed by pstack-kit. Stack-neutral verification harness: isolated runs, doctor, drive steps, smoke journeys, evidence.
+// Managed by hstack-kit. Stack-neutral verification harness: isolated runs, doctor, drive steps, smoke journeys, evidence.
 // How the app runs is project config (verify.config.json "launch") or an adapter driver (verify.config.json "driver").
 import { execFile, spawn } from "node:child_process";
 import { createServer } from "node:net";
