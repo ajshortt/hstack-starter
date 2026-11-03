@@ -68,7 +68,7 @@ adapters/<name>/
 ```
 
 - `setup` commands run once per CI job, before any check, through `node scripts/kit/checks.mjs setup`. They are also the cloud-agent install command.
-- Each check has an `id` (lowercase, digits and hyphens; it becomes the CI job name `check (<id>)` and the `ci:<id>` enforcer in AGENTS.md), a `run` shell command executed from the project directory, and optionally `name`, `events` (for example `["pull_request"]`), `requires` (a path or list; the check is skipped with a notice until one exists) and `artifacts`.
+- Each check has an `id` (lowercase, digits and hyphens; it becomes the CI job name `check (<project> <id>)` and the `ci:<id>` enforcer in AGENTS.md), a `run` shell command executed from the project directory, and optionally `name`, `events` (for example `["pull_request"]`), `requires` (a path or list; the check is skipped with a notice until one exists) and `artifacts`.
 - Files load in this order: `core.json`, adapter files alphabetically, then the project's own `local.json`. A later check with the same `id` replaces the earlier one, and `{ "id": "...", "disabled": true }` removes it. Projects override adapter checks in `local.json`, never by editing the managed file.
 - `diffExclude` globs are added to the diff-limit check's exclusions (generated files the stack produces).
 - `enforcers` add a kind of AGENTS.md rule-table token. `list` is a command that prints a JSON array of valid names. With the example above, a row enforced by `` `rubocop:Style/FrozenStringLiteralComment` `` passes only if that cop is enabled. The workers adapter uses this for `lint:<eslint-rule>`.

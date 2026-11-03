@@ -30,7 +30,7 @@
     },
     ".github/workflows/hstack-kit-shortlinks.yml": {
       "mode": "managed",
-      "hash": "9e2787db4fdf61a94c804d885317ad09444af66ff823ae08a17d14fc02260415"
+      "hash": "fc66b0e8a52a67455850750c5bfdb03251be55d73b1f578e1dcdaa24abab6807"
     },
     "examples/shortlinks/.cursor/rules/autonomy-workers.mdc": {
       "mode": "managed",
@@ -54,11 +54,11 @@
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/DRIVER.md": {
       "mode": "managed",
-      "hash": "b884351cc9b7be58e124ed506652bf46843c5c9cdda6bca4be0226a2b336e8ee"
+      "hash": "3940d3d98cae596e0e0712ce4540fc66d1ce19fe41c3df0d45382f5c6c9fc2ff"
     },
     "examples/shortlinks/.cursor/skills/verify-shortlinks/driver.mjs": {
       "mode": "managed",
-      "hash": "ed122c8dd326a93d824ab48acc4afd295e48b88b6b6d0d2a006d114716098f68"
+      "hash": "aa36bacc770c567c29c5312f0da40baf3a6c7b2c252e4be2c7e67cd356ae1d88"
     },
     "examples/shortlinks/.dev.vars.example": {
       "mode": "seed"
@@ -69,7 +69,7 @@
     },
     "examples/shortlinks/.hstack-kit/checks/workers.json": {
       "mode": "managed",
-      "hash": "a7cd8917912415b38cdaab66e02a0130c0771c4d85104796b800dd4f479942c7"
+      "hash": "f1a177d8ef5e3f8fadadb1115acdcb62b3fa7c326a86fbf02c5ab6e3d182474d"
     },
     "examples/shortlinks/AGENTS.md": {
       "mode": "seed"
@@ -102,7 +102,7 @@
     },
     "examples/shortlinks/scripts/kit/checks.mjs": {
       "mode": "managed",
-      "hash": "918b352391646eaee51d942c4681c92ba2b0d91597633d987864d588252448f0"
+      "hash": "39226728d5a388792c33fc67104b8579ba6f5bd8ab867b97e7c28245aa98a4d5"
     },
     "examples/shortlinks/scripts/kit/diff-limit.mjs": {
       "mode": "managed",

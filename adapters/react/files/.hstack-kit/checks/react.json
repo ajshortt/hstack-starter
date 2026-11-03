@@ -1,6 +1,6 @@
 {
-  "$comment": "Managed by hstack-kit (react adapter). Add or replace checks in .hstack-kit/checks/local.json, not here. setup and the ready command below detect pnpm or yarn from their lockfile; npm is the default.",
-  "setup": ["if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install --frozen-lockfile; elif [ -f yarn.lock ]; then corepack enable && yarn install --immutable; else npm ci; fi"],
+  "$comment": "Managed by hstack-kit (react adapter). Add or replace checks in .hstack-kit/checks/local.json, not here. setup runs checks.mjs install, which uses the nearest pnpm, yarn, bun or npm lockfile up to the git root.",
+  "setup": ["node scripts/kit/checks.mjs install"],
   "checks": [
     { "id": "typecheck", "name": "tsc --noEmit", "run": "npx tsc --noEmit" },
     { "id": "lint", "name": "eslint with the React rules", "run": "npx eslint . --max-warnings 0", "requires": ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"] },

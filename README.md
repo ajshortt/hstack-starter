@@ -86,7 +86,7 @@ Flags:
 - `--owners "@hugeinc/<team>"`: the CODEOWNERS team.
 - `--json`: machine-readable output.
 
-The kit detects the git root. In a monorepo, the hooks, `.github/` files and cloud-agent environment go to the git root, and the CI workflow is named `hstack-kit-<name>.yml` with path filters for that project.
+The kit detects the git root. In a monorepo, the hooks, `.github/` files and cloud-agent environment go to the git root. Each target gets a workflow file `hstack-kit-<name>.yml` whose workflow name is `hstack-kit-<name>` and whose job names include the project, so two targets do not share a check name. Path filters cover that project, the workflow file, the root `package.json`, lockfiles, `turbo.json` and `tsconfig*`, plus `extraPaths` from `.hstack-kit/config.json` (for example `"packages/**"`).
 
 ### Phases
 

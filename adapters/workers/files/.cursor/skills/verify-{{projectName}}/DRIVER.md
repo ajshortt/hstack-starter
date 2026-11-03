@@ -6,7 +6,7 @@
 
 ## Launch
 
-`start` applies every D1 migration with `--local`, loads the seed data from `workers.seed` (`d1` SQL files, `kv` JSON maps, `r2` directories, all relative to this skill), then launches `wrangler dev --local --test-scheduled` on the run's free port and a free inspector port. `workers.vars` become `--var` overrides and can use `{{!port}}` and `{{!runId}}`. Set `workers.env` to run a named wrangler environment. State persists under `.verify/runs/<run-id>/state/`.
+`start` applies every D1 migration with `--local`, loads the seed data from `workers.seed` (`d1` SQL files, `kv` JSON maps, `r2` directories, all relative to this skill), then launches `wrangler dev --local --test-scheduled` on the run's free port and a free inspector port. Wrangler is taken from this project's `node_modules/.bin`, then from each parent up to the git root (a hoisted workspace install), and otherwise `npm exec --offline -- wrangler`. `workers.vars` become `--var` overrides and can use `{{!port}}` and `{{!runId}}`. Set `workers.env` to run a named wrangler environment. State persists under `.verify/runs/<run-id>/state/`.
 
 ## Doctor checks
 
