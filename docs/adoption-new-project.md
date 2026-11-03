@@ -9,7 +9,7 @@ You need Node.js 22+ on the machines and CI runners that run the kit, and a POSI
 Sign in to Origin once, as in the [README](../README.md#apply-or-update), then from the project root:
 
 ```bash
-KIT=git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.0
+KIT=git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1
 npx --yes $KIT apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM"           # dry run
 npx --yes $KIT apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM" --write
 ```
