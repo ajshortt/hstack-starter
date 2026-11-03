@@ -6,4 +6,8 @@
 /examples/shortlinks/.cursor/ @hugeinc/REPLACE-WITH-TEAM
 /examples/shortlinks/.hstack-kit/ @hugeinc/REPLACE-WITH-TEAM
 /examples/shortlinks/scripts/kit/ @hugeinc/REPLACE-WITH-TEAM
+/examples/react-counter/AGENTS.md @hugeinc/REPLACE-WITH-TEAM
+/examples/react-counter/.cursor/ @hugeinc/REPLACE-WITH-TEAM
+/examples/react-counter/.hstack-kit/ @hugeinc/REPLACE-WITH-TEAM
+/examples/react-counter/scripts/kit/ @hugeinc/REPLACE-WITH-TEAM
 /.github/ @hugeinc/REPLACE-WITH-TEAM

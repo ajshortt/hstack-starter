@@ -1,6 +1,6 @@
 # Adopting the kit in a new project
 
-A new project takes the whole kit (phase 2) on day one. Getting from an empty repo to a first verified PR means applying the kit, telling it how to check and run your project, tailoring the verification skill, and setting up the engineer bot. Any language or framework works. If an adapter exists for your stack, it does steps 2 and 3 for you; see its README (for Cloudflare Workers, [adapters/workers](../adapters/workers/README.md), with [`examples/shortlinks`](../examples/shortlinks) as the finished result).
+A new project takes the whole kit (phase 2) on day one. Getting from an empty repo to a first verified PR means applying the kit, telling it how to check and run your project, tailoring the verification skill, and setting up the engineer bot. Any language or framework works. If an adapter exists for your stack, it does steps 2 and 3 for you; see its README (for Cloudflare Workers, [adapters/workers](../adapters/workers/README.md), with [`examples/shortlinks`](../examples/shortlinks) as the finished result; for React on Vite, [adapters/react](../adapters/react/README.md), with [`examples/react-counter`](../examples/react-counter)).
 
 You need Node.js 22+ on the machines and CI runners that run the kit, and a POSIX shell. Your project does not need to be a Node project.
 

@@ -2,7 +2,7 @@
 
 Existing projects adopt the kit in phases, so each step pays for itself before the next one adds process. Phases 0 to 2 install files and map to `hstack-kit apply --phase`. Phases 3 to 5 change how the team works and install nothing. Do not skip ahead: every later phase depends on the verification skill from phase 1.
 
-Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker)). The project only needs Node.js 22+ available to run the kit.
+Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker); for React on Vite: [adapters/react](../adapters/react/README.md#existing-react-app)). The project only needs Node.js 22+ available to run the kit.
 
 ## Phase 0: pilot (`--phase 0`)
 
