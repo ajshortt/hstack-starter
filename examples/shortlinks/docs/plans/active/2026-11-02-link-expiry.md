@@ -1,7 +1,7 @@
 ---
 title: Let links expire
 status: proposed
-owner: "@hugeinc/REPLACE-WITH-TEAM"
+owner: "@your-org/your-team"
 linear: none
 created: 2026-11-02
 updated: 2026-11-02

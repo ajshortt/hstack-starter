@@ -6,10 +6,10 @@ Before you start, pick one owner for the project's adoption and one project to g
 
 ## Phase 0: pilot (`--phase 0`)
 
-Goal: try pstack on real work with the guardrails on and nothing else changed. Sign in to the private Origin repo first ([README](../README.md#apply-or-update)).
+Goal: try pstack on real work with the guardrails on and nothing else changed. Sign in to GitHub first ([README](../README.md#apply-or-update)).
 
 ```bash
-npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1 apply --target . --phase 0 --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --phase 0 --write
 ```
 
 This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/settings.json` (plus the adapter's autonomy rule and guard rules, if you chose one). The build, CI and review process are untouched.
@@ -23,10 +23,10 @@ This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/setti
 Goal: an agent can start the project from empty and prove a change on it.
 
 ```bash
-npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1 apply --target . --phase 1 --owners "@hugeinc/REPLACE-WITH-TEAM" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --phase 1 --owners "@your-org/your-team" --write
 ```
 
-This adds the verification skill draft, the cloud-agent environment, the check runner and core checks, the CI wrapper, the PR template, CODEOWNERS and the diff-limit check (plus the adapter's driver, checks and config files). If the repo already has a CODEOWNERS file, the kit leaves it alone. `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team: pass the team's actual handle.
+This adds the verification skill draft, the cloud-agent environment, the check runner and core checks, the CI wrapper, the PR template, CODEOWNERS and the diff-limit check (plus the adapter's driver, checks and config files). If the repo already has a CODEOWNERS file, the kit leaves it alone. `@your-org/your-team` is a placeholder, not a real team: pass the team's actual handle.
 
 1. **Fix "doesn't start from empty".** The app must start with only the setup commands and the files in the repo: no shared database, no remote service that only exists in staging, no secret a new machine lacks. Typical fixes: commit migrations and seed data, swap a remote dependency for a local or containerised one, and put dev-only values in an example env file.
 2. **Register the existing build, lint and test commands as checks** in `.hstack-kit/checks/local.json` ([new-project guide, step 2](adoption-new-project.md#2-tell-the-checks-how-to-build-and-test)). If the project has no tests, add characterization tests for current behavior before refactoring anything.
@@ -42,7 +42,7 @@ Exit when the `verify-smoke` check passes in CI on every PR and the engineer bot
 Goal: turn what reviewers keep repeating into checks.
 
 ```bash
-npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1 apply --target . --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --write
 ```
 
 This adds `AGENTS.md` (only if you do not have one), the rule-table and plan checks, and `docs/plans/` (plus the adapter's stack rules and lint preset).

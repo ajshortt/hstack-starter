@@ -27,7 +27,7 @@ Builds and verifies pull requests for {{project}}, and keeps each target's verif
 | `{{typecheck_cmd}}` | Typecheck command per target, or `none`. Example: `apps/api: npm run typecheck` |
 | `{{lint_cmd}}` | Lint command per target, or `none`. Example: `apps/web: npm run lint` |
 | `{{tracker_url}}` | Rollout or tracker page the PM bot keeps current |
-| `{{codeowners}}` | CODEOWNERS handle, e.g. `@hugeinc/web` |
+| `{{codeowners}}` | CODEOWNERS handle, e.g. `@your-org/your-team` |
 | `{{diff_limit}}` | Changed-line limit. Default `400` |
 
 ## Standing rules

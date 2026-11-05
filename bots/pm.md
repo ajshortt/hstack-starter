@@ -27,7 +27,7 @@ Tracks {{project}} on its rollout page, and turns each task into a plan and a pu
 | `{{typecheck_cmd}}` | Typecheck command per target, or `none`. Example: `apps/api: npm run typecheck` |
 | `{{lint_cmd}}` | Lint command per target, or `none`. Example: `apps/web: npm run lint` |
 | `{{tracker_url}}` | Rollout or tracker page this bot keeps current |
-| `{{codeowners}}` | CODEOWNERS handle, e.g. `@hugeinc/web` |
+| `{{codeowners}}` | CODEOWNERS handle, e.g. `@your-org/your-team` |
 | `{{diff_limit}}` | Changed-line limit. Default `400` |
 
 ## Standing rules

@@ -6,15 +6,15 @@ You need Node.js 22+ on the machines and CI runners that run the kit, and a POSI
 
 ## 1. Apply the kit
 
-Sign in to Origin once, as in the [README](../README.md#apply-or-update), then from the project root:
+Sign in to GitHub once, as in the [README](../README.md#apply-or-update), then from the project root:
 
 ```bash
-KIT=git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1
-npx --yes $KIT apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM"           # dry run
-npx --yes $KIT apply --target . --owners "@hugeinc/REPLACE-WITH-TEAM" --write
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.1
+npx --yes $KIT apply --target . --owners "@your-org/your-team"           # dry run
+npx --yes $KIT apply --target . --owners "@your-org/your-team" --write
 ```
 
-Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
+Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). `@your-org/your-team` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
 
 ## 2. Tell the checks how to build and test
 
@@ -69,7 +69,7 @@ Replace the placeholder sentences: what the project is, its map, the Linear team
 
 ## 6. Configure the forge and Cursor
 
-- Push, connect CI ([ci.md](ci.md) for Origin-hosted repos), then turn on branch protection as described in [github-settings.md](github-settings.md). The required checks are the `check (<id>)` jobs of `.github/workflows/hstack-kit.yml`, one per check in `node scripts/kit/checks.mjs list`.
+- Push, connect CI as described in [ci.md](ci.md), then turn on branch protection as described in [github-settings.md](github-settings.md). The required checks are the `check (<id>)` jobs of `.github/workflows/hstack-kit.yml`, one per check in `node scripts/kit/checks.mjs list`.
 - Make sure the team marketplace with pstack set to **Required** is in place ([pstack-upgrades.md](pstack-upgrades.md#how-the-pin-is-enforced)). The kit's `.cursor/settings.json` already enables pstack for the repo.
 - Open the repo in a Cursor cloud agent once. The kit's `.cursor/environment.json` runs `node scripts/kit/checks.mjs setup`. Ask the agent to run `node scripts/kit/checks.mjs run --all`, and snapshot the environment once it passes.
 
