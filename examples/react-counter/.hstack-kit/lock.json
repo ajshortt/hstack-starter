@@ -1,5 +1,5 @@
 {
-  "kit": "0.2.1",
+  "kit": "0.3.0",
   "pstack": "0.15.36",
   "phase": 2,
   "adapters": [
@@ -115,5 +115,5 @@
       "hash": "4542fd66d3749497adda83a188926079cede079c77bd54b99111ade111e94df2"
     }
   },
-  "appliedAt": "2026-11-03"
+  "appliedAt": "2026-11-05"
 }

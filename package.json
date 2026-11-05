@@ -1,6 +1,6 @@
 {
   "name": "hstack-kit",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "Starter kit for adopting pstack (pinned at 0.15.36) in any repo: a stack-agnostic core plus optional stack adapters.",
   "type": "module",
@@ -21,6 +21,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "vendor:check": "node scripts/vendor-pstack.mjs check",
+    "upstreams:check": "node scripts/upstreams.mjs check",
+    "upstreams:report": "node scripts/upstreams.mjs report",
     "example:status": "node bin/hstack-kit.mjs status --target examples/shortlinks",
     "example:react:status": "node bin/hstack-kit.mjs status --target examples/react-counter"
   }

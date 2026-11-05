@@ -9,7 +9,7 @@ You need Node.js 22+ on the machines and CI runners that run the kit, and a POSI
 Sign in to GitHub once, as in the [README](../README.md#apply-or-update), then from the project root:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.1
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.0
 npx --yes $KIT apply --target . --owners "@your-org/your-team"           # dry run
 npx --yes $KIT apply --target . --owners "@your-org/your-team" --write
 ```

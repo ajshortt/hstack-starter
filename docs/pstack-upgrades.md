@@ -19,6 +19,8 @@ Cursor's public marketplace updates plugins automatically, so "pin" has to mean 
 
 Who: anyone can prepare a bump; only the owner approves it. When: on request, or at most monthly. pstack releases often (0.15.9 to 0.15.36 in under a month), and most releases do not need to be taken.
 
+To see what changed upstream before picking a commit, run `node scripts/upstreams.mjs report --only pstack`. The same routine covers Matt Pocock's skills: [upstream-updates.md](upstream-updates.md).
+
 1. **Pick the commit.** Find the upstream commit on `cursor/plugins` main whose `pstack/.cursor-plugin/plugin.json` has the target version.
 2. **Vendor it on a branch.**
 

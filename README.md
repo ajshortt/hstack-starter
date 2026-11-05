@@ -56,7 +56,7 @@ That covers HTTPS (`https://github.com/ajshortt/hstack-starter.git`). To use SSH
 From the project root, or from the project's directory in a monorepo:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.1
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.0
 npx --yes $KIT apply --target .                          # core only, dry run
 npx --yes $KIT apply --target . --write                  # writes files, .hstack-kit/config.json and lock.json
 npx --yes $KIT apply --target . --adapter workers --write  # core plus the workers adapter
@@ -65,7 +65,7 @@ npx --yes $KIT status --target .                         # exit 1 when the proje
 npx --yes $KIT adapters                                  # adapters this kit version ships
 ```
 
-`#v0.2.1` is the current release: the stack-agnostic core, the workers and react adapters, and the monorepo install and CI fixes. `v0.2.0` is the previous core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
+`#v0.3.0` is the current release: the stack-agnostic core, the workers and react adapters, the [shaping layer](shaping/README.md) scaffolding and the [upstream update routine](docs/upstream-updates.md). What `apply` writes is unchanged from `v0.2.1`, the previous tag, which added the monorepo install and CI fixes. `v0.2.0` is the first core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
 
 `--owners` sets the CODEOWNERS team. `@your-org/your-team` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 
@@ -113,6 +113,10 @@ Guides: [new project](docs/adoption-new-project.md), [existing project](docs/ado
 
 Every adopting project gets the same engineer bot and PM bot from the templates in [`bots/`](bots/README.md). dr eggbot reads a template, asks the project's questions, fills the placeholders, and creates the bot. The templates are the source of truth: when they change, existing bots are re-briefed. The bots are aware of the setup. The guard hook, CI, and branch protection enforce it.
 
+## Shaping layer (Matt Pocock's skills)
+
+Before the hstack loop (digest, verify, scope, build, validate), a small set of [Matt Pocock's skills](https://github.com/mattpocock/skills) shapes the work: `grilling` and `grill-me` to agree on a plan, `to-spec` and `to-tickets` to slice it into tickets of about 400 lines that each name a verify journey, plus `to-questionnaire`, `grill-with-docs`, `wayfinder` and `triage`. The kit owns these copies in [`shaping/`](shaping/README.md), which documents who owns each step and what was adopted, adapted, kept as a pattern or dropped. Never install Matt's whole plugin beside pstack: it duplicates TDD, review and teach. The shaping skills are scaffolding in this release: `apply` does not install them yet, and the open decisions are in [`shaping/TODO.md`](shaping/TODO.md). Matt's skills are MIT-licensed, Copyright (c) 2026 Matt Pocock.
+
 ## Repository layout
 
 ```
@@ -145,6 +149,7 @@ examples/react-counter/       The react adapter's reference project: Vite, React
 .github/workflows/hstack-kit-react-counter.yml  The kit's CI wrapper, applied to the react-counter example
 docs/                         Adoption, CI, upgrades, models, engineer bot, review, GitHub settings
 bots/                         Grok bot templates: engineer and PM, filled per project by dr eggbot
+shaping/                      Kit-owned copies of Matt Pocock's shaping skills, the division of ownership, open TODOs
 test/                         node:test suites: CLI, core and adapter scripts, core-only end to end on a Python repo
 ```
 
@@ -153,6 +158,7 @@ test/                         node:test suites: CLI, core and adapter scripts, c
 ```bash
 npm test                                   # CLI, script and core-only end-to-end tests (Node 22+, python3 for the end-to-end test)
 npm run vendor:check                       # vendored pstack matches the lock
+npm run upstreams:report                   # what changed in pstack and mattpocock/skills since the pins (docs/upstream-updates.md)
 npm run example:status                     # shortlinks example is in sync with core + workers
 npm run example:react:status               # react-counter example is in sync with core + react
 node bin/hstack-kit.mjs apply --target examples/shortlinks --write   # after editing core/ or adapters/workers/

@@ -9,7 +9,7 @@ Before you start, pick one owner for the project's adoption and one project to g
 Goal: try pstack on real work with the guardrails on and nothing else changed. Sign in to GitHub first ([README](../README.md#apply-or-update)).
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --phase 0 --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --phase 0 --write
 ```
 
 This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/settings.json` (plus the adapter's autonomy rule and guard rules, if you chose one). The build, CI and review process are untouched.
@@ -23,7 +23,7 @@ This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/setti
 Goal: an agent can start the project from empty and prove a change on it.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --phase 1 --owners "@your-org/your-team" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --phase 1 --owners "@your-org/your-team" --write
 ```
 
 This adds the verification skill draft, the cloud-agent environment, the check runner and core checks, the CI wrapper, the PR template, CODEOWNERS and the diff-limit check (plus the adapter's driver, checks and config files). If the repo already has a CODEOWNERS file, the kit leaves it alone. `@your-org/your-team` is a placeholder, not a real team: pass the team's actual handle.
@@ -42,7 +42,7 @@ Exit when the `verify-smoke` check passes in CI on every PR and the engineer bot
 Goal: turn what reviewers keep repeating into checks.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --write
 ```
 
 This adds `AGENTS.md` (only if you do not have one), the rule-table and plan checks, and `docs/plans/` (plus the adapter's stack rules and lint preset).
