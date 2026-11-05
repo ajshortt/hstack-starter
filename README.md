@@ -158,6 +158,7 @@ test/                         node:test suites: CLI, core and adapter scripts, c
 ```bash
 npm test                                   # CLI, script and core-only end-to-end tests (Node 22+, python3 for the end-to-end test)
 npm run vendor:check                       # vendored pstack matches the lock
+npm run upstreams:report                   # what changed in pstack and mattpocock/skills since the pins (docs/upstream-updates.md)
 npm run example:status                     # shortlinks example is in sync with core + workers
 npm run example:react:status               # react-counter example is in sync with core + react
 node bin/hstack-kit.mjs apply --target examples/shortlinks --write   # after editing core/ or adapters/workers/

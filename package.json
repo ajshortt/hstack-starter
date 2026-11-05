@@ -21,6 +21,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "vendor:check": "node scripts/vendor-pstack.mjs check",
+    "upstreams:check": "node scripts/upstreams.mjs check",
+    "upstreams:report": "node scripts/upstreams.mjs report",
     "example:status": "node bin/hstack-kit.mjs status --target examples/shortlinks",
     "example:react:status": "node bin/hstack-kit.mjs status --target examples/react-counter"
   }
