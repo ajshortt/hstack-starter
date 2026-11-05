@@ -56,7 +56,7 @@ That covers HTTPS (`https://github.com/ajshortt/hstack-starter.git`). To use SSH
 From the project root, or from the project's directory in a monorepo:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.2.1
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.0
 npx --yes $KIT apply --target .                          # core only, dry run
 npx --yes $KIT apply --target . --write                  # writes files, .hstack-kit/config.json and lock.json
 npx --yes $KIT apply --target . --adapter workers --write  # core plus the workers adapter
@@ -65,7 +65,7 @@ npx --yes $KIT status --target .                         # exit 1 when the proje
 npx --yes $KIT adapters                                  # adapters this kit version ships
 ```
 
-`#v0.2.1` is the current release: the stack-agnostic core, the workers and react adapters, and the monorepo install and CI fixes. `v0.2.0` is the previous core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
+`#v0.3.0` is the current release: the stack-agnostic core, the workers and react adapters, the [shaping layer](shaping/README.md) scaffolding and the [upstream update routine](docs/upstream-updates.md). What `apply` writes is unchanged from `v0.2.1`, the previous tag, which added the monorepo install and CI fixes. `v0.2.0` is the first core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
 
 `--owners` sets the CODEOWNERS team. `@your-org/your-team` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 

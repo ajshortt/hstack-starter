@@ -21,7 +21,7 @@ Tracks {{project}} on its rollout page, and turns each task into a plan and a pu
 | `{{project}}` | Project name, as a person would say it |
 | `{{repo_url}}` | Git URL of the repository |
 | `{{targets}}` | Directory and adapter for each target, comma-separated. An adapter is `workers`, `react`, or `none`. The repository root is `root`. Example: `apps/api=workers, apps/web=react, root=none` |
-| `{{kit_version}}` | Applied hstack-kit tag, from `.hstack-kit/lock.json` (`kit`). Example: `v0.2.1` |
+| `{{kit_version}}` | Applied hstack-kit tag, from `.hstack-kit/lock.json` (`kit`). Example: `v0.3.0` |
 | `{{health_check}}` | Command per target that shows the app is up and usable. Prefer the verification skill's ready check. Example: `apps/api: curl -sf http://127.0.0.1:$PORT/health` |
 | `{{verify_skill}}` | Repo-relative path of the verification skill per target. Example: `apps/api:.cursor/skills/verify-api/, apps/web:.cursor/skills/verify-web/` |
 | `{{typecheck_cmd}}` | Typecheck command per target, or `none`. Example: `apps/api: npm run typecheck` |
