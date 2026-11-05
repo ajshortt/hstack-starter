@@ -109,4 +109,4 @@ Avoid specific file paths or code snippets: they go stale fast. Exception: if a 
 
 ## Handoff to hstack
 
-Shaping ends here. hstack's build loop takes the frontier tickets in order (see [implement](../implement/SKILL.md)); multi-PR programs go to the Orchestrate playbook. A human merges every PR.
+Shaping ends here. Run `/poteto-mode` on the frontier tickets in dependency order (hstack loop: digest → verify → scope → build → validate, then verify smoke → evidence → PR). Multi-PR programs go to the Orchestrate playbook. A human merges every PR.
