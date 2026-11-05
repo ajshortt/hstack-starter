@@ -1,0 +1,29 @@
+{
+  "name": "mattpocock-skills",
+  "upstreamRepo": "https://github.com/mattpocock/skills.git",
+  "upstreamCommit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+  "syncedAt": "2026-11-05",
+  "license": { "spdx": "MIT", "copyright": "Copyright (c) 2026 Matt Pocock", "file": "shaping/LICENSE-mattpocock-skills" },
+  "skills": {
+    "grilling": { "verdict": "adopt", "upstreamPath": "skills/productivity/grilling", "upstreamTree": "f551b6e0d219fdda0b6abf277f8f915b3127d1e9", "local": "shaping/grilling" },
+    "grill-me": { "verdict": "adopt", "upstreamPath": "skills/productivity/grill-me", "upstreamTree": "3df14e2d3a89459bf300614be9247e3ce74798f8", "local": "shaping/grill-me" },
+    "to-questionnaire": { "verdict": "adopt", "upstreamPath": "skills/productivity/to-questionnaire", "upstreamTree": "46dfbeeba12a9e52eef446676f42e7551023d9a9", "local": "shaping/to-questionnaire" },
+    "to-tickets": { "verdict": "adopt", "upstreamPath": "skills/engineering/to-tickets", "upstreamTree": "2dee20ad722a31c04ededf9f2d83842473573045", "local": "shaping/to-tickets" },
+    "code-review": { "verdict": "adopt", "upstreamPath": "skills/engineering/code-review", "upstreamTree": "a8ef561571acbb611de8ff19ba6da75b197c63a8", "local": "shaping/code-review" },
+    "grill-with-docs": { "verdict": "adapt", "upstreamPath": "skills/engineering/grill-with-docs", "upstreamTree": "eedaf2562c83155115e9c649fa3ecaac2e10e81d", "local": "shaping/grill-with-docs" },
+    "to-spec": { "verdict": "adapt", "upstreamPath": "skills/engineering/to-spec", "upstreamTree": "136b9651747cfccbfbb7c50a6b0dfb757e7547d2", "local": "shaping/to-spec" },
+    "wayfinder": { "verdict": "adapt", "upstreamPath": "skills/engineering/wayfinder", "upstreamTree": "25da74eadc3e388b2f2a2cc716f3d44b2fb9dfe0", "local": "shaping/wayfinder" },
+    "triage": { "verdict": "adapt", "upstreamPath": "skills/engineering/triage", "upstreamTree": "4cb951d62ecccaed601cdc5f9a1b7b3d8a799635", "local": "shaping/triage" },
+    "implement": { "verdict": "pattern", "upstreamPath": "skills/engineering/implement", "upstreamTree": "4804b466ab26c9b9d8d42917547db133d1f20a9f", "local": "shaping/implement" },
+    "implement-spec": { "verdict": "pattern", "upstreamPath": "skills/engineering/implement-spec", "upstreamTree": "407c196f5c88af53c71efc8f31ee37c02dbb12e7", "local": "shaping/implement" }
+  },
+  "watch": {
+    "domain-modeling": { "upstreamPath": "skills/engineering/domain-modeling", "upstreamTree": "ea30ee454ba264543dbe40737973b1a5afb9f0e6", "reason": "grill-with-docs and wayfinder call it upstream; see shaping/TODO.md item 9" }
+  },
+  "dropped": {
+    "setup-matt-pocock-skills": "hstack setup configures the tracker, labels and docs",
+    "tdd": "pstack ships tdd; never install both",
+    "teach": "pstack ships teach; never install both"
+  },
+  "review": { "owner": "Alex", "approvedBy": null, "checklist": "docs/upstream-updates.md" }
+}

@@ -113,6 +113,10 @@ Guides: [new project](docs/adoption-new-project.md), [existing project](docs/ado
 
 Every adopting project gets the same engineer bot and PM bot from the templates in [`bots/`](bots/README.md). dr eggbot reads a template, asks the project's questions, fills the placeholders, and creates the bot. The templates are the source of truth: when they change, existing bots are re-briefed. The bots are aware of the setup. The guard hook, CI, and branch protection enforce it.
 
+## Shaping layer (Matt Pocock's skills)
+
+Before the hstack loop (digest, verify, scope, build, validate), a small set of [Matt Pocock's skills](https://github.com/mattpocock/skills) shapes the work: `grilling` and `grill-me` to agree on a plan, `to-spec` and `to-tickets` to slice it into tickets of about 400 lines that each name a verify journey, plus `to-questionnaire`, `grill-with-docs`, `wayfinder` and `triage`. The kit owns these copies in [`shaping/`](shaping/README.md), which documents who owns each step and what was adopted, adapted, kept as a pattern or dropped. Never install Matt's whole plugin beside pstack: it duplicates TDD, review and teach. The shaping skills are scaffolding in this release: `apply` does not install them yet, and the open decisions are in [`shaping/TODO.md`](shaping/TODO.md). Matt's skills are MIT-licensed, Copyright (c) 2026 Matt Pocock.
+
 ## Repository layout
 
 ```
@@ -145,6 +149,7 @@ examples/react-counter/       The react adapter's reference project: Vite, React
 .github/workflows/hstack-kit-react-counter.yml  The kit's CI wrapper, applied to the react-counter example
 docs/                         Adoption, CI, upgrades, models, engineer bot, review, GitHub settings
 bots/                         Grok bot templates: engineer and PM, filled per project by dr eggbot
+shaping/                      Kit-owned copies of Matt Pocock's shaping skills, the division of ownership, open TODOs
 test/                         node:test suites: CLI, core and adapter scripts, core-only end to end on a Python repo
 ```
 
