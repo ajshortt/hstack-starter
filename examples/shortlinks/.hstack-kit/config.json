@@ -4,7 +4,7 @@
   "adapters": [
     "workers"
   ],
-  "owners": "@hugeinc/REPLACE-WITH-TEAM",
+  "owners": "@your-org/your-team",
   "nodeVersion": "22",
   "diffLimit": {
     "lines": 400,

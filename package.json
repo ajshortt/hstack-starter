@@ -2,7 +2,7 @@
   "name": "hstack-kit",
   "version": "0.2.1",
   "private": true,
-  "description": "Team starter kit for adopting pstack (pinned at 0.15.36) in any repo: a stack-agnostic core plus optional stack adapters.",
+  "description": "Starter kit for adopting pstack (pinned at 0.15.36) in any repo: a stack-agnostic core plus optional stack adapters.",
   "type": "module",
   "license": "MIT",
   "engines": {

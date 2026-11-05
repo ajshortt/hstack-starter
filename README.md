@@ -1,6 +1,6 @@
 # hstack-kit
 
-The team's starter kit for agentic engineering in any repo, built on [pstack](https://github.com/cursor/plugins/tree/main/pstack) pinned at **0.15.36**. It is a stack-agnostic **core** plus optional **stack adapters**.
+A starter kit for agentic engineering in any repo, built on [pstack](https://github.com/cursor/plugins/tree/main/pstack) pinned at **0.15.36**. It is a stack-agnostic **core** plus optional **stack adapters**.
 
 A project pulls the kit in once and re-runs it to update. After that, every agent working in the repo (local Cursor, Cursor cloud agents, the project's engineer bot) starts from the same map, the same guardrails and the same way of proving a change works.
 
@@ -67,7 +67,7 @@ npx --yes $KIT adapters                                  # adapters this kit ver
 
 `#v0.2.1` is the current release: the stack-agnostic core, the workers and react adapters, and the monorepo install and CI fixes. `v0.2.0` is the previous core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
 
-`--owners` sets the CODEOWNERS team. `@hugeinc/REPLACE-WITH-TEAM` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
+`--owners` sets the CODEOWNERS team. `@your-org/your-team` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 
 `apply` is safe to re-run. Each file has a mode:
 
@@ -83,7 +83,7 @@ Flags:
 - `--adapter <name>|none`: repeat it or pass a comma-separated list. The choice is saved in `.hstack-kit/config.json`, and later runs reuse it. The kit never removes an adapter: dropping one is a hand edit. A project adopted with 0.1 must pass `--adapter workers` or `--adapter none` once.
 - `--name <project>`: defaults to the name in `package.json`, `pyproject.toml` or `Cargo.toml`, else the directory name.
 - `--phase 0|1|2`: how much of the kit to install (see below). It never goes down.
-- `--owners "@hugeinc/<team>"`: the CODEOWNERS team.
+- `--owners "@your-org/your-team"`: the CODEOWNERS team. Pass the team's actual handle.
 - `--json`: machine-readable output.
 
 The kit detects the git root. In a monorepo, the hooks, `.github/` files and cloud-agent environment go to the git root. Each target gets a workflow file `hstack-kit-<name>.yml` whose workflow name is `hstack-kit-<name>` and whose job names include the project, so two targets do not share a check name. Path filters cover that project, the workflow file, the root `package.json`, lockfiles, `turbo.json` and `tsconfig*`, plus `extraPaths` from `.hstack-kit/config.json` (for example `"packages/**"`).
@@ -167,3 +167,7 @@ The workflows in `.github/workflows/` run on GitHub Actions: `kit.yml` on every 
 ## Future phase: Slack → Linear → draft PR
 
 Deferred. Once verification skills are proven and the engineer bots are reliable, the next step is the outer loop from the research notes: a Slack feedback channel feeds Linear triage, an agent reproduces the issue with the verification skill, and opens a draft PR with evidence for a human to pick up. Nothing in the kit implements this yet.
+
+## License
+
+The kit's own code is [MIT](LICENSE), Copyright (c) 2026 Alex Shortt. Vendored pstack stays under its own MIT notice, Copyright (c) 2026 Lauren Tan, in [`vendor/pstack/LICENSE`](vendor/pstack/LICENSE). Matt Pocock's skills use the same MIT terms, Copyright (c) 2026 Matt Pocock; that notice ships beside those files as `shaping/LICENSE-mattpocock-skills` when the shaping tree is present.

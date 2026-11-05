@@ -1,13 +1,13 @@
 # Seeded by hstack-kit. Apply will not overwrite this file.
-# PLACEHOLDER TEAM: @hugeinc/REPLACE-WITH-TEAM is not a code owner until that team exists.
-# The kit ships @hugeinc/REPLACE-WITH-TEAM, which is not a real team.
+# PLACEHOLDER TEAM: @your-org/your-team is not a code owner until that team exists.
+# The default placeholder is @your-org/your-team, which is not a real team.
 # Replace it before turning on required code owner review, or review requests go nowhere.
-/examples/shortlinks/AGENTS.md @hugeinc/REPLACE-WITH-TEAM
-/examples/shortlinks/.cursor/ @hugeinc/REPLACE-WITH-TEAM
-/examples/shortlinks/.hstack-kit/ @hugeinc/REPLACE-WITH-TEAM
-/examples/shortlinks/scripts/kit/ @hugeinc/REPLACE-WITH-TEAM
-/examples/react-counter/AGENTS.md @hugeinc/REPLACE-WITH-TEAM
-/examples/react-counter/.cursor/ @hugeinc/REPLACE-WITH-TEAM
-/examples/react-counter/.hstack-kit/ @hugeinc/REPLACE-WITH-TEAM
-/examples/react-counter/scripts/kit/ @hugeinc/REPLACE-WITH-TEAM
-/.github/ @hugeinc/REPLACE-WITH-TEAM
+/examples/shortlinks/AGENTS.md @your-org/your-team
+/examples/shortlinks/.cursor/ @your-org/your-team
+/examples/shortlinks/.hstack-kit/ @your-org/your-team
+/examples/shortlinks/scripts/kit/ @your-org/your-team
+/examples/react-counter/AGENTS.md @your-org/your-team
+/examples/react-counter/.cursor/ @your-org/your-team
+/examples/react-counter/.hstack-kit/ @your-org/your-team
+/examples/react-counter/scripts/kit/ @your-org/your-team
+/.github/ @your-org/your-team

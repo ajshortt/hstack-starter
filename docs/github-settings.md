@@ -1,6 +1,6 @@
 # GitHub settings for a kit project
 
-These settings are for a project repo whose source of truth is GitHub. The kit itself lives on Origin, and Origin does not run the workflows it ships. What has to be connected for `hugeinc/pstack-kit` is in [ci.md](ci.md). A project hosted on Origin uses an Origin ruleset the same way, once Depot or Buildkite is posting checks.
+These settings apply to a GitHub repository: this kit ([ajshortt/hstack-starter](https://github.com/ajshortt/hstack-starter)) and any project that adopts it. GitHub Actions runs the workflows in `.github/workflows/`. What they run is in [ci.md](ci.md).
 
 The hook guard stops agents from running merge, deploy and secret commands, but hooks can be bypassed by anything outside Cursor. The forge is the real merge boundary. Configure these once per repository; an org admin can apply them to every kit repo with a ruleset.
 

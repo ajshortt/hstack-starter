@@ -3,7 +3,7 @@
 Cloudflare Workers on top of the hstack-kit core: Wrangler, D1, KV, R2, Queues, Durable Objects and crons. It is the kit's reference adapter, and [`examples/shortlinks`](../../examples/shortlinks) is its reference project. Every kit change must keep that example's checks and its 19-step verification smoke green.
 
 ```bash
-npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1 apply --target . --adapter workers --owners "@hugeinc/<team>" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --adapter workers --owners "@your-org/your-team" --write
 ```
 
 ## What it adds
@@ -93,7 +93,7 @@ Follow the core [existing-project guide](../../docs/adoption-existing-project.md
 Kit 0.1 always installed the Workers files. Since 0.2 they belong to this adapter, so the first apply with 0.2 needs the choice made explicitly:
 
 ```bash
-npx --yes git+https://origin.cursor.com/hugeinc/pstack-kit.git#v0.2.1 apply --target . --adapter workers --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.2.1 apply --target . --adapter workers --write
 ```
 
 Then, by hand:

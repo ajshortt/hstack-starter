@@ -61,7 +61,7 @@ To drive the app by hand, read `.cursor/skills/verify-react-counter/SKILL.md` an
 | Linear | Team `KIT`, project "hstack kit" |
 | Notion | "Agentic engineering / hstack kit" page |
 | Slack | `#eng-hstack-kit` |
-| Owners | @hugeinc/REPLACE-WITH-TEAM (placeholder, not a real team; also in `.github/CODEOWNERS`) |
+| Owners | @your-org/your-team (placeholder, not a real team; also in `.github/CODEOWNERS`) |
 
 ## Autonomy
 
