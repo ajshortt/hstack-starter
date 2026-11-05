@@ -4,7 +4,7 @@ Matt Pocock's skills shape and scope the work: interviewing until the plan is cl
 
 Source: [mattpocock/skills](https://github.com/mattpocock/skills), MIT License, Copyright (c) 2026 Matt Pocock. The full license text is in [LICENSE-mattpocock-skills](LICENSE-mattpocock-skills). Every file here that copies or adapts his text carries that notice. The upstream commit each skill came from is recorded in [upstream.lock.json](upstream.lock.json).
 
-Deck: "HStack starter + Matt Pocock's skills" (Huge, Figma), the brief this layout follows.
+Deck: "HStack starter + Matt Pocock's skills", the brief this layout follows.
 
 ## The flow
 
