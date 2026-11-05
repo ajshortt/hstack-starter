@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, writeFile
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { KitError, ciPaths, guessName, pendingActions, plan, render, sha256, slugify, write } from "../lib/kit.mjs";
+import { KIT_ROOT, KitError, ciPaths, guessName, pendingActions, plan, render, sha256, slugify, write } from "../lib/kit.mjs";
 
 function repo({ nested = false, files = { "package.json": JSON.stringify({ name: "@acme/api-worker" }) } } = {}) {
   const root = mkdtempSync(join(tmpdir(), "kit-test-"));
@@ -132,6 +132,67 @@ test("react and workers apply independently to sibling nested projects in one re
   assert.notEqual(apiWf.match(/name: plan \([^)]+\)/)[0], webWf.match(/name: plan \([^)]+\)/)[0]);
   assert.equal(pendingActions(plan(api)).length, 0);
   assert.equal(pendingActions(plan(web)).length, 0);
+});
+
+const SHAPING_SKILLS = ["grilling", "grill-me", "to-questionnaire", "to-tickets", "grill-with-docs", "to-spec", "wayfinder", "triage", "code-review"];
+
+test("--with shaping seeds the shaping skills and is remembered; without it they are absent", () => {
+  const { target } = repo();
+  const plain = apply(target);
+  assert.equal(plain.config.with, undefined);
+  assert.equal(JSON.parse(read(target, ".hstack-kit/config.json")).with, undefined);
+  assert.equal(JSON.parse(read(target, ".hstack-kit/lock.json")).with, undefined);
+  for (const name of [...SHAPING_SKILLS, "implement"]) assert.ok(!existsSync(join(target, ".cursor/skills", name)), name);
+
+  const opted = apply(target, { with: "shaping" });
+  assert.deepEqual(opted.config.with, ["shaping"]);
+  for (const name of SHAPING_SKILLS) {
+    const copied = read(target, ".cursor/skills", name, "SKILL.md");
+    assert.equal(copied, read(KIT_ROOT, "shaping", name, "SKILL.md"));
+    assert.match(copied, /Copyright \(c\) 2026 Matt Pocock/);
+    assert.match(copied, /LICENSE-mattpocock-skills/);
+  }
+  assert.ok(!existsSync(join(target, ".cursor/skills/implement")));
+  for (const name of ["README.md", "TODO.md", "LICENSE-mattpocock-skills", "upstream.lock.json", "pack.json"]) {
+    assert.ok(!existsSync(join(target, ".cursor/skills", name)), name);
+    assert.ok(!existsSync(join(target, name)), name);
+  }
+  const lock = JSON.parse(read(target, ".hstack-kit/lock.json"));
+  assert.deepEqual(lock.with, ["shaping"]);
+  assert.equal(lock.files[".cursor/skills/grilling/SKILL.md"].mode, "seed");
+  assert.equal(lock.files[".cursor/skills/code-review/SKILL.md"].mode, "seed");
+
+  writeFileSync(join(target, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
+  const again = apply(target);
+  assert.equal(read(target, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
+  assert.equal(kinds(again)[".cursor/skills/grilling/SKILL.md"], "seed-exists");
+  assert.deepEqual(again.config.with, ["shaping"]);
+  assert.equal(pendingActions(plan(target)).length, 0);
+
+  assert.throws(() => plan(target, { with: "none" }), /already applied and the kit never removes one/);
+  assert.throws(() => plan(target, { with: "nope" }), /Unknown pack "nope"/);
+  const fresh = repo().target;
+  assert.throws(() => plan(fresh, { with: true }), /--with needs a value/);
+  assert.throws(() => plan(fresh, { with: "none,shaping" }), /cannot be combined/);
+  assert.equal(plan(fresh, { with: "none" }).config.with, undefined);
+
+  const early = repo();
+  apply(early.target, { phase: "0", with: "shaping" });
+  assert.ok(existsSync(join(early.target, ".cursor/skills/grill-me/SKILL.md")));
+  assert.ok(!existsSync(join(early.target, "AGENTS.md")));
+  assert.ok(!existsSync(join(early.target, ".cursor/skills/implement")));
+
+  const both = repo();
+  apply(both.target, { adapter: "workers", with: "shaping" });
+  assert.ok(existsSync(join(both.target, ".cursor/rules/workers.mdc")));
+  assert.ok(existsSync(join(both.target, ".cursor/skills/to-tickets/SKILL.md")));
+  assert.match(read(both.target, "AGENTS.md"), /is a Cloudflare Worker/);
+  assert.deepEqual(JSON.parse(read(both.target, ".hstack-kit/config.json")).with, ["shaping"]);
+});
+
+test("the published package includes the shaping tree apply copies from", () => {
+  const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  assert.ok(pkg.files.includes("shaping"));
 });
 
 test("adapters are remembered and never dropped silently", () => {
@@ -323,13 +384,25 @@ test("the CLI is a dry run by default, status exits 1 when behind, and adapter w
   const bin = new URL("../bin/hstack-kit.mjs", import.meta.url).pathname;
   const dry = execFileSync("node", [bin, "apply", "--target", target], { encoding: "utf8" });
   assert.match(dry, /adapters: none \(core only\)/);
+  assert.match(dry, /with: none/);
   assert.match(dry, /Dry run\. \d+ pending/);
   assert.ok(!existsSync(join(target, "AGENTS.md")));
   assert.throws(() => execFileSync("node", [bin, "status", "--target", target], { stdio: "pipe" }), (e) => e.status === 1);
   execFileSync("node", [bin, "apply", "--target", target, "--write"]);
-  execFileSync("node", [bin, "status", "--target", target]);
+  assert.match(execFileSync("node", [bin, "status", "--target", target], { encoding: "utf8" }), /with: none/);
+  assert.ok(!existsSync(join(target, ".cursor/skills/grilling")));
   const withAdapter = execFileSync("node", [bin, "apply", "--target", target, "--adapter", "workers"], { encoding: "utf8" });
   assert.match(withAdapter, /warning: adapter workers expects package\.json/);
   assert.equal(execFileSync("node", [bin, "adapters"], { encoding: "utf8" }).trim(), "react\nworkers");
   assert.throws(() => execFileSync("node", [bin, "apply", "--target", target, "--adapter", "nope"], { stdio: "pipe" }), (e) => e.status === 2);
+  const dryShaping = execFileSync("node", [bin, "apply", "--target", target, "--with", "shaping"], { encoding: "utf8" });
+  assert.match(dryShaping, /with: shaping/);
+  assert.match(dryShaping, /Dry run/);
+  assert.ok(!existsSync(join(target, ".cursor/skills/grilling/SKILL.md")));
+  const wroteShaping = execFileSync("node", [bin, "apply", "--target", target, "--with", "shaping", "--write"], { encoding: "utf8" });
+  assert.match(wroteShaping, /with: shaping/);
+  assert.ok(existsSync(join(target, ".cursor/skills/grilling/SKILL.md")));
+  assert.ok(!existsSync(join(target, ".cursor/skills/implement")));
+  assert.match(execFileSync("node", [bin, "status", "--target", target], { encoding: "utf8" }), /with: shaping[\s\S]*Up to date/);
+  assert.throws(() => execFileSync("node", [bin, "apply", "--target", target, "--with"], { stdio: "pipe" }), (e) => e.status === 2);
 });

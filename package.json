@@ -16,6 +16,7 @@
     "lib",
     "core",
     "adapters",
+    "shaping",
     "vendor/pstack.lock.json"
   ],
   "scripts": {

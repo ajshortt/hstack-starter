@@ -14,7 +14,7 @@ npx --yes $KIT apply --target . --owners "@your-org/your-team"           # dry r
 npx --yes $KIT apply --target . --owners "@your-org/your-team" --write
 ```
 
-Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). `@your-org/your-team` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
+Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). Add `--with shaping` on the same command to copy the shaping skills (`grilling`, `grill-me`, and the rest of the adopted set) into `.cursor/skills/`. Leave it off and the project does not get them. The choice is remembered like an adapter. `@your-org/your-team` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
 
 ## 2. Tell the checks how to build and test
 

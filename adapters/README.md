@@ -2,6 +2,8 @@
 
 The core works in any repo without an adapter. Write one when several projects share a stack and would otherwise each hand-write the same launch config, checks and rules. An adapter is a directory here; projects opt in with `hstack-kit apply --adapter <name>`.
 
+Shaping skills are not an adapter and not a second plugin. A project opts in with `hstack-kit apply --with shaping`, which copies kit-owned skills from [`shaping/`](../shaping/README.md) into `.cursor/skills/`. The default is off.
+
 `workers/` and `react/` are the reference adapters. Read one alongside this page.
 
 ## What an adapter contributes

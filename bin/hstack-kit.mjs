@@ -4,7 +4,7 @@ import { KitError, availableAdapters, kitInfo, pendingActions, plan, write } fro
 const HELP = `hstack-kit: apply and update the team's pstack starter kit in any repo.
 
 Usage:
-  hstack-kit apply  --target <dir> [--adapter <name>|none] [--name <project>] [--phase 0|1|2] [--owners "@org/team"] [--write]
+  hstack-kit apply  --target <dir> [--adapter <name>|none] [--with shaping|none] [--name <project>] [--phase 0|1|2] [--owners "@org/team"] [--write]
   hstack-kit status --target <dir>          exit 1 when the project is behind the kit or has conflicts
   hstack-kit adapters                       list the stack adapters this kit version ships
   hstack-kit version
@@ -13,6 +13,10 @@ The core (agent rules, guard hook, verification skill, check runner, CI wrapper,
 plans) makes no assumption about your stack. --adapter adds one stack's rules, verification
 driver and checks; repeat it or pass a comma-separated list. The default is none. Adapters are
 remembered in .hstack-kit/config.json and are never removed by the kit.
+
+--with shaping copies the kit's shaping skills into .cursor/skills/ as seeds (written once,
+then yours). It is off by default, independent of --phase and --adapter, and not a plugin.
+The choice is remembered the same way as an adapter and is never removed by the kit.
 
 apply is a dry run unless you pass --write. It is safe to re-run: it creates missing files,
 updates kit-managed files you have not edited, never touches seeded files you own, and stages
@@ -57,7 +61,8 @@ function report(result, { json, wrote }) {
   }
   const kit = kitInfo();
   console.log(`hstack-kit ${kit.version} (pstack ${kit.pstackVersion}) -> ${result.target}`);
-  console.log(`project ${result.config.projectName}, phase ${result.config.phase}, adapters: ${result.config.adapters.join(", ") || "none (core only)"}${result.isNew ? " (new adoption)" : ""}\n`);
+  const packs = result.config.with?.length ? result.config.with.join(", ") : "none";
+  console.log(`project ${result.config.projectName}, phase ${result.config.phase}, adapters: ${result.config.adapters.join(", ") || "none (core only)"}, with: ${packs}${result.isNew ? " (new adoption)" : ""}\n`);
   for (const w of result.warnings) console.log(`  warning: ${w}`);
   if (result.warnings.length) console.log("");
   const width = Math.max(...Object.values(LABELS).map((l) => l.length));
