@@ -6,6 +6,8 @@ React front ends on top of the hstack-kit core: a Vite dev server, Vitest + Test
 npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --adapter react --owners "@your-org/your-team" --write
 ```
 
+To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. The `v0.3.0` tag ignores `--with`; the flag ships on the next tag. See the [kit README](../../README.md#apply-or-update).
+
 ## Package manager and framework
 
 Every command the adapter installs detects pnpm (`pnpm-lock.yaml`) or yarn (`yarn.lock`) and falls back to npm. There is no other branching: the dev server command (`vite`, via `npm run dev` / `pnpm dev` / `yarn dev`) and the build command (`vite build`) assume **Vite**. Create React App, Next.js and other frameworks are not covered yet; a Next.js project's dev server, routing and SSR differ enough (file-based routes, a different `page`-ready signal) that it needs its own driver and checks, not a flag on this one. Add a `next` adapter, modeled on this one, if that need shows up.

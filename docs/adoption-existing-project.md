@@ -2,7 +2,7 @@
 
 Existing projects adopt the kit in phases, so each step pays for itself before the next one adds process. Phases 0 to 2 install files and map to `hstack-kit apply --phase`. Phases 3 to 5 change how the team works and install nothing. Do not skip ahead: every later phase depends on the verification skill from phase 1.
 
-Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker); for React on Vite: [adapters/react](../adapters/react/README.md#existing-react-app)). The project only needs Node.js 22+ available to run the kit.
+Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker); for React on Vite: [adapters/react](../adapters/react/README.md#existing-react-app)). `--with shaping` is separate from the phase and from `--adapter`. Pass it to seed the shaping skills into `.cursor/skills/`; omit it and an existing project does not gain them. Once chosen, it is remembered in `.hstack-kit/config.json`. The project only needs Node.js 22+ available to run the kit.
 
 ## Phase 0: pilot (`--phase 0`)
 
@@ -67,7 +67,7 @@ Only after reviewing the phase 0 baseline against current numbers. Autonomy is s
 
 ## Keeping up to date
 
-Re-run `apply` with a newer kit tag whenever the kit releases. Your adapter choice is remembered in `.hstack-kit/config.json`. A project adopted with kit 0.1 (Workers-only) must pass `--adapter workers` or `--adapter none` on its first 0.2 apply; the migration steps are in the [workers adapter README](../adapters/workers/README.md#upgrading-a-project-adopted-with-kit-01). It updates managed files you have not edited, never touches seeded files, and stages conflicts in `.hstack-kit/incoming/`. `status` exits 1 while anything is pending, so a scheduled CI job or the engineer bot can flag drift.
+Re-run `apply` with a newer kit tag whenever the kit releases. Your adapter choice and any `--with shaping` opt-in are remembered in `.hstack-kit/config.json`. A project that has not opted in does not gain shaping skills on that update. A project adopted with kit 0.1 (Workers-only) must pass `--adapter workers` or `--adapter none` on its first 0.2 apply; the migration steps are in the [workers adapter README](../adapters/workers/README.md#upgrading-a-project-adopted-with-kit-01). It updates managed files you have not edited, never touches seeded files, and stages conflicts in `.hstack-kit/incoming/`. `status` exits 1 while anything is pending, so a scheduled CI job or the engineer bot can flag drift.
 
 ### Upgrading from pstack-kit (the kit's name before HStack)
 

@@ -47,7 +47,7 @@ For each approved Matt skill:
 
 1. Show the upstream change from our copy: `node scripts/upstreams.mjs diff --skill <name> --ref <sha>`.
 2. Apply it by hand to `shaping/<name>/SKILL.md`, keeping the hstack changes and the notice line under the front matter: `Copied from` or `Adapted from mattpocock/skills (<path> @ <short sha>). MIT License, Copyright (c) 2026 Matt Pocock. See shaping/LICENSE-mattpocock-skills.` Update the short sha.
-3. A new skill gets a `shaping/<name>/` folder, an entry in `shaping/upstream.lock.json` with its verdict, and a row in the division table in `shaping/README.md`.
+3. A new skill gets a `shaping/<name>/` folder, an entry in `shaping/upstream.lock.json` with its verdict, and a row in the division table in `shaping/README.md`. If projects should receive it, add the name to `shaping/pack.json` (the `--with shaping` pack). `implement` stays out of that list until decision 6 says otherwise.
 4. Update `shaping/TODO.md` and the inline `TODO(hstack):` markers it affects.
 5. Record it: `node scripts/upstreams.mjs record --ref <sha> --skill <name> [--skill <other>]`. This moves the reviewed-up-to commit, refreshes the named skills' upstream trees, and clears `review.approvedBy`. Run it with no `--skill` to mark a review where nothing was taken.
 6. Run `npm test` (which runs `upstreams.mjs check`).

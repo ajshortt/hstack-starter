@@ -6,6 +6,8 @@ Cloudflare Workers on top of the hstack-kit core: Wrangler, D1, KV, R2, Queues, 
 npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --adapter workers --owners "@your-org/your-team" --write
 ```
 
+To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. The `v0.3.0` tag ignores `--with`; the flag ships on the next tag. See the [kit README](../../README.md#apply-or-update).
+
 ## What it adds
 
 | Phase | Files | Purpose |

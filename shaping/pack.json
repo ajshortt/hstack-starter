@@ -1,0 +1,16 @@
+{
+  "$comment": "Opt-in pack for `hstack-kit apply --with shaping`. Each name is a directory under shaping/ copied as a seed to .cursor/skills/<name>/. implement is omitted (decision 6: kit reference only). README.md, TODO.md, LICENSE-mattpocock-skills, upstream.lock.json and this file are not skills and are not copied.",
+  "name": "shaping",
+  "description": "Shaping skills copied as seeds into .cursor/skills/",
+  "skills": [
+    "grilling",
+    "grill-me",
+    "to-questionnaire",
+    "to-tickets",
+    "grill-with-docs",
+    "to-spec",
+    "wayfinder",
+    "triage",
+    "code-review"
+  ]
+}

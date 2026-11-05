@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 hstack owns this step. It is listed under `shaping/` only because its shape came from Matt's `implement` and `implement-spec`. Use `/poteto-mode` for the build itself, per `AGENTS.md`.
 
-TODO(hstack): wire this skeleton to the kit's real paths and decide whether it ships through `hstack-kit apply` (and in which phase) or stays a reference here. See shaping/TODO.md.
+TODO(hstack): decision 7's `--with shaping` pack does not install this skill. Wire the skeleton to the kit's real paths and decide whether a later pack includes it or it stays a reference here (decision 6). See shaping/TODO.md.
 
 ## Pick the ticket (ordering pattern from implement-spec)
 

@@ -2,6 +2,10 @@
 
 Each release is a git tag `vX.Y.Z`. Projects move to it by changing the tag in their `apply` command.
 
+## Unreleased
+
+- **`--with shaping`**: opt-in on `apply` copies the shaping skills into `.cursor/skills/` as seeds (`grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `grill-with-docs`, `to-spec`, `wayfinder`, `triage`, `code-review`). Default off, so existing installs are unchanged. Recorded in `.hstack-kit/config.json` and `lock.json` as `"with": ["shaping"]`. Not a new phase and not a second plugin. `implement` stays a kit reference and is not copied. Version stays 0.3.0 until the next tag.
+
 ## 0.3.0
 
 - **Shaping layer** in [`shaping/`](shaping/README.md): kit-owned copies of Matt Pocock's shaping skills (`grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `code-review` as a pointer; `grill-with-docs`, `to-spec`, `wayfinder`, `triage` as adapted stubs; `implement` as the hstack skeleton). Documents who owns each step between shaping and the hstack loop. MIT, Copyright (c) 2026 Matt Pocock. Scaffolding only: `apply` does not install these yet; open decisions are in [`shaping/TODO.md`](shaping/TODO.md).
