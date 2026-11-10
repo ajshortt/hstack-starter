@@ -18,6 +18,6 @@ Each open item is also marked inline as `TODO(hstack):` in the file it affects. 
 
 | # | Decision | Choice |
 |---|---|---|
-| 7 | How the shaping skills reach projects | Opt-in `hstack-kit apply --with shaping`. The kit copies the adopted and adapted skills into `.cursor/skills/<name>/` as seeds and records `"with": ["shaping"]` in `.hstack-kit/config.json` and `lock.json`. Not a new phase (0–2 stay). Not a second plugin. Never install mattpocock/skills beside pstack. `implement` is not part of this pack (decision 6). |
+| 7 | How the shaping skills reach projects | Opt-in `hstack-kit apply --with shaping`. The kit copies the adopted and adapted skills into the git root `.cursor/skills/<name>/` as seeds and records `"with": ["shaping"]` in `.hstack-kit/config.json` and `lock.json`. Not a new phase (0–2 stay). Not a second plugin. Never install mattpocock/skills beside pstack. `implement` is not part of this pack (decision 6). |
 
 The open items do not change `hstack-kit apply`, the guard hook, the adapters or the bots until they are decided. Decision 7 is the exception: it is the `--with shaping` flag above, and it is off unless a project opts in.

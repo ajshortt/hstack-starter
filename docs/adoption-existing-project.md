@@ -2,14 +2,14 @@
 
 Existing projects adopt the kit in phases, so each step pays for itself before the next one adds process. Phases 0 to 2 install files and map to `hstack-kit apply --phase`. Phases 3 to 5 change how the team works and install nothing. Do not skip ahead: every later phase depends on the verification skill from phase 1.
 
-Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker); for React on Vite: [adapters/react](../adapters/react/README.md#existing-react-app)). `--with shaping` is separate from the phase and from `--adapter`. Pass it to seed the shaping skills into `.cursor/skills/`; omit it and an existing project does not gain them. Once chosen, it is remembered in `.hstack-kit/config.json`. The project only needs Node.js 22+ available to run the kit.
+Before you start, pick one owner for the project's adoption and one project to go first. A well-tested internal service is the best pilot. The steps are the same for any stack. If an adapter fits it, pass `--adapter <name>` on every `apply` and follow the adapter README's notes per phase (for Cloudflare Workers: [adapters/workers](../adapters/workers/README.md#existing-worker); for React on Vite: [adapters/react](../adapters/react/README.md#existing-react-app)). `--with shaping` is separate from the phase and from `--adapter`. Pass it to seed the shaping skills into the git root `.cursor/skills/`; omit it and an existing project does not gain them. Once chosen, it is remembered in `.hstack-kit/config.json`. The project only needs Node.js 22+ available to run the kit.
 
 ## Phase 0: pilot (`--phase 0`)
 
 Goal: try pstack on real work with the guardrails on and nothing else changed. Sign in to GitHub first ([README](../README.md#apply-or-update)).
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --phase 0 --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --phase 0 --write
 ```
 
 This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/settings.json` (plus the adapter's autonomy rule and guard rules, if you chose one). The build, CI and review process are untouched.
@@ -23,7 +23,7 @@ This adds `autonomy.mdc`, `pstack-models.mdc`, the hook guard and `.cursor/setti
 Goal: an agent can start the project from empty and prove a change on it.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --phase 1 --owners "@your-org/your-team" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --phase 1 --owners "@your-org/your-team" --write
 ```
 
 This adds the verification skill draft, the cloud-agent environment, the check runner and core checks, the CI wrapper, the PR template, CODEOWNERS and the diff-limit check (plus the adapter's driver, checks and config files). If the repo already has a CODEOWNERS file, the kit leaves it alone. `@your-org/your-team` is a placeholder, not a real team: pass the team's actual handle.
@@ -42,7 +42,7 @@ Exit when the `verify-smoke` check passes in CI on every PR and the engineer bot
 Goal: turn what reviewers keep repeating into checks.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --write
 ```
 
 This adds `AGENTS.md` (only if you do not have one), the rule-table and plan checks, and `docs/plans/` (plus the adapter's stack rules and lint preset).
@@ -78,3 +78,9 @@ After that apply, in the same PR:
 1. Move `.pstack-kit/checks/local.json`, if you have one, to `.hstack-kit/checks/local.json`.
 2. Delete `.cursor/hooks/pstack-kit-guard.mjs`, `.cursor/hooks/pstack-kit-guard.rules/`, `.github/workflows/pstack-kit*.yml` and the rest of `.pstack-kit/`.
 3. Re-run `apply --write` to drop the deleted orphans from the lock (`status` reports them as `forget` until you do). The `check (<id>)` job names are unchanged, so required status checks keep working.
+
+### Monorepos that applied v0.3.1 with a nested target
+
+v0.3.1 installed `--with shaping` skills under the target directory. In a monorepo, `apply --target apps/web --with shaping` wrote `apps/web/.cursor/skills/`. Cursor reads project skills from the git root, so those copies never registered. v0.3.2 writes them once at the git root `.cursor/skills/`, the same place as `hooks.json`. A project whose target is already the git root already has them in the right place.
+
+Re-run `apply --write` on `#v0.3.2`. The kit creates the root copies and does not delete or overwrite the nested ones. While a nested file is still there, its lock entry stays and `apply` names that path with a note that you can delete the old copy. Delete the old `apps/<name>/.cursor/skills/<skill>/` directories when nothing else uses them, then re-run `apply --write`. Those entries drop out of `.hstack-kit/lock.json` (`status` reports them as `forget` until you do). A second target in the same repo sees the root seeds and does not write another copy.

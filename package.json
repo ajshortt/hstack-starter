@@ -1,6 +1,6 @@
 {
   "name": "hstack-kit",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "private": true,
   "description": "Starter kit for adopting pstack (pinned at 0.15.36) in any repo: a stack-agnostic core plus optional stack adapters.",
   "type": "module",
