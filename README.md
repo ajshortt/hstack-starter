@@ -56,17 +56,17 @@ That covers HTTPS (`https://github.com/ajshortt/hstack-starter.git`). To use SSH
 From the project root, or from the project's directory in a monorepo:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.0
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.2
 npx --yes $KIT apply --target .                          # core only, dry run
 npx --yes $KIT apply --target . --write                  # writes files, .hstack-kit/config.json and lock.json
 npx --yes $KIT apply --target . --adapter workers --write  # core plus the workers adapter
 npx --yes $KIT apply --target . --adapter react --write     # core plus the react adapter
-npx --yes $KIT apply --target . --with shaping --write      # seeds shaping skills; needs the next tag after v0.3.0
+npx --yes $KIT apply --target . --with shaping --write      # seeds shaping skills at the git root .cursor/skills/
 npx --yes $KIT status --target .                         # exit 1 when the project is behind the kit
 npx --yes $KIT adapters                                  # adapters this kit version ships
 ```
 
-`#v0.3.0` is the current tagged release: the stack-agnostic core, the workers and react adapters, the [shaping layer](shaping/README.md) and the [upstream update routine](docs/upstream-updates.md). `--with shaping` is in this tree and ships on the next tag. The `v0.3.0` CLI ignores `--with`, so an install pinned at `#v0.3.0` does not copy the skills. `v0.2.1` added the monorepo install and CI fixes. `v0.2.0` is the first core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
+`#v0.3.2` is the current tagged release. `--with shaping` copies skills into the git root `.cursor/skills/`. `v0.3.1` added the flag; that version wrote the skills under the apply target, so a monorepo install landed them in `apps/<name>/.cursor/skills/` (see the [upgrade note](docs/adoption-existing-project.md#monorepos-that-applied-v031-with-a-nested-target)). `v0.3.0` is the stack-agnostic core, the workers and react adapters, the [shaping layer](shaping/README.md) and the [upstream update routine](docs/upstream-updates.md). The `v0.3.0` CLI ignores `--with`. `v0.2.1` added the monorepo install and CI fixes. `v0.2.0` is the first core-plus-adapters tag. `v0.1.0` is the earlier Workers-only kit. A newer kit release is a new tag; projects change the tag in this command. Projects applied before the kit was renamed from pstack-kit follow the [upgrade note](docs/adoption-existing-project.md#upgrading-from-pstack-kit-the-kits-name-before-hstack).
 
 `--owners` sets the CODEOWNERS team. `@your-org/your-team` is a placeholder, not a real team. Pass the team's actual handle, or code owner review requests nobody. See [CODEOWNERS](.github/CODEOWNERS).
 
@@ -82,13 +82,13 @@ npx --yes $KIT adapters                                  # adapters this kit ver
 Flags:
 
 - `--adapter <name>|none`: repeat it or pass a comma-separated list. The choice is saved in `.hstack-kit/config.json`, and later runs reuse it. The kit never removes an adapter: dropping one is a hand edit. A project adopted with 0.1 must pass `--adapter workers` or `--adapter none` once.
-- `--with shaping`: copy the shaping skills into `.cursor/skills/` as seeds (`grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `grill-with-docs`, `to-spec`, `wayfinder`, `triage`, `code-review`). Off by default. The choice is saved next to the adapters as `"with": ["shaping"]`, and later runs reuse it. The kit never removes it: dropping it is a hand edit of `.hstack-kit/config.json` and the skill files. It is not a phase and not a plugin. `implement` stays in the kit as a reference and is not copied. `status` prints `with: shaping` or `with: none`.
+- `--with shaping`: copy the shaping skills into the git root `.cursor/skills/` as seeds (`grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `grill-with-docs`, `to-spec`, `wayfinder`, `triage`, `code-review`). Off by default. In a monorepo they are not nested under the target. The choice is saved next to the adapters as `"with": ["shaping"]`, and later runs reuse it. The kit never removes it: dropping it is a hand edit of `.hstack-kit/config.json` and the skill files. It is not a phase and not a plugin. `implement` stays in the kit as a reference and is not copied. `status` prints `with: shaping` or `with: none`.
 - `--name <project>`: defaults to the name in `package.json`, `pyproject.toml` or `Cargo.toml`, else the directory name.
 - `--phase 0|1|2`: how much of the kit to install (see below). It never goes down.
 - `--owners "@your-org/your-team"`: the CODEOWNERS team. Pass the team's actual handle.
 - `--json`: machine-readable output.
 
-The kit detects the git root. In a monorepo, the hooks, `.github/` files and cloud-agent environment go to the git root. Each target gets a workflow file `hstack-kit-<name>.yml` whose workflow name is `hstack-kit-<name>` and whose job names include the project, so two targets do not share a check name. Path filters cover that project, the workflow file, the root `package.json`, lockfiles, `turbo.json` and `tsconfig*`, plus `extraPaths` from `.hstack-kit/config.json` (for example `"packages/**"`).
+The kit detects the git root. In a monorepo, the hooks, `.github/` files, the cloud-agent environment and `--with shaping` skills (`.cursor/skills/`) go to the git root. Each target gets a workflow file `hstack-kit-<name>.yml` whose workflow name is `hstack-kit-<name>` and whose job names include the project, so two targets do not share a check name. Path filters cover that project, the workflow file, the root `package.json`, lockfiles, `turbo.json` and `tsconfig*`, plus `extraPaths` from `.hstack-kit/config.json` (for example `"packages/**"`).
 
 ### Phases
 
@@ -117,7 +117,7 @@ Every adopting project gets the same engineer bot and PM bot from the templates 
 
 ## Shaping layer (Matt Pocock's skills)
 
-Before the hstack loop (digest, verify, scope, build, validate), a small set of [Matt Pocock's skills](https://github.com/mattpocock/skills) shapes the work: `grilling` and `grill-me` to agree on a plan, `to-spec` and `to-tickets` to slice it into tickets of about 400 lines that each name a verify journey, plus `to-questionnaire`, `grill-with-docs`, `wayfinder` and `triage`. The kit owns these copies in [`shaping/`](shaping/README.md), which documents who owns each step and what was adopted, adapted, kept as a pattern or dropped. Never install Matt's whole plugin beside pstack: it duplicates TDD, review and teach. Pass `--with shaping` on `apply` to copy those skills into `.cursor/skills/` as seeds. The default is off, so an existing project does not gain them until it opts in. `implement` stays in the kit as a reference and is not copied. Skill names stay the upstream names. Open decisions are in [`shaping/TODO.md`](shaping/TODO.md). Matt's skills are MIT-licensed, Copyright (c) 2026 Matt Pocock.
+Before the hstack loop (digest, verify, scope, build, validate), a small set of [Matt Pocock's skills](https://github.com/mattpocock/skills) shapes the work: `grilling` and `grill-me` to agree on a plan, `to-spec` and `to-tickets` to slice it into tickets of about 400 lines that each name a verify journey, plus `to-questionnaire`, `grill-with-docs`, `wayfinder` and `triage`. The kit owns these copies in [`shaping/`](shaping/README.md), which documents who owns each step and what was adopted, adapted, kept as a pattern or dropped. Never install Matt's whole plugin beside pstack: it duplicates TDD, review and teach. Pass `--with shaping` on `apply` to copy those skills into the git root `.cursor/skills/` as seeds. The default is off, so an existing project does not gain them until it opts in. `implement` stays in the kit as a reference and is not copied. Skill names stay the upstream names. Open decisions are in [`shaping/TODO.md`](shaping/TODO.md). Matt's skills are MIT-licensed, Copyright (c) 2026 Matt Pocock.
 
 ## Repository layout
 
@@ -151,7 +151,7 @@ examples/react-counter/       The react adapter's reference project: Vite, React
 .github/workflows/hstack-kit-react-counter.yml  The kit's CI wrapper, applied to the react-counter example
 docs/                         Adoption, CI, upgrades, models, engineer bot, review, GitHub settings
 bots/                         Grok bot templates: engineer and PM, filled per project by dr eggbot
-shaping/                      Kit-owned shaping skills. `apply --with shaping` seeds them into `.cursor/skills/`; default off. `implement/` is reference only. `pack.json` is the install list
+shaping/                      Kit-owned shaping skills. `apply --with shaping` seeds them into the git root `.cursor/skills/`; default off. `implement/` is reference only. `pack.json` is the install list
 test/                         node:test suites: CLI, core and adapter scripts, core-only end to end on a Python repo
 ```
 

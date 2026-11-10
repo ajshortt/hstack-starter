@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -161,6 +161,7 @@ test("--with shaping seeds the shaping skills and is remembered; without it they
   assert.deepEqual(lock.with, ["shaping"]);
   assert.equal(lock.files[".cursor/skills/grilling/SKILL.md"].mode, "seed");
   assert.equal(lock.files[".cursor/skills/code-review/SKILL.md"].mode, "seed");
+  assert.equal(opted.root, target);
 
   writeFileSync(join(target, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
   const again = apply(target);
@@ -193,6 +194,101 @@ test("--with shaping seeds the shaping skills and is remembered; without it they
 test("the published package includes the shaping tree apply copies from", () => {
   const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   assert.ok(pkg.files.includes("shaping"));
+});
+
+test("two targets under one git root share shaping seeds at the root and do not overwrite them", () => {
+  const root = mkdtempSync(join(tmpdir(), "kit-test-"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  const api = join(root, "apps", "api");
+  const web = join(root, "apps", "web");
+  mkdirSync(api, { recursive: true });
+  mkdirSync(web, { recursive: true });
+  writeFileSync(join(api, "package.json"), JSON.stringify({ name: "api" }));
+  writeFileSync(join(web, "package.json"), JSON.stringify({ name: "web" }));
+
+  const first = apply(api, { with: "shaping" });
+  assert.equal(kinds(first)[".cursor/skills/grilling/SKILL.md"], "create");
+  assert.equal(JSON.parse(read(api, ".hstack-kit/lock.json")).files[".cursor/skills/grilling/SKILL.md"].mode, "seed");
+  for (const name of SHAPING_SKILLS) {
+    assert.equal(read(root, ".cursor/skills", name, "SKILL.md"), read(KIT_ROOT, "shaping", name, "SKILL.md"));
+    assert.ok(!existsSync(join(api, ".cursor/skills", name)), name);
+  }
+  assert.ok(existsSync(join(api, ".cursor/skills/verify-api/SKILL.md")));
+  assert.ok(!existsSync(join(root, ".cursor/skills/verify-api")));
+
+  writeFileSync(join(root, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
+  const second = apply(web, { with: "shaping" });
+  assert.equal(kinds(second)[".cursor/skills/grilling/SKILL.md"], "seed-exists");
+  assert.equal(read(root, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
+  for (const name of SHAPING_SKILLS) assert.ok(!existsSync(join(web, ".cursor/skills", name)), name);
+  assert.equal(JSON.parse(read(web, ".hstack-kit/lock.json")).files["apps/web/.cursor/skills/grilling/SKILL.md"], undefined);
+  assert.ok(!second.actions.some((a) => a.path.startsWith(".cursor/skills/") && a.kind === "conflict"));
+
+  apply(api);
+  apply(web);
+  assert.equal(pendingActions(plan(api)).length, 0, JSON.stringify(kinds(plan(api))));
+  assert.equal(pendingActions(plan(web)).length, 0, JSON.stringify(kinds(plan(web))));
+  assert.equal(kinds(plan(api))[".cursor/skills/grilling/SKILL.md"], "seed-exists");
+  assert.equal(kinds(plan(web))[".cursor/skills/grilling/SKILL.md"], "seed-exists");
+  assert.equal(read(root, ".cursor/skills/grilling/SKILL.md"), "project edit\n");
+  assert.equal(JSON.parse(read(api, ".hstack-kit/lock.json")).files[".cursor/skills/grilling/SKILL.md"].mode, "seed");
+});
+
+test("a nested v0.3.1 shaping install keeps stale seed lock entries until the old files are gone", () => {
+  const root = mkdtempSync(join(tmpdir(), "kit-test-"));
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  const web = join(root, "apps", "web");
+  mkdirSync(web, { recursive: true });
+  writeFileSync(join(web, "package.json"), JSON.stringify({ name: "web" }));
+  apply(web);
+
+  const config = JSON.parse(read(web, ".hstack-kit/config.json"));
+  config.with = ["shaping"];
+  writeFileSync(join(web, ".hstack-kit/config.json"), `${JSON.stringify(config, null, 2)}\n`);
+  const lock = JSON.parse(read(web, ".hstack-kit/lock.json"));
+  lock.kit = "0.3.1";
+  lock.with = ["shaping"];
+  for (const name of SHAPING_SKILLS) {
+    const rel = `apps/web/.cursor/skills/${name}/SKILL.md`;
+    mkdirSync(join(root, "apps/web/.cursor/skills", name), { recursive: true });
+    writeFileSync(join(root, rel), `old ${name}\n`);
+    lock.files[rel] = { mode: "seed" };
+  }
+  writeFileSync(join(web, ".hstack-kit/lock.json"), `${JSON.stringify(lock, null, 2)}\n`);
+
+  const bin = new URL("../bin/hstack-kit.mjs", import.meta.url).pathname;
+  const dry = execFileSync("node", [bin, "apply", "--target", web], { encoding: "utf8" });
+  assert.match(dry, /apps\/web\/\.cursor\/skills\/grilling\/SKILL\.md/);
+  assert.match(dry, /you can delete this old copy/);
+  assert.match(dry, /The kit never deletes files/);
+  assert.equal(read(root, "apps/web/.cursor/skills/grilling/SKILL.md"), "old grilling\n");
+  assert.ok(!existsSync(join(root, ".cursor/skills/grilling/SKILL.md")));
+
+  const migrated = apply(web);
+  for (const name of SHAPING_SKILLS) {
+    assert.equal(kinds(migrated)[`.cursor/skills/${name}/SKILL.md`], "create");
+    assert.equal(read(root, ".cursor/skills", name, "SKILL.md"), read(KIT_ROOT, "shaping", name, "SKILL.md"));
+    assert.equal(read(root, "apps/web/.cursor/skills", name, "SKILL.md"), `old ${name}\n`);
+    assert.equal(kinds(migrated)[`apps/web/.cursor/skills/${name}/SKILL.md`], "orphan");
+  }
+  const lockAfter = JSON.parse(read(web, ".hstack-kit/lock.json"));
+  assert.equal(lockAfter.files[".cursor/skills/grilling/SKILL.md"].mode, "seed");
+  assert.equal(lockAfter.files["apps/web/.cursor/skills/grilling/SKILL.md"].mode, "seed");
+  assert.match(migrated.actions.find((a) => a.path === "apps/web/.cursor/skills/grilling/SKILL.md").detail, /you can delete this old copy/);
+
+  for (const name of SHAPING_SKILLS) rmSync(join(root, "apps/web/.cursor/skills", name), { recursive: true });
+  const forgotten = plan(web);
+  for (const name of SHAPING_SKILLS) assert.equal(kinds(forgotten)[`apps/web/.cursor/skills/${name}/SKILL.md`], "forget");
+  assert.throws(() => execFileSync("node", [bin, "status", "--target", web], { stdio: "pipe" }), (e) => e.status === 1);
+  apply(web);
+  const lockFinal = JSON.parse(read(web, ".hstack-kit/lock.json"));
+  for (const name of SHAPING_SKILLS) {
+    assert.equal(lockFinal.files[`apps/web/.cursor/skills/${name}/SKILL.md`], undefined);
+    assert.equal(lockFinal.files[`.cursor/skills/${name}/SKILL.md`].mode, "seed");
+    assert.equal(read(root, ".cursor/skills", name, "SKILL.md"), read(KIT_ROOT, "shaping", name, "SKILL.md"));
+    assert.ok(!existsSync(join(root, "apps/web/.cursor/skills", name, "SKILL.md")));
+  }
+  assert.equal(pendingActions(plan(web)).length, 0);
 });
 
 test("adapters are remembered and never dropped silently", () => {

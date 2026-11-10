@@ -9,12 +9,12 @@ You need Node.js 22+ on the machines and CI runners that run the kit, and a POSI
 Sign in to GitHub once, as in the [README](../README.md#apply-or-update), then from the project root:
 
 ```bash
-KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.0
+KIT=git+https://github.com/ajshortt/hstack-starter.git#v0.3.2
 npx --yes $KIT apply --target . --owners "@your-org/your-team"           # dry run
 npx --yes $KIT apply --target . --owners "@your-org/your-team" --write
 ```
 
-Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). Add `--with shaping` on the same command to copy the shaping skills (`grilling`, `grill-me`, and the rest of the adopted set) into `.cursor/skills/`. Leave it off and the project does not get them. The choice is remembered like an adapter. `@your-org/your-team` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
+Add `--adapter <name>` if one fits your stack (`npx --yes $KIT adapters` lists them). Add `--with shaping` on the same command to copy the shaping skills (`grilling`, `grill-me`, and the rest of the adopted set) into the git root `.cursor/skills/`. Leave it off and the project does not get them. The choice is remembered like an adapter. `@your-org/your-team` is a placeholder, not a real team. Put the team's actual handle there before you turn on required code owner review.
 
 ## 2. Tell the checks how to build and test
 

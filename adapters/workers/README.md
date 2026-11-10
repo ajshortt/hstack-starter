@@ -3,10 +3,10 @@
 Cloudflare Workers on top of the hstack-kit core: Wrangler, D1, KV, R2, Queues, Durable Objects and crons. It is the kit's reference adapter, and [`examples/shortlinks`](../../examples/shortlinks) is its reference project. Every kit change must keep that example's checks and its 19-step verification smoke green.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --adapter workers --owners "@your-org/your-team" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --adapter workers --owners "@your-org/your-team" --write
 ```
 
-To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. The `v0.3.0` tag ignores `--with`; the flag ships on the next tag. See the [kit README](../../README.md#apply-or-update).
+To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. Skills land in the git root `.cursor/skills/`. See the [kit README](../../README.md#apply-or-update).
 
 ## What it adds
 
@@ -95,7 +95,7 @@ Follow the core [existing-project guide](../../docs/adoption-existing-project.md
 Kit 0.1 always installed the Workers files. Since 0.2 they belong to this adapter, so the first apply with 0.2 needs the choice made explicitly:
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --adapter workers --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --adapter workers --write
 ```
 
 Then, by hand:

@@ -3,10 +3,10 @@
 React front ends on top of the hstack-kit core: a Vite dev server, Vitest + Testing Library component tests, and a Playwright-backed verification driver that proves routes render with a clean console. [`examples/react-counter`](../../examples/react-counter) is its reference project. Every kit change must keep that example's checks and its verification smoke green.
 
 ```bash
-npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.0 apply --target . --adapter react --owners "@your-org/your-team" --write
+npx --yes git+https://github.com/ajshortt/hstack-starter.git#v0.3.2 apply --target . --adapter react --owners "@your-org/your-team" --write
 ```
 
-To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. The `v0.3.0` tag ignores `--with`; the flag ships on the next tag. See the [kit README](../../README.md#apply-or-update).
+To also seed the shaping skills, add `--with shaping`. It is independent of this adapter and off by default. Skills land in the git root `.cursor/skills/`. See the [kit README](../../README.md#apply-or-update).
 
 ## Package manager and framework
 

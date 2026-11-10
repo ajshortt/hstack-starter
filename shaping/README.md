@@ -53,7 +53,9 @@ hstack owns, and this folder never redefines: digest, verify, scope, build, vali
 
 ## Status
 
-Projects opt in. `hstack-kit apply --with shaping` copies the adopted and adapted skills into `.cursor/skills/<skill-name>/` as seeds: written once, then the project may edit them. The skills are `grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `grill-with-docs`, `to-spec`, `wayfinder`, `triage` and `code-review`. The default is off. An apply without the flag does not install them, and an existing project does not gain them until someone passes the flag.
+Projects opt in. `hstack-kit apply --with shaping` copies the adopted and adapted skills into the git root `.cursor/skills/<skill-name>/` as seeds: written once, then the project may edit them. In a monorepo that is the repository root, shared by every target, not a directory under the target. The skills are `grilling`, `grill-me`, `to-questionnaire`, `to-tickets`, `grill-with-docs`, `to-spec`, `wayfinder`, `triage` and `code-review`. The default is off. An apply without the flag does not install them, and an existing project does not gain them until someone passes the flag.
+
+A monorepo that applied v0.3.1 with `--target apps/<name>` still has the nested copy. Re-apply with v0.3.2 and follow the [upgrade note](../docs/adoption-existing-project.md#monorepos-that-applied-v031-with-a-nested-target).
 
 The choice is saved in `.hstack-kit/config.json` as `"with": ["shaping"]` and copied into `.hstack-kit/lock.json`, the same way an adapter is remembered. Later applies add any new seed the pack ships. They do not overwrite a skill the project already has. `status` prints `with: shaping` or `with: none`.
 

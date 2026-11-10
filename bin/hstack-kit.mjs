@@ -14,8 +14,9 @@ plans) makes no assumption about your stack. --adapter adds one stack's rules, v
 driver and checks; repeat it or pass a comma-separated list. The default is none. Adapters are
 remembered in .hstack-kit/config.json and are never removed by the kit.
 
---with shaping copies the kit's shaping skills into .cursor/skills/ as seeds (written once,
-then yours). It is off by default, independent of --phase and --adapter, and not a plugin.
+--with shaping copies the kit's shaping skills into the git root .cursor/skills/ as seeds
+(written once, then yours). In a monorepo that is the repository root, not the target
+directory. It is off by default, independent of --phase and --adapter, and not a plugin.
 The choice is remembered the same way as an adapter and is never removed by the kit.
 
 apply is a dry run unless you pass --write. It is safe to re-run: it creates missing files,
